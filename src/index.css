@@ -1,0 +1,469 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* StoryVibe Dark Theme */
+    --background: 0 0% 4%;
+    --foreground: 240 5% 84%;
+    --card: 240 5% 8%;
+    --card-foreground: 240 5% 84%;
+    --popover: 240 5% 8%;
+    --popover-foreground: 240 5% 84%;
+    --primary: 22 100% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 3% 17%;
+    --secondary-foreground: 240 5% 84%;
+    --muted: 240 3% 17%;
+    --muted-foreground: 240 3% 42%;
+    --accent: 240 3% 17%;
+    --accent-foreground: 240 5% 84%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 3% 17%;
+    --input: 240 3% 17%;
+    --ring: 22 100% 62%;
+    --radius: 0.75rem;
+
+    /* StoryVibe Design Tokens */
+    --sv-bg: #0A0A0B;
+    --sv-card: #141415;
+    --sv-card-hover: #1E1E20;
+    --sv-border: #2A2A2C;
+    --sv-border-hover: #3A3A3C;
+    --sv-text: #D4D4D8;
+    --sv-text-muted: #9A9A9E;
+    --sv-text-dim: #6B6B6F;
+    --sv-orange: #FF843D;
+    --sv-orange-light: #FFA465;
+    --sv-orange-warm: #FFC38A;
+    --sv-orange-dim: rgba(255, 132, 61, 0.06);
+  }
+
+  * {
+    @apply border-[#2A2A2C];
+  }
+
+  body {
+    @apply bg-[#0A0A0B] text-[#D4D4D8] antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Scrollbar dark */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0A0A0B;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2A2A2C;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3A3A3C;
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(255, 132, 61, 0.3);
+    color: #FFFFFF;
+  }
+}
+
+/* ==========================================
+   STORYVIBE AMBIENT LIGHTING SYSTEM
+   Inspired by Gemini AI Visual Design
+   ========================================== */
+
+@layer utilities {
+
+  /* ── 1. AMBIENT GLOW ORBS ──
+     Large, diffused radial gradients that create
+     a "warm studio lighting" atmosphere.
+     Extremely low opacity — these are felt, not seen. */
+
+  .sv-ambient-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .sv-ambient-glow::before,
+  .sv-ambient-glow::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    animation: sv-ambient-drift 20s ease-in-out infinite alternate;
+  }
+
+  /* Top-right warm light */
+  .sv-ambient-glow::before {
+    width: 600px;
+    height: 600px;
+    top: -200px;
+    right: -100px;
+    background: radial-gradient(circle, rgba(255, 132, 61, 0.4) 0%, rgba(255, 164, 101, 0.15) 40%, transparent 70%);
+  }
+
+  /* Bottom-left subtle glow */
+  .sv-ambient-glow::after {
+    width: 500px;
+    height: 500px;
+    bottom: -150px;
+    left: -100px;
+    background: radial-gradient(circle, rgba(255, 99, 21, 0.25) 0%, rgba(255, 132, 61, 0.08) 45%, transparent 70%);
+    animation-delay: -10s;
+    animation-duration: 25s;
+  }
+
+  /* Center-top ethereal highlight (additional orb via child) */
+  .sv-glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+  }
+
+  .sv-glow-orb-orange {
+    background: radial-gradient(circle, rgba(255, 132, 61, 0.25) 0%, rgba(255, 132, 61, 0.08) 35%, transparent 65%);
+  }
+
+  .sv-glow-orb-warm {
+    background: radial-gradient(circle, rgba(255, 195, 138, 0.15) 0%, rgba(255, 164, 101, 0.06) 40%, transparent 70%);
+  }
+
+  /* ── 2. DIRECTIONAL GRADIENT RAYS ──
+     Sharp leading edge → diffused tail
+     Creates cinematic "light leak" effect */
+
+  .sv-light-ray {
+    position: absolute;
+    pointer-events: none;
+    filter: blur(60px);
+    opacity: 0.08;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 132, 61, 0.6) 0%,
+      rgba(255, 132, 61, 0.2) 30%,
+      transparent 70%
+    );
+    animation: sv-ray-shift 15s ease-in-out infinite alternate;
+  }
+
+  /* ── 3. ANIMATED GRADIENT MESH ──
+     Slowly morphing gradient background */
+
+  .sv-gradient-mesh {
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 40%, rgba(255, 132, 61, 0.08), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(255, 99, 21, 0.05), transparent),
+      radial-gradient(ellipse 50% 60% at 50% 80%, rgba(255, 164, 101, 0.04), transparent);
+    animation: sv-mesh-shift 18s ease-in-out infinite alternate;
+  }
+
+  /* ── 4. GRADIENT TEXT ── */
+
+  .sv-gradient-text {
+    background: linear-gradient(135deg, #FF843D 0%, #FFA465 50%, #FFC38A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .sv-gradient-text-glow {
+    background: linear-gradient(135deg, #FF843D 0%, #FFA465 50%, #FFC38A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(255, 132, 61, 0.3));
+  }
+
+  /* ── 5. CARD SHEEN ──
+     Subtle gradient reflection on cards */
+
+  .sv-card-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sv-card-sheen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 132, 61, 0.03) 0%,
+      transparent 40%,
+      transparent 60%,
+      rgba(255, 164, 101, 0.02) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+
+  .sv-card-sheen:hover::before {
+    opacity: 1;
+  }
+
+  /* ── 6. BUTTON SYSTEM ── */
+
+  .sv-btn-primary {
+    background: linear-gradient(135deg, #FF843D, #FFA465);
+    color: #FFFFFF;
+    border-radius: 20px;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sv-btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+    background-size: 200% 200%;
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+
+  .sv-btn-primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 20px rgba(255, 132, 61, 0.4), 0 0 60px rgba(255, 132, 61, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .sv-btn-primary:hover::before {
+    opacity: 1;
+    animation: sv-sheen-sweep 600ms ease-out;
+  }
+
+  .sv-btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  /* ── 7. GLOW EFFECTS ── */
+
+  .sv-glow {
+    box-shadow: 0 0 12px rgba(255, 132, 61, 0.3);
+  }
+  .sv-glow-sm {
+    box-shadow: 0 0 6px rgba(255, 132, 61, 0.2);
+  }
+  .sv-glow-lg {
+    box-shadow: 0 0 24px rgba(255, 132, 61, 0.25);
+  }
+  .sv-glow-xl {
+    box-shadow: 0 0 40px rgba(255, 132, 61, 0.15), 0 0 80px rgba(255, 132, 61, 0.05);
+  }
+
+  /* ── 8. CARD HOVER ── */
+
+  .sv-card-hover {
+    transition: all 230ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sv-card-hover:hover {
+    border-color: #3A3A3C;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .sv-option-hover {
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sv-option-hover:hover {
+    border-color: #FF843D;
+    box-shadow: 0 0 12px rgba(255, 132, 61, 0.15);
+  }
+
+  /* ── 9. ANIMATIONS ── */
+
+  /* Fade in up */
+  .sv-fade-in {
+    animation: sv-fade-in-up 300ms cubic-bezier(0, 0, 0.2, 1);
+  }
+  @keyframes sv-fade-in-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Shimmer for progress */
+  .sv-shimmer {
+    background: linear-gradient(90deg, #FF843D 0%, #FFA465 50%, #FF843D 100%);
+    background-size: 200% 100%;
+    animation: sv-shimmer 1.5s ease-in-out infinite;
+  }
+  @keyframes sv-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Progress bar glow */
+  .sv-progress-glow {
+    box-shadow: 0 0 8px rgba(255, 132, 61, 0.4);
+  }
+
+  /* Ambient drift — slow orb movement */
+  @keyframes sv-ambient-drift {
+    0% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.12;
+    }
+    33% {
+      transform: translate(30px, -20px) scale(1.05);
+      opacity: 0.15;
+    }
+    66% {
+      transform: translate(-20px, 15px) scale(0.95);
+      opacity: 0.1;
+    }
+    100% {
+      transform: translate(10px, -10px) scale(1.02);
+      opacity: 0.14;
+    }
+  }
+
+  /* Light ray shift */
+  @keyframes sv-ray-shift {
+    0% {
+      transform: translateX(0) rotate(0deg);
+      opacity: 0.06;
+    }
+    50% {
+      transform: translateX(20px) rotate(2deg);
+      opacity: 0.1;
+    }
+    100% {
+      transform: translateX(-10px) rotate(-1deg);
+      opacity: 0.08;
+    }
+  }
+
+  /* Gradient mesh shift */
+  @keyframes sv-mesh-shift {
+    0% {
+      background-position: 0% 0%, 100% 0%, 50% 100%;
+    }
+    100% {
+      background-position: 30% 20%, 70% 30%, 40% 80%;
+    }
+  }
+
+  /* Button sheen sweep */
+  @keyframes sv-sheen-sweep {
+    0% { background-position: 200% 200%; }
+    100% { background-position: -100% -100%; }
+  }
+
+  /* Breathing pulse — subtle glow rhythm */
+  .sv-breathe {
+    animation: sv-breathe 4s ease-in-out infinite;
+  }
+  @keyframes sv-breathe {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(1);
+      filter: blur(80px);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.08);
+      filter: blur(90px);
+    }
+  }
+
+  /* Fast pulse for "thinking" state */
+  .sv-pulse-thinking {
+    animation: sv-pulse-thinking 2s ease-in-out infinite;
+  }
+  @keyframes sv-pulse-thinking {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.15);
+    }
+  }
+
+  /* Cinematic light leak */
+  .sv-light-leak {
+    position: absolute;
+    pointer-events: none;
+    top: -50%;
+    right: -20%;
+    width: 80%;
+    height: 150%;
+    background: conic-gradient(
+      from 180deg at 50% 50%,
+      transparent 0deg,
+      rgba(255, 132, 61, 0.03) 60deg,
+      rgba(255, 164, 101, 0.06) 120deg,
+      transparent 180deg
+    );
+    filter: blur(80px);
+    animation: sv-leak-rotate 30s linear infinite;
+    opacity: 0.5;
+  }
+
+  @keyframes sv-leak-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── 10. INPUT FOCUS ── */
+
+  .sv-input-focus:focus {
+    border-color: #FF843D;
+    box-shadow: 0 0 0 3px rgba(255, 132, 61, 0.15);
+  }
+
+  /* ── 11. GLASS OVERLAY ── */
+
+  .sv-glass {
+    background: rgba(10, 10, 11, 0.8);
+    backdrop-filter: blur(12px);
+  }
+
+  /* ── 12. Sparkle/Glimmer effect ── */
+
+  .sv-sparkle {
+    position: relative;
+  }
+  .sv-sparkle::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #FFA465;
+    border-radius: 50%;
+    filter: blur(2px);
+    animation: sv-sparkle-glimmer 3s ease-in-out infinite;
+  }
+  @keyframes sv-sparkle-glimmer {
+    0%, 100% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+}
+
+/* ==========================================
+   GLOBAL SMOOTH TRANSITIONS
+   ========================================== */
+
+button, a, input, textarea, select {
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+/* Image loading placeholder */
+img {
+  background-color: #1E1E20;
+}

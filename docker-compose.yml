@@ -1,0 +1,31 @@
+# StoryVibe — One-Click Launch
+# 
+# HOW TO USE:
+#   1. Install Docker Desktop: https://www.docker.com/products/docker-desktop
+#   2. Open terminal in this folder
+#   3. Run: docker compose up
+#   4. Open browser: http://localhost:3000
+#
+# That's it! Both frontend and backend will start automatically.
+
+version: "3.8"
+
+services:
+  storyvibe:
+    build: .
+    ports:
+      - "3000:3000"   # Frontend
+      - "3001:3001"   # Backend API
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JIMENG_ACCESS_KEY_ID=${JIMENG_ACCESS_KEY_ID:-AKLTODJiZDhlMjVhM2ZlNDAyYmIyYmVlOTM4MTlkZmFlNzg}
+      - JIMENG_SECRET_ACCESS_KEY=${JIMENG_SECRET_ACCESS_KEY:-TUdaaFlUSTJORGt3T1RNeU5HRmxOamxrTkRrNVkyTmtNemcyTVdSbVlUZw==}
+      - SUPABASE_URL=${SUPABASE_URL:-https://dfwajsonugemyngiunbi.supabase.co}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmd2Fqc29udWdlbXluZ2l1bmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MTM3MzMsImV4cCI6MjA5MjQ4OTczM30.N4WXTcLZ6fK9RDlSVEyMy4DHvpIal5wdfCbv6Pg57cM}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
