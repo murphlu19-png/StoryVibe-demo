@@ -7,6 +7,7 @@ export type MockDemoScenario = {
   id: MockDemoScenarioId;
   label: string;
   homePrompt: string;
+  videoAsset?: string;
   mockAssets: {
     id: string;
     name: string;
@@ -54,6 +55,7 @@ export type MockDemoScenario = {
       purpose: string;
       visualDirection: string;
       camera: string;
+      previewImage?: string;
       assetSource?: string;
       audioOrVoice?: string;
       textOrCaption?: string;
@@ -80,14 +82,15 @@ export const mockDemoScenarios: MockDemoScenario[] = [
     label: 'Backrooms POV Vlog',
     homePrompt:
       '我想做一个 15 秒左右的真人 vlog 第一视角视频，感觉像是误入后室空间，在空荡荡、重复、压抑的房间和走廊里探索。整体希望比较真实、紧张，但我现在只有一个模糊方向，没有素材，想先帮我把它梳理成能直接生成的视频方案。',
+    videoAsset: '/mock/backrooms/demo video.mp4',
     mockAssets: [],
-    outputSpec: '9:16 vertical · around 15 seconds · realistic handheld tension vlog',
+    outputSpec: '16:9 landscape · around 15 seconds · realistic handheld tension vlog',
     aiUnderstanding: {
       title: 'AI Understanding · Backrooms First-Person Exploration',
       mainFeedback:
-        'Your prompt already establishes a strong experiential core: a real-feeling first-person vlog trapped inside a Backrooms-like liminal environment. The concept is compelling because the realism, short duration, and tension all point toward an immersive mobile-first piece. What remains unclear is the exact threat level, the pacing of discovery, what environmental signals define the space, and whether the ending should reveal danger or preserve ambiguity. A full guided clarification flow is the best route before presenting a fixed script plan.',
+        'Your prompt already establishes a strong experiential core: a real-feeling first-person vlog trapped inside a Backrooms-like liminal environment. The concept is compelling because the realism, short duration, and tension all point toward an immersive widescreen suspense piece. What remains unclear is the exact threat level, the pacing of discovery, what environmental signals define the space, and whether the ending should reveal danger or preserve ambiguity. A full guided clarification flow is the best route before presenting a fixed script plan.',
       detectedDirection: [
-        'Format direction: short vertical suspense clip built for social viewing',
+        'Format direction: short 16:9 suspense clip with a cinematic widescreen frame',
         'Narrative perspective: handheld first-person POV / personal vlog recording logic',
         'Core tone: realistic, uneasy, tense, and grounded rather than stylized horror',
         'Story motion: enter → observe → notice anomaly → escalate → cut at tension peak',
@@ -266,7 +269,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
       mainCopy:
         'This prompt now resolves into a realistic 15-second first-person exploration short: the viewer enters a repetitive Backrooms environment, documents details that feel wrong, senses an implied nearby presence, and hits an unresolved final beat before full confirmation. The experience remains tense and believable, with realism and compact suspense prioritized over overt horror spectacle.',
       confirmedDirection: [
-        '9:16 short-form POV vlog designed for fast emotional readability',
+        '16:9 short-form POV vlog designed for cinematic spatial readability',
         'Realistic handheld exploration logic instead of abstract cinematic stylization',
         'Escalation structure: entry → observation → anomaly → tension spike → abrupt ending',
         'No explicit monster reveal required; uncertainty and pressure carry the effect',
@@ -296,6 +299,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
       rows: [
         {
           time: '0–3s',
+          previewImage: '/mock/backrooms/分镜 01.png',
           scene: 'The camera turns on mid-walk. A hand briefly enters frame as the person adjusts the phone. Ahead is a yellow fluorescent hallway with repeating walls and stained carpet.',
           purpose: 'Establish that this is a real phone vlog and introduce the Backrooms-like space.',
           visualDirection: 'Yellow-beige fluorescent lighting, flat empty office walls, old carpet, slight digital noise.',
@@ -305,6 +309,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
         },
         {
           time: '3–6s',
+          previewImage: '/mock/backrooms/分镜 02.png',
           scene: 'The person slowly pans left and right. Every direction looks nearly identical. A distant exit sign flickers once, then goes dark.',
           purpose: 'Create spatial confusion and show that the environment repeats unnaturally.',
           visualDirection: 'Repeating wall panels, long empty corridor, flickering sign in the distance.',
@@ -313,6 +318,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
         },
         {
           time: '6–9s',
+          previewImage: '/mock/backrooms/分镜 03.png',
           scene: 'The camera moves closer to a corner. On the wall, there is a fresh handprint-like mark that looks too recent. The person pauses.',
           purpose: 'Introduce one uncanny detail without showing a monster or direct threat.',
           visualDirection: 'Close wall texture, subtle shadow, handprint slightly darker than the wall.',
@@ -322,6 +328,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
         },
         {
           time: '9–12s',
+          previewImage: '/mock/backrooms/分镜 04.png',
           scene: 'The camera quickly turns back toward the hallway behind them. The hallway appears longer than before. A light at the far end clicks off.',
           purpose: 'Escalate tension and imply the space is changing.',
           visualDirection: 'Long vanishing hallway, fluorescent panels going dark one by one in the distance.',
@@ -330,6 +337,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
         },
         {
           time: '12–15s',
+          previewImage: '/mock/backrooms/分镜 05.png',
           scene: 'The person backs away. Just before the screen cuts, a faint sound comes from directly behind the camera. The person starts to say something, but the video glitches out.',
           purpose: 'End with a believable found-footage interruption and unresolved suspense.',
           visualDirection: 'Camera shake, overexposed fluorescent flicker, final compression glitch.',
@@ -380,7 +388,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
       ],
       resultTitle: 'Mock Video Result · Backrooms POV Exploration',
       resultInfo: [
-        'Format: 9:16 vertical social clip',
+        'Format: 16:9 landscape suspense clip',
         'Length: 15 seconds',
         'Style: realistic handheld suspense / liminal horror vlog',
       ],

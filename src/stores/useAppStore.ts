@@ -3,6 +3,8 @@ import { create } from 'zustand';
 interface AppState {
   activeNav: string;
   setActiveNav: (nav: string) => void;
+  pageTitleOverride: string | null;
+  setPageTitleOverride: (title: string | null) => void;
   sidebarOpen: boolean;
   setSidebarOpen: (v: boolean) => void;
   // 分屏模式
@@ -17,7 +19,9 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set) => ({
   activeNav: 'home',
-  setActiveNav: (nav) => set({ activeNav: nav, splitView: false }),
+  setActiveNav: (nav) => set({ activeNav: nav, splitView: false, pageTitleOverride: null }),
+  pageTitleOverride: null,
+  setPageTitleOverride: (title) => set({ pageTitleOverride: title }),
   sidebarOpen: true,
   setSidebarOpen: (v) => set({ sidebarOpen: v }),
   splitView: false,

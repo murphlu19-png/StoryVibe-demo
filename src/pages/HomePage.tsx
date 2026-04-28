@@ -1,13 +1,12 @@
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { useGenerateStore } from '@/stores/useGenerateStore';
 import { useMockDemoStore } from '@/stores/useMockDemoStore';
 import { QUICK_MODES, TRENDING_ITEMS, TRENDING_TABS } from '@/lib/constants';
 import {
   Plus, FolderOpen, ChevronDown, AtSign, Sparkles, FileText, Zap, LayoutGrid, Search,
-  Video, File, X
+  Video, File, X, Check, SlidersHorizontal, Wand2
 } from 'lucide-react';
-import { FormatSelector } from '@/components/shared/FormatSelector';
 import { AmbientGlow } from '@/components/AmbientGlow';
 
 const modeIconMap: Record<string, React.ElementType> = {
@@ -18,15 +17,169 @@ export default function HomePage() {
   const { setActiveNav } = useAppStore();
   const { startFromPrompt, resetMockDemo } = useMockDemoStore();
   const {
-    userText, setUserText, filePreviews, formatSettings, setFormatSettings, videoQuota,
+    userText, setUserText, filePreviews,
     addFiles, removeFile,
   } = useGenerateStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('Recent');
+  const [isCreativeTypesOpen, setIsCreativeTypesOpen] = useState(false);
+  const [isOutputSpecOpen, setIsOutputSpecOpen] = useState(false);
+  const [isMentionPopoverOpen, setIsMentionPopoverOpen] = useState(false);
+  const [selectedCreativeType, setSelectedCreativeType] = useState('Guided Script Flow');
+  const [aspectMode, setAspectMode] = useState<'Customize' | 'Auto'>('Customize');
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState('9:16');
+  const [selectedResolution, setSelectedResolution] = useState('1080P');
+  const [selectedDuration, setSelectedDuration] = useState('30S');
+  const creativeTypesRef = useRef<HTMLDivElement>(null);
+  const outputSpecRef = useRef<HTMLDivElement>(null);
+  const mentionPopoverRef = useRef<HTMLDivElement>(null);
 
-  const filteredItems = TRENDING_ITEMS.filter(item => {
-    const matchesTab = activeTab === 'All' || item.category === activeTab;
-    const matchesSearch = !searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase()) || item.creator.toLowerCase().includes(searchQuery.toLowerCase());
+  const creativeTypeOptions = useMemo(
+    () => [
+      {
+        title: 'Guided Script Flow',
+        description: 'Start from an idea and build a script through guided questions',
+        icon: Sparkles,
+      },
+      {
+        title: 'Text To Video',
+        description: 'Generate directly from a text prompt',
+        icon: Wand2,
+      },
+      {
+        title: 'Script Editing',
+        description: 'Write or refine script segments before generation',
+        icon: FileText,
+      },
+      {
+        title: 'Smart Reference',
+        description: 'Use references to guide subject, scene, mood, or style',
+        icon: LayoutGrid,
+      },
+    ],
+    [],
+  );
+
+  const formatControlClassName =
+    'px-3 py-2 rounded-lg border border-[#2A2A2C] text-[13px] text-[#9A9A9E] bg-[#141415] hover:bg-[#1A1A1C] hover:border-[#FF843D] hover:text-[#FFFFFF] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF843D]/40';
+
+  const homeMentionAssets = useMemo(
+    () => [
+      { id: 'home-asset-1', name: 'Image 1 · Subject Reference', role: 'Primary subject and silhouette guidance' },
+      { id: 'home-asset-2', name: 'Image 2 · Scene Reference', role: 'Space, environment, and framing direction' },
+      { id: 'home-asset-3', name: 'Image 3 · Mood Reference', role: 'Lighting, palette, and emotional tone' },
+    ],
+    [],
+  );
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (creativeTypesRef.current && !creativeTypesRef.current.contains(target)) {
+        setIsCreativeTypesOpen(false);
+      }
+
+      if (outputSpecRef.current && !outputSpecRef.current.contains(target)) {
+        setIsOutputSpecOpen(false);
+      }
+
+      if (mentionPopoverRef.current && !mentionPopoverRef.current.contains(target)) {
+        setIsMentionPopoverOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsCreativeTypesOpen(false);
+        setIsOutputSpecOpen(false);
+        setIsMentionPopoverOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
+  const trendingItems = useMemo(() => {
+    const extraItems = [
+      {
+        id: 'home-extra-1',
+        title: 'Dream Corridor',
+        creator: '@liminal_ai',
+        category: 'Dreamy',
+        image: '/assets/trending-7.jpg',
+        description: 'A slow walk through a memory-like hallway with soft glowing light.',
+        duration: '04:22',
+        likes: 9342,
+      },
+      {
+        id: 'home-extra-2',
+        title: 'Glass Garden',
+        creator: '@future_nature',
+        category: 'Dreamy',
+        image: '/assets/story-4.jpg',
+        description: 'A surreal greenhouse filled with reflective plants and floating dust.',
+        duration: '05:12',
+        likes: 4218,
+      },
+      {
+        id: 'home-extra-3',
+        title: 'Product Nightfall',
+        creator: '@brand_motion',
+        category: 'Lifestyle',
+        image: '/assets/story-2.jpg',
+        description: 'A premium product shot shaped by dark reflections and soft mist.',
+        duration: '00:15',
+        likes: 2680,
+      },
+      {
+        id: 'home-extra-4',
+        title: 'Quiet Apartment Loop',
+        creator: '@sliceoflife',
+        category: 'Lifestyle',
+        image: '/assets/citywalk/morning.png',
+        description: 'A calm domestic scene with warm lamps, rain, and slow camera movement.',
+        duration: '02:41',
+        likes: 1197,
+      },
+      {
+        id: 'home-extra-5',
+        title: 'Backrooms Signal',
+        creator: '@analog_haze',
+        category: 'Experimental',
+        image: '/assets/backrooms-3.jpg',
+        description: 'A first-person liminal hallway sequence with fluorescent tension.',
+        duration: '00:15',
+        likes: 7321,
+      },
+      {
+        id: 'home-extra-6',
+        title: 'Soft Memory Lake',
+        creator: '@dream_archive',
+        category: 'Recent',
+        image: '/assets/trending-6.jpg',
+        description: 'A quiet reflective landscape with slow emotional camera motion.',
+        duration: '03:46',
+        likes: 5160,
+      },
+    ];
+
+    return [...TRENDING_ITEMS, ...extraItems];
+  }, []);
+
+  const filteredItems = trendingItems.filter(item => {
+    const matchesTab = activeTab === 'Recent' ? true : item.category === activeTab;
+    const matchesSearch = !searchQuery
+      || item.title.toLowerCase().includes(searchQuery.toLowerCase())
+      || item.creator.toLowerCase().includes(searchQuery.toLowerCase())
+      || item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      || item.category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
   const [isDragOver, setIsDragOver] = useState(false);
@@ -78,6 +231,50 @@ export default function HomePage() {
   };
 
   const hasContent = userText.trim().length > 0 || filePreviews.length > 0;
+  const outputSpecLabel = aspectMode === 'Auto'
+    ? 'Auto'
+    : `${selectedAspectRatio} · ${selectedDuration.toLowerCase()} · ${selectedResolution.toLowerCase()}`;
+
+  const insertMentionIntoHomeInput = (assetName: string) => {
+    const mention = `@${assetName.split(' · ')[0]}`;
+    const normalized = userText.trimEnd();
+    setUserText(normalized ? `${normalized} ${mention} ` : `${mention} `);
+    setIsMentionPopoverOpen(false);
+  };
+
+  const renderSegmentedGroup = (
+    title: string,
+    options: string[],
+    selectedValue: string,
+    onSelect: (value: string) => void,
+  ) => {
+    const isDisabled = aspectMode === 'Auto';
+
+    return (
+      <div className={isDisabled ? 'opacity-45' : ''}>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7D7D84] mb-2.5">
+          {title}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {options.map((option) => (
+            <button
+              key={option}
+              type="button"
+              disabled={isDisabled}
+              onClick={() => onSelect(option)}
+              className={`rounded-full px-3 py-1.5 text-[12px] font-medium border transition-all ${
+                selectedValue === option
+                  ? 'border-[#FF843D] bg-[rgba(255,132,61,0.18)] text-[#FFFFFF]'
+                  : 'border-[#2A2A2C] bg-[#101011] text-[#B2B2B8] hover:border-[#FF843D] hover:text-[#FFFFFF]'
+              } ${isDisabled ? 'cursor-not-allowed' : ''}`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-10 relative">
@@ -166,14 +363,164 @@ export default function HomePage() {
                   <span className="ml-1 px-1.5 py-0.5 bg-[#FF843D] text-white text-[10px] rounded-full">{filePreviews.length}</span>
                 )}
               </button>
-              <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#2A2A2C] text-[13px] text-[#9A9A9E] hover:bg-[#141415] transition-all">
-                Guided Script Flow
-                <ChevronDown size={14} />
-              </button>
-              <FormatSelector settings={formatSettings} onChange={setFormatSettings} />
-              <button className="w-8 h-8 rounded-lg border border-[#2A2A2C] flex items-center justify-center text-[#9A9A9E] hover:bg-[#141415] transition-all">
-                <AtSign size={14} />
-              </button>
+              <div className="relative" ref={creativeTypesRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCreativeTypesOpen((prev) => !prev);
+                    setIsOutputSpecOpen(false);
+                    setIsMentionPopoverOpen(false);
+                  }}
+                  className={`flex items-center gap-2 ${formatControlClassName} ${isCreativeTypesOpen ? 'border-[#FF843D] text-[#FFFFFF]' : ''}`}
+                >
+                  {selectedCreativeType}
+                  <ChevronDown size={14} className={`transition-transform ${isCreativeTypesOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isCreativeTypesOpen && (
+                  <div className="absolute top-full left-0 mt-2 z-50 w-[320px] rounded-[24px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.98)_0%,rgba(14,14,15,0.98)_100%)] p-3 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
+                    <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7D7D84]">
+                      Creative Types
+                    </div>
+                    <div className="space-y-1">
+                      {creativeTypeOptions.map((option) => {
+                        const IconComp = option.icon;
+                        const isSelected = selectedCreativeType === option.title;
+
+                        return (
+                          <button
+                            key={option.title}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCreativeType(option.title);
+                              setIsCreativeTypesOpen(false);
+                            }}
+                            className={`flex w-full items-center gap-3 rounded-[18px] px-3 py-3 text-left transition-all ${
+                              isSelected
+                                ? 'bg-[rgba(255,132,61,0.12)] text-[#FFFFFF]'
+                                : 'text-[#B2B2B8] hover:bg-[#1A1A1C] hover:text-[#FFFFFF]'
+                            }`}
+                          >
+                            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border ${
+                              isSelected
+                                ? 'border-[rgba(255,132,61,0.45)] bg-[rgba(255,132,61,0.12)] text-[#FF843D]'
+                                : 'border-[#2A2A2C] bg-[#101011] text-[#8E8E93]'
+                            }`}>
+                              <IconComp size={18} />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-[13px] font-medium">{option.title}</div>
+                              <div className="mt-1 text-[11px] leading-5 text-[#7D7D84]">
+                                {option.description}
+                              </div>
+                            </div>
+                            <div className="w-5 flex justify-end">
+                              {isSelected ? <Check size={15} className="text-[#FF843D]" /> : null}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={outputSpecRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOutputSpecOpen((prev) => !prev);
+                    setIsCreativeTypesOpen(false);
+                    setIsMentionPopoverOpen(false);
+                  }}
+                  className={`flex items-center gap-2 ${formatControlClassName} ${isOutputSpecOpen ? 'border-[#FF843D] text-[#FFFFFF]' : ''}`}
+                >
+                  <SlidersHorizontal size={14} />
+                  <span className="font-medium">{outputSpecLabel}</span>
+                  <ChevronDown size={14} className={`transition-transform ${isOutputSpecOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isOutputSpecOpen && (
+                  <div className="absolute top-full left-0 mt-2 z-50 w-[420px] max-w-[calc(100vw-48px)] rounded-[24px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.98)_0%,rgba(14,14,15,0.98)_100%)] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7D7D84] mb-2.5">
+                          Aspect Mode
+                        </div>
+                        <div className="inline-flex rounded-full border border-[#2A2A2C] bg-[#101011] p-1">
+                          {(['Customize', 'Auto'] as const).map((mode) => (
+                            <button
+                              key={mode}
+                              type="button"
+                              onClick={() => setAspectMode(mode)}
+                              className={`rounded-full px-4 py-1.5 text-[12px] font-medium transition-all ${
+                                aspectMode === mode
+                                  ? 'bg-[#FF843D] text-white'
+                                  : 'text-[#A0A0A8] hover:text-[#FFFFFF]'
+                              }`}
+                            >
+                              {mode}
+                            </button>
+                          ))}
+                        </div>
+                        {aspectMode === 'Auto' && (
+                          <p className="mt-2 text-[11px] leading-5 text-[#7D7D84]">
+                            Auto selected. Output settings stay visible but are not editable.
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="rounded-[20px] border border-[rgba(255,255,255,0.06)] bg-[#101011] p-4 space-y-4">
+                        {renderSegmentedGroup('Aspect Ratio', ['21:9', '16:9', '4:3', '1:1', '3:4', '9:16'], selectedAspectRatio, setSelectedAspectRatio)}
+                        {renderSegmentedGroup('Resolution', ['480P', '720P', '1080P'], selectedResolution, setSelectedResolution)}
+                        {renderSegmentedGroup('Duration', ['4S', '5S', '6S', '7S', '8S', '9S', '10S', '11S', '12S', '13S', '14S', '15S', '30S'], selectedDuration, setSelectedDuration)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={mentionPopoverRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMentionPopoverOpen((prev) => !prev);
+                    setIsCreativeTypesOpen(false);
+                    setIsOutputSpecOpen(false);
+                  }}
+                  className={`w-8 h-8 rounded-lg border border-[#2A2A2C] flex items-center justify-center text-[#9A9A9E] hover:bg-[#141415] transition-all ${
+                    isMentionPopoverOpen ? 'border-[#FF843D] text-[#FFFFFF]' : ''
+                  }`}
+                >
+                  <AtSign size={14} />
+                </button>
+
+                {isMentionPopoverOpen && (
+                  <div className="absolute top-full right-0 mt-2 z-50 w-[320px] rounded-[24px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.98)_0%,rgba(14,14,15,0.98)_100%)] p-3 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
+                    <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7D7D84]">
+                      Asset Mentions
+                    </div>
+                    <div className="space-y-1">
+                      {homeMentionAssets.map((asset) => (
+                        <button
+                          key={asset.id}
+                          type="button"
+                          onClick={() => insertMentionIntoHomeInput(asset.name)}
+                          className="flex w-full items-center gap-3 rounded-[18px] px-3 py-3 text-left text-[#B2B2B8] transition-all hover:bg-[#1A1A1C] hover:text-[#FFFFFF]"
+                        >
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-[#2A2A2C] bg-[#101011] text-[#FF843D]">
+                            <FolderOpen size={16} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[13px] font-medium text-[#FFFFFF]">{asset.name}</div>
+                            <div className="mt-1 text-[11px] leading-5 text-[#7D7D84]">{asset.role}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -188,22 +535,6 @@ export default function HomePage() {
                 <Sparkles size={14} />
                 Generate Script
               </button>
-              {/* Video Quota Display */}
-              <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1.5 text-[10px]">
-                  <span className="text-[#6B6B6F]">API Quota</span>
-                  <span className={`font-semibold ${videoQuota.remaining < 10 ? 'text-[#EF4444]' : 'text-[#22C55E]'}`}>
-                    {videoQuota.remaining}
-                  </span>
-                  <span className="text-[#6B6B6F]">/ {videoQuota.total} left</span>
-                </div>
-                <div className="w-20 h-1 bg-[#2A2A2C] rounded-full mt-0.5">
-                  <div 
-                    className={`h-full rounded-full ${videoQuota.remaining < 10 ? 'bg-red-400' : 'bg-[rgba(34,197,94,0.15)]0'}`}
-                    style={{ width: `${(videoQuota.remaining / videoQuota.total) * 100}%` }}
-                  />
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -244,67 +575,101 @@ export default function HomePage() {
 
       {/* Trending Inspirations */}
       <section>
-        <h2 className="text-[20px] font-semibold text-[#FFFFFF] mb-4">Trending Inspirations</h2>
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            {TRENDING_TABS.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all ${
-                  activeTab === tab ? 'bg-[#FF843D] text-white' : 'bg-[#141415] text-[#9A9A9E] hover:bg-[#1E1E20]'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#2A2A2C] bg-[#141415] focus-within:border-[#FF843D] transition-all">
-              <Search size={14} className="text-[#6B6B6F]" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by title, creator, or keyword..."
-                className="text-[13px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent w-[200px]"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="text-[#6B6B6F] hover:text-[#FFFFFF]">
-                  <X size={12} />
-                </button>
-              )}
+        <div className="rounded-[28px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.92)_0%,rgba(16,16,17,0.96)_100%)] p-5 md:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between mb-6">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-[20px] md:text-[22px] font-semibold text-[#FFFFFF]">Trending Inspirations</h2>
+                <p className="text-[13px] text-[#8E8E93] mt-2 max-w-[620px] leading-6">
+                  Explore mood-led references, cinematic loops, and product-style mock demos arranged for faster scanning.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                {TRENDING_TABS.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all ${
+                      activeTab === tab
+                        ? 'bg-[#FF843D] text-white shadow-[0_8px_20px_rgba(255,132,61,0.2)]'
+                        : 'bg-[#141415] text-[#9A9A9E] hover:bg-[#1E1E20] hover:text-[#FFFFFF]'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
             </div>
-            <button className="text-[13px] text-[#9A9A9E] hover:text-[#FFFFFF] font-medium flex items-center gap-1">
-              View All <span className="text-[11px]">&rarr;</span>
-            </button>
+
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end xl:w-auto">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#2A2A2C] bg-[#141415] focus-within:border-[#FF843D] transition-all min-w-0 sm:min-w-[280px]">
+                <Search size={14} className="text-[#6B6B6F] shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by title, creator, or keyword..."
+                  className="text-[13px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent w-full"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} className="text-[#6B6B6F] hover:text-[#FFFFFF] shrink-0">
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
+              <button className="inline-flex items-center justify-center gap-2 rounded-full border border-[#2A2A2C] bg-[#101011] px-4 py-2 text-[13px] font-medium text-[#D4D4D8] hover:border-[#FF843D] hover:text-[#FFFFFF] transition-all">
+                View All <span className="text-[11px]">&rarr;</span>
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredItems.length > 0 ? filteredItems.map((item) => (
-            <div key={item.id} className="group cursor-pointer">
-              <div className="aspect-[3/4] rounded-xl mb-3 relative overflow-hidden group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)] transition-all">
+            <article
+              key={item.id}
+              className="group overflow-hidden rounded-[24px] border border-[rgba(255,255,255,0.06)] bg-[#121213] shadow-[0_1px_3px_rgba(0,0,0,0.3)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,132,61,0.35)] hover:shadow-[0_14px_36px_rgba(0,0,0,0.28)]"
+            >
+              <div className="aspect-[16/10] relative overflow-hidden">
                 <img 
-                  src={(item as any).image} 
+                  src={item.image}
                   alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="px-2 py-1 bg-[#141415]/90 backdrop-blur-sm rounded text-[11px] font-medium text-[#FFFFFF]">{item.category}</span>
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06)_0%,rgba(0,0,0,0.16)_45%,rgba(0,0,0,0.7)_100%)]" />
+                <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-3">
+                  <span className="px-2.5 py-1 rounded-full bg-[rgba(20,20,21,0.84)] backdrop-blur-sm text-[11px] font-medium text-[#FFFFFF] border border-[rgba(255,255,255,0.08)]">
+                    {item.category}
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-[rgba(20,20,21,0.72)] backdrop-blur-sm text-[11px] text-[#E7E7EA] border border-[rgba(255,255,255,0.06)]">
+                    {item.duration}
+                  </span>
+                </div>
+                <div className="absolute bottom-3 left-3 right-3">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-[rgba(20,20,21,0.78)] px-2.5 py-1 text-[11px] text-[#E7E7EA] backdrop-blur-sm border border-[rgba(255,255,255,0.06)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FF843D]" />
+                    {item.creator}
+                  </div>
                 </div>
               </div>
-              <h3 className="text-[14px] font-semibold text-[#FFFFFF]">{item.title}</h3>
-              <p className="text-[12px] text-[#6B6B6F]">{item.creator}</p>
-            </div>
+              <div className="p-4">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <h3 className="text-[15px] font-semibold text-[#FFFFFF] leading-6">{item.title}</h3>
+                  <span className="text-[11px] uppercase tracking-[0.16em] text-[#6F6F77] shrink-0">Mock</span>
+                </div>
+                <p className="text-[13px] text-[#9A9A9E] leading-6 min-h-[48px]">
+                  {item.description}
+                </p>
+              </div>
+            </article>
           )) : (
-            <div className="col-span-4 py-12 text-center">
+            <div className="md:col-span-2 xl:col-span-3 py-12 text-center">
               <Search size={32} className="text-[#D4D4D8] mx-auto mb-3" />
               <p className="text-[14px] text-[#6B6B6F]">No results for &quot;{searchQuery}&quot;</p>
               <button onClick={() => setSearchQuery('')} className="text-[13px] text-[#FFFFFF] mt-2 font-medium hover:underline">Clear search</button>
             </div>
           )}
+          </div>
         </div>
       </section>
     </div>

@@ -145,16 +145,12 @@ export const useMockDemoStore = create<MockDemoState>((set, get) => ({
     const lastProgressIndex = Math.max(scenario.generation.progressSteps.length - 1, 0);
 
     if (videoProgressIndex >= lastProgressIndex) {
-      set({ currentStage: 'video_result' });
       return;
     }
 
-    const nextIndex = videoProgressIndex + 1;
-    const shouldComplete = nextIndex >= lastProgressIndex;
-
     set({
-      videoProgressIndex: nextIndex,
-      currentStage: shouldComplete ? 'video_result' : 'video_generating',
+      videoProgressIndex: Math.min(videoProgressIndex + 1, lastProgressIndex),
+      currentStage: 'video_generating',
     });
   },
 

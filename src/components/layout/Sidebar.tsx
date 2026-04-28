@@ -20,8 +20,18 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const { activeNav, setActiveNav } = useAppStore();
+  const { activeNav, pageTitleOverride, setActiveNav } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const baseTitleMap: Record<string, string> = {
+    home: 'Home',
+    generate: 'Generate',
+    script: 'Scripts',
+    edit: 'Edit',
+    assets: 'Assets',
+    community: 'Community',
+    user: 'Developer',
+  };
+  const pageTitle = pageTitleOverride || baseTitleMap[activeNav] || 'Workspace';
 
   return (
     <>
@@ -76,7 +86,7 @@ export default function Sidebar() {
         <button onClick={() => setMobileOpen(!mobileOpen)} className="w-10 h-10 flex items-center justify-center">
           {mobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
-        <span className="font-bold text-[14px]">StoryVibe</span>
+        <span className="font-bold text-[14px]">{pageTitle}</span>
         <div className="w-8 h-8 rounded-full bg-[#2A2A2C] flex items-center justify-center">
           <CircleUser size={16} className="text-[#9A9A9E]" />
         </div>

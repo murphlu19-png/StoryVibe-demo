@@ -63,11 +63,16 @@ export interface Script {
   status: 'draft' | 'in_progress' | 'complete';
   duration: string;
   version: string;
+  shortDescription?: string;
+  category?: string;
+  coverImage?: string;
+  outputSpec?: string;
   narrativeArc: string;
   emotionalGoal: string;
   visualDirection: string;
   rhythm: string;
   assetLogic: string;
+  videoAsset?: string;
   shots: Shot[];
   chapters?: Chapter[];
 }

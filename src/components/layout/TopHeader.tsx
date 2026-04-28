@@ -2,14 +2,24 @@ import { HelpCircle, Columns2, X } from 'lucide-react';
 import { useAppStore } from '@/stores/useAppStore';
 
 export default function TopHeader() {
-  const { splitView, setSplitView } = useAppStore();
+  const { activeNav, pageTitleOverride, splitView, setSplitView } = useAppStore();
+  const baseTitleMap: Record<string, string> = {
+    home: 'Home',
+    generate: 'Generate',
+    script: 'Scripts',
+    edit: 'Edit',
+    assets: 'Assets',
+    community: 'Community',
+    user: 'Developer',
+  };
+  const pageTitle = pageTitleOverride || baseTitleMap[activeNav] || 'Workspace';
 
   return (
     <header className="fixed top-0 left-0 md:left-16 right-0 h-12 bg-[#141415]/80 backdrop-blur-sm border-b border-[#2A2A2C] z-40 flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center gap-3">
         <span className="font-bold text-[15px] text-[#FFFFFF] hidden md:inline">StoryVibe</span>
         <span className="text-[#D4D4D8] hidden md:inline">|</span>
-        <span className="text-[13px] text-[#9A9A9E]">Workspace</span>
+        <span className="text-[13px] text-[#9A9A9E]">{pageTitle}</span>
       </div>
       <div className="flex items-center gap-3">
         {/* 分屏切换 */}

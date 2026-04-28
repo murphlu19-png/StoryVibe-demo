@@ -1,15 +1,17 @@
 import { create } from 'zustand';
 import type { Script } from '@/types';
-import { PRESET_BACKROOMS_SCRIPT, PRESET_CITYWALK_SCRIPT } from '@/lib/constants';
+import { MY_SCRIPTS_LIBRARY } from '@/lib/constants';
 
 interface ScriptState {
   scripts: Script[];
   activeScript: Script | null;
+  videoScriptId: string | null;
   historyOpen: boolean;
   selectedVersion: string;
   pendingScript: Script | null; // 从Generate页面跳转过来的脚本
 
   setActiveScript: (script: Script | null) => void;
+  setVideoScriptId: (scriptId: string | null) => void;
   setPendingScript: (script: Script | null) => void;
   acceptPendingScript: () => void;
   selectVersion: (versionId: string) => void;
@@ -20,13 +22,15 @@ interface ScriptState {
 }
 
 export const useScriptStore = create<ScriptState>((set, get) => ({
-  scripts: [PRESET_BACKROOMS_SCRIPT, PRESET_CITYWALK_SCRIPT],
+  scripts: MY_SCRIPTS_LIBRARY,
   activeScript: null,
+  videoScriptId: null,
   historyOpen: true,
   selectedVersion: 'v1',
   pendingScript: null,
 
   setActiveScript: (script) => set({ activeScript: script }),
+  setVideoScriptId: (scriptId) => set({ videoScriptId: scriptId }),
   
   setPendingScript: (script) => set({ pendingScript: script }),
   
