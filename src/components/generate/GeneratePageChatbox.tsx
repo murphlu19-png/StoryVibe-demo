@@ -3,6 +3,7 @@ import { MockComposerShell } from '@/components/shared/MockComposerShell';
 type GeneratePageChatboxProps = {
   resetKey: string;
   autoFocusSignal: number;
+  initialInput?: string;
   mentionAssets: Array<{
     id: string;
     name: string;
@@ -16,6 +17,7 @@ type GeneratePageChatboxProps = {
 export function GeneratePageChatbox({
   resetKey,
   autoFocusSignal,
+  initialInput,
   mentionAssets,
   selectedContextTitle,
   onSubmit,
@@ -33,6 +35,7 @@ export function GeneratePageChatbox({
       <MockComposerShell
         mentionAssets={mentionAssets}
         resetKey={resetKey}
+        initialInput={initialInput}
         placeholder={placeholder}
         footerNote={footerNote}
         ctaLabel="Generate Script"

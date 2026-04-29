@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
+import { useGenerateStore } from '@/stores/useGenerateStore';
 import { useMockDemoStore } from '@/stores/useMockDemoStore';
 import { useScriptStore } from '@/stores/useScriptStore';
 import { getMockDemoScenarioById } from '@/lib/mockDemoScenarios';
@@ -109,6 +110,7 @@ function buildScriptPageProjectIntent(item: GenerateHistoryProjectItem) {
 export default function GeneratePage() {
   const { setActiveNav, setScriptPageIntent, setScriptPageRoute } = useAppStore();
   const { setActiveScript } = useScriptStore();
+  const { pendingHomeInput, clearPendingHomeInput } = useGenerateStore();
   const {
     activeScenarioId,
     currentStage,
@@ -159,6 +161,13 @@ export default function GeneratePage() {
       setActiveNav('script');
     }
   }, [currentStage, generateScriptPlan, scenario, setActiveNav, setScriptPageRoute]);
+
+  useEffect(() => {
+    if (!pendingHomeInput || activeScenarioId) return;
+
+    setSelectedHistoryId(null);
+    setComposerFocusSignal((prev) => prev + 1);
+  }, [activeScenarioId, pendingHomeInput]);
 
   const availableMentionAssets = scenario?.mockAssets.length
     ? scenario.mockAssets
@@ -553,6 +562,9 @@ export default function GeneratePage() {
   };
 
   const handleGenerateFromWorkspace = (input: string, attachedAssets: File[]) => {
+    if (pendingHomeInput) {
+      clearPendingHomeInput();
+    }
     const assetInputs = attachedAssets.map((file, index) => ({
       id: `${file.name}-${index}-${file.lastModified}`,
       name: file.name,
@@ -624,8 +636,9 @@ export default function GeneratePage() {
 
           <div className="sticky bottom-0 z-10 mt-5 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/96 to-transparent pt-6">
             <GeneratePageChatbox
-              resetKey={`generate-workspace-${selectedHistoryId ?? 'new'}`}
+              resetKey={`generate-workspace-${selectedHistoryId ?? 'new'}-${pendingHomeInput?.text ?? 'empty'}`}
               autoFocusSignal={composerFocusSignal}
+              initialInput={pendingHomeInput?.text}
               mentionAssets={workspaceMentionAssets}
               selectedContextTitle={selectedHistoryItem?.title ?? null}
               onSubmit={handleGenerateFromWorkspace}

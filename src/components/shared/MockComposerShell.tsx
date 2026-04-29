@@ -17,6 +17,7 @@ type ComposerAttachedAsset = {
 type MockComposerShellProps = {
   mentionAssets: MentionAsset[];
   resetKey: string;
+  initialInput?: string;
   ctaLabel?: string;
   onCta?: (input: string, context: { attachedAssets: File[] }) => void;
   ctaDisabled?: boolean;
@@ -32,6 +33,7 @@ type MockComposerShellProps = {
 export function MockComposerShell({
   mentionAssets,
   resetKey,
+  initialInput = '',
   ctaLabel,
   onCta,
   ctaDisabled = false,
@@ -78,7 +80,7 @@ export function MockComposerShell({
   };
 
   useEffect(() => {
-    setChatInput('');
+    setChatInput(initialInput);
     clearAttachedAssets();
     setShowAssetHint(false);
     setIsFlowMenuOpen(false);
@@ -93,7 +95,7 @@ export function MockComposerShell({
       resolution: '720p',
     });
     setSelectedQuality('Standard');
-  }, [resetKey]);
+  }, [initialInput, resetKey]);
 
   useEffect(() => {
     attachedAssetsRef.current = attachedAssets;
