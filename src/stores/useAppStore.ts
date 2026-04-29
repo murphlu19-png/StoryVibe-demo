@@ -69,6 +69,8 @@ interface AppState {
   clearScriptPageIntent: () => void;
   scriptPageRoute: ScriptPageRoute;
   setScriptPageRoute: (route: ScriptPageRoute) => void;
+  scriptOverviewRequestId: number;
+  requestScriptOverview: () => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -89,4 +91,10 @@ export const useAppStore = create<AppState>((set) => ({
   clearScriptPageIntent: () => set({ scriptPageIntent: null }),
   scriptPageRoute: 'overview',
   setScriptPageRoute: (route) => set({ scriptPageRoute: route }),
+  scriptOverviewRequestId: 0,
+  requestScriptOverview: () =>
+    set((state) => ({
+      scriptPageRoute: 'overview',
+      scriptOverviewRequestId: state.scriptOverviewRequestId + 1,
+    })),
 }));

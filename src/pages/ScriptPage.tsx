@@ -2630,6 +2630,7 @@ export default function ScriptPage() {
     clearScriptPageIntent,
     scriptPageRoute,
     setScriptPageRoute,
+    scriptOverviewRequestId,
   } = useAppStore();
   const { pushUndo } = useEditorStore();
   const { activeScenarioId, scriptPlanReady, startVideoGeneration } = useMockDemoStore();
@@ -2689,6 +2690,7 @@ export default function ScriptPage() {
   const [dragReadySequenceId, setDragReadySequenceId] = useState<string | null>(null);
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
   const [saveToastMessage, setSaveToastMessage] = useState<string | null>(null);
+  const lastHandledOverviewRequestIdRef = useRef(scriptOverviewRequestId);
   void storyboardModalDraft;
   void setStoryboardModalDraft;
   void storyboardModalEditingField;
@@ -2740,13 +2742,14 @@ export default function ScriptPage() {
   }, [mockScriptPlanActive, pageMode, scriptPageRoute, setPageTitleOverride]);
 
   useEffect(() => {
-    if (scriptPageRoute !== 'overview') return;
-    if (pageMode === 'preview') return;
+    if (scriptOverviewRequestId === lastHandledOverviewRequestIdRef.current) return;
+
+    lastHandledOverviewRequestIdRef.current = scriptOverviewRequestId;
 
     setActiveProjectId(null);
     setDraftProject(null);
     setPageMode('preview');
-  }, [pageMode, scriptPageRoute]);
+  }, [scriptOverviewRequestId]);
 
   useEffect(() => {
     if (!saveToastMessage) return;

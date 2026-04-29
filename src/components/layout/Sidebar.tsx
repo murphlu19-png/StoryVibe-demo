@@ -20,7 +20,7 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const { activeNav, pageTitleOverride, setActiveNav, setScriptPageRoute } = useAppStore();
+  const { activeNav, pageTitleOverride, setActiveNav, requestScriptOverview } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const baseTitleMap: Record<string, string> = {
     home: 'Home',
@@ -35,7 +35,7 @@ export default function Sidebar() {
 
   const handleNavClick = (navId: string) => {
     if (navId === 'script') {
-      setScriptPageRoute('overview');
+      requestScriptOverview();
     }
     setActiveNav(navId);
   };
