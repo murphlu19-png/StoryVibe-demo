@@ -22,8 +22,8 @@ const SCENARIO_STAGE_CONFIG: Record<MockDemoScenarioId, ScenarioStageConfig> = {
     lockedCompleted: [],
   },
   dream_video_with_assets: {
-    questionStages: ['MOOD', 'STORY', 'VISUALS', 'EXPRESSION'],
-    lockedCompleted: ['FOCUS'],
+    questionStages: ['MOOD', 'FOCUS', 'STORY', 'VISUALS', 'EXPRESSION', 'EXPRESSION'],
+    lockedCompleted: [],
   },
   fragrance_ad_script_with_assets: {
     questionStages: ['FOCUS', 'VISUALS', 'EXPRESSION'],

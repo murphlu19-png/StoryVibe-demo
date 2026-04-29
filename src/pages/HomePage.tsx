@@ -1,11 +1,14 @@
 import { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
+import { useCommunityStore } from '@/stores/useCommunityStore';
 import { useGenerateStore } from '@/stores/useGenerateStore';
 import { useMockDemoStore } from '@/stores/useMockDemoStore';
-import { QUICK_MODES, TRENDING_ITEMS, TRENDING_TABS } from '@/lib/constants';
+import { getMockDemoScenarioById } from '@/lib/mockDemoScenarios';
+import { QUICK_MODES } from '@/lib/constants';
+import { COMMUNITY_INSPIRATIONS, HOME_TRENDING_TABS } from '@/lib/mockCommunityInspirations';
 import {
   Plus, FolderOpen, ChevronDown, AtSign, Sparkles, FileText, Zap, LayoutGrid, Search,
-  Video, File, X, Check, SlidersHorizontal, Wand2
+  Video, File, X, Check, SlidersHorizontal, Wand2, ArrowRight
 } from 'lucide-react';
 import { AmbientGlow } from '@/components/AmbientGlow';
 
@@ -15,13 +18,13 @@ const modeIconMap: Record<string, React.ElementType> = {
 
 export default function HomePage() {
   const { setActiveNav } = useAppStore();
-  const { startFromPrompt, resetMockDemo } = useMockDemoStore();
+  const { startFromPrompt, resetMockDemo, activeScenarioId } = useMockDemoStore();
   const {
     userText, setUserText, filePreviews,
     addFiles, removeFile,
   } = useGenerateStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('Recent');
+  const [activeTab, setActiveTab] = useState('All');
   const [isCreativeTypesOpen, setIsCreativeTypesOpen] = useState(false);
   const [isOutputSpecOpen, setIsOutputSpecOpen] = useState(false);
   const [isMentionPopoverOpen, setIsMentionPopoverOpen] = useState(false);
@@ -33,6 +36,7 @@ export default function HomePage() {
   const creativeTypesRef = useRef<HTMLDivElement>(null);
   const outputSpecRef = useRef<HTMLDivElement>(null);
   const mentionPopoverRef = useRef<HTMLDivElement>(null);
+  const promptInputRef = useRef<HTMLTextAreaElement>(null);
 
   const creativeTypeOptions = useMemo(
     () => [
@@ -63,14 +67,33 @@ export default function HomePage() {
   const formatControlClassName =
     'px-3 py-2 rounded-lg border border-[#2A2A2C] text-[13px] text-[#9A9A9E] bg-[#141415] hover:bg-[#1A1A1C] hover:border-[#FF843D] hover:text-[#FFFFFF] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF843D]/40';
 
-  const homeMentionAssets = useMemo(
-    () => [
-      { id: 'home-asset-1', name: 'Image 1 · Subject Reference', role: 'Primary subject and silhouette guidance' },
-      { id: 'home-asset-2', name: 'Image 2 · Scene Reference', role: 'Space, environment, and framing direction' },
-      { id: 'home-asset-3', name: 'Image 3 · Mood Reference', role: 'Lighting, palette, and emotional tone' },
-    ],
-    [],
+  const { openCommunityDetailFromHome, closeCommunityDetail, pendingHomeTrendingScroll, consumeHomeTrendingScroll } = useCommunityStore();
+  const activeMockScenario = useMemo(
+    () => (activeScenarioId ? getMockDemoScenarioById(activeScenarioId) : null),
+    [activeScenarioId],
   );
+
+  const mentionAssets = useMemo(() => {
+    const uploadedAssets = filePreviews.map((preview) => ({
+      id: preview.id,
+      name: preview.name,
+      mentionLabel: preview.name.replace(/\.[^/.]+$/, ''),
+      thumbnailUrl: preview.type === 'image' ? preview.url : '',
+      type: preview.type,
+    }));
+
+    const scenarioAssets = (activeMockScenario?.mockAssets || [])
+      .filter((asset) => !uploadedAssets.some((preview) => preview.name === asset.name))
+      .map((asset) => ({
+        id: asset.id,
+        name: asset.name,
+        mentionLabel: asset.name.split(' · ')[0],
+        thumbnailUrl: '',
+        type: 'mock',
+      }));
+
+    return [...uploadedAssets, ...scenarioAssets];
+  }, [activeMockScenario, filePreviews]);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -106,80 +129,36 @@ export default function HomePage() {
     };
   }, []);
 
-  const trendingItems = useMemo(() => {
-    const extraItems = [
-      {
-        id: 'home-extra-1',
-        title: 'Dream Corridor',
-        creator: '@liminal_ai',
-        category: 'Dreamy',
-        image: '/assets/trending-7.jpg',
-        description: 'A slow walk through a memory-like hallway with soft glowing light.',
-        duration: '04:22',
-        likes: 9342,
-      },
-      {
-        id: 'home-extra-2',
-        title: 'Glass Garden',
-        creator: '@future_nature',
-        category: 'Dreamy',
-        image: '/assets/story-4.jpg',
-        description: 'A surreal greenhouse filled with reflective plants and floating dust.',
-        duration: '05:12',
-        likes: 4218,
-      },
-      {
-        id: 'home-extra-3',
-        title: 'Product Nightfall',
-        creator: '@brand_motion',
-        category: 'Lifestyle',
-        image: '/assets/story-2.jpg',
-        description: 'A premium product shot shaped by dark reflections and soft mist.',
-        duration: '00:15',
-        likes: 2680,
-      },
-      {
-        id: 'home-extra-4',
-        title: 'Quiet Apartment Loop',
-        creator: '@sliceoflife',
-        category: 'Lifestyle',
-        image: '/assets/citywalk/morning.png',
-        description: 'A calm domestic scene with warm lamps, rain, and slow camera movement.',
-        duration: '02:41',
-        likes: 1197,
-      },
-      {
-        id: 'home-extra-5',
-        title: 'Backrooms Signal',
-        creator: '@analog_haze',
-        category: 'Experimental',
-        image: '/assets/backrooms-3.jpg',
-        description: 'A first-person liminal hallway sequence with fluorescent tension.',
-        duration: '00:15',
-        likes: 7321,
-      },
-      {
-        id: 'home-extra-6',
-        title: 'Soft Memory Lake',
-        creator: '@dream_archive',
-        category: 'Recent',
-        image: '/assets/trending-6.jpg',
-        description: 'A quiet reflective landscape with slow emotional camera motion.',
-        duration: '03:46',
-        likes: 5160,
-      },
-    ];
+  useEffect(() => {
+    if (!pendingHomeTrendingScroll) return;
+    const timer = window.setTimeout(() => {
+      const section = document.getElementById('trending-inspirations');
+      section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      consumeHomeTrendingScroll();
+    }, 80);
 
-    return [...TRENDING_ITEMS, ...extraItems];
-  }, []);
+    return () => window.clearTimeout(timer);
+  }, [consumeHomeTrendingScroll, pendingHomeTrendingScroll]);
+
+  useEffect(() => {
+    if (mentionAssets.length === 0 && isMentionPopoverOpen) {
+      setIsMentionPopoverOpen(false);
+    }
+  }, [isMentionPopoverOpen, mentionAssets.length]);
+
+  const trendingItems = useMemo(() => COMMUNITY_INSPIRATIONS.slice(0, 12), []);
 
   const filteredItems = trendingItems.filter(item => {
-    const matchesTab = activeTab === 'Recent' ? true : item.category === activeTab;
+    const matchesTab = activeTab === 'All'
+      ? true
+      : item.tags?.includes(activeTab) || item.category === activeTab || item.badges?.includes(activeTab);
     const matchesSearch = !searchQuery
       || item.title.toLowerCase().includes(searchQuery.toLowerCase())
       || item.creator.toLowerCase().includes(searchQuery.toLowerCase())
       || item.description.toLowerCase().includes(searchQuery.toLowerCase())
-      || item.category.toLowerCase().includes(searchQuery.toLowerCase());
+      || item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      || item.handle?.toLowerCase().includes(searchQuery.toLowerCase())
+      || item.tags?.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesTab && matchesSearch;
   });
   const [isDragOver, setIsDragOver] = useState(false);
@@ -211,7 +190,7 @@ export default function HomePage() {
     '后室第一视角 vlog，15秒，真实紧张，没有素材',
     '用 Image 1 / Image 2 / Image 3 做一个安静模糊的梦境视频',
     '做一个 15 秒香水品牌短片，包含产品图、logo 和品牌广告镜头',
-  ][activeTab === 'Recent' ? 0 : activeTab === 'Dreamy' ? 1 : 2];
+  ][activeTab === 'All' || activeTab === 'Recent' ? 0 : activeTab === 'Dreamy' ? 1 : 2];
 
   const handleGenerate = async () => {
     if (!userText.trim() && filePreviews.length === 0) return;
@@ -235,11 +214,26 @@ export default function HomePage() {
     ? 'Auto'
     : `${selectedAspectRatio} · ${selectedDuration.toLowerCase()} · ${selectedResolution.toLowerCase()}`;
 
-  const insertMentionIntoHomeInput = (assetName: string) => {
-    const mention = `@${assetName.split(' · ')[0]}`;
+  const insertMentionIntoHomeInput = (assetLabel: string) => {
+    const mention = `@${assetLabel}`;
     const normalized = userText.trimEnd();
     setUserText(normalized ? `${normalized} ${mention} ` : `${mention} `);
     setIsMentionPopoverOpen(false);
+    window.setTimeout(() => {
+      promptInputRef.current?.focus();
+      const valueLength = (normalized ? `${normalized} ${mention} ` : `${mention} `).length;
+      promptInputRef.current?.setSelectionRange(valueLength, valueLength);
+    }, 0);
+  };
+
+  const handleOpenCommunityList = () => {
+    closeCommunityDetail();
+    setActiveNav('community');
+  };
+
+  const handleOpenCommunityDetail = (id: string) => {
+    openCommunityDetailFromHome(id);
+    setActiveNav('community');
   };
 
   const renderSegmentedGroup = (
@@ -290,7 +284,7 @@ export default function HomePage() {
 
         {/* Input Card */}
         <div 
-          className={`bg-[#141415] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.3)] p-6 transition-all ${
+          className={`bg-[#141415] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.3)] p-6 md:p-7 min-h-[240px] md:min-h-[272px] transition-all ${
             isDragOver ? 'ring-2 ring-black ring-offset-2' : ''
           }`}
           onDragOver={handleDragOver}
@@ -326,7 +320,7 @@ export default function HomePage() {
           )}
 
           {/* Text Input */}
-          <div className="flex gap-4">
+          <div className="flex items-start gap-4 min-h-[132px] md:min-h-[156px]">
             <input
               ref={fileInputRef}
               type="file"
@@ -343,10 +337,11 @@ export default function HomePage() {
               <Plus size={24} />
             </button>
             <textarea
+              ref={promptInputRef}
               value={userText}
               onChange={(e) => setUserText(e.target.value)}
               placeholder={`Describe your idea, attach a reference, or start from assets...\nTry: ${promptPreview}`}
-              className="flex-1 min-h-[80px] resize-none text-[14px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent leading-relaxed"
+              className="flex-1 min-h-[132px] md:min-h-[156px] resize-none self-stretch py-1 text-[14px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent leading-7"
             />
           </div>
 
@@ -484,12 +479,16 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => {
+                    if (mentionAssets.length === 0) return;
                     setIsMentionPopoverOpen((prev) => !prev);
                     setIsCreativeTypesOpen(false);
                     setIsOutputSpecOpen(false);
                   }}
-                  className={`w-8 h-8 rounded-lg border border-[#2A2A2C] flex items-center justify-center text-[#9A9A9E] hover:bg-[#141415] transition-all ${
-                    isMentionPopoverOpen ? 'border-[#FF843D] text-[#FFFFFF]' : ''
+                  disabled={mentionAssets.length === 0}
+                  className={`w-8 h-8 rounded-lg border border-[#2A2A2C] flex items-center justify-center transition-all ${
+                    mentionAssets.length === 0
+                      ? 'cursor-not-allowed opacity-40 text-[#66666B]'
+                      : `text-[#9A9A9E] hover:bg-[#141415] ${isMentionPopoverOpen ? 'border-[#FF843D] text-[#FFFFFF]' : ''}`
                   }`}
                 >
                   <AtSign size={14} />
@@ -497,23 +496,27 @@ export default function HomePage() {
 
                 {isMentionPopoverOpen && (
                   <div className="absolute top-full right-0 mt-2 z-50 w-[320px] rounded-[24px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.98)_0%,rgba(14,14,15,0.98)_100%)] p-3 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
-                    <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7D7D84]">
-                      Asset Mentions
-                    </div>
                     <div className="space-y-1">
-                      {homeMentionAssets.map((asset) => (
+                      {mentionAssets.map((asset) => (
                         <button
                           key={asset.id}
                           type="button"
-                          onClick={() => insertMentionIntoHomeInput(asset.name)}
+                          onClick={() => insertMentionIntoHomeInput(asset.mentionLabel)}
                           className="flex w-full items-center gap-3 rounded-[18px] px-3 py-3 text-left text-[#B2B2B8] transition-all hover:bg-[#1A1A1C] hover:text-[#FFFFFF]"
                         >
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-[#2A2A2C] bg-[#101011] text-[#FF843D]">
-                            <FolderOpen size={16} />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-[#2A2A2C] bg-[#101011] text-[#FF843D]">
+                            {asset.thumbnailUrl ? (
+                              <img src={asset.thumbnailUrl} alt={asset.name} className="h-full w-full object-cover" />
+                            ) : asset.type === 'video' ? (
+                              <Video size={16} />
+                            ) : asset.type === 'text' ? (
+                              <FileText size={16} />
+                            ) : (
+                              <FolderOpen size={16} />
+                            )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="text-[13px] font-medium text-[#FFFFFF]">{asset.name}</div>
-                            <div className="mt-1 text-[11px] leading-5 text-[#7D7D84]">{asset.role}</div>
+                            <div className="truncate text-[13px] font-medium text-[#FFFFFF]">{asset.name}</div>
                           </div>
                         </button>
                       ))}
@@ -554,7 +557,7 @@ export default function HomePage() {
       </section>
 
       {/* Quick Mode Cards */}
-      <section>
+      <section id="trending-inspirations">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {QUICK_MODES.map((mode) => {
             const IconComp = modeIconMap[mode.icon] || Sparkles;
@@ -576,16 +579,17 @@ export default function HomePage() {
       {/* Trending Inspirations */}
       <section>
         <div className="rounded-[28px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.92)_0%,rgba(16,16,17,0.96)_100%)] p-5 md:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between mb-6">
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-[20px] md:text-[22px] font-semibold text-[#FFFFFF]">Trending Inspirations</h2>
-                <p className="text-[13px] text-[#8E8E93] mt-2 max-w-[620px] leading-6">
-                  Explore mood-led references, cinematic loops, and product-style mock demos arranged for faster scanning.
-                </p>
-              </div>
+          <div className="mb-6 space-y-4">
+            <div>
+              <h2 className="text-[20px] md:text-[22px] font-semibold text-[#FFFFFF]">Trending Inspirations</h2>
+              <p className="text-[13px] text-[#8E8E93] mt-2 max-w-[620px] leading-6">
+                Explore mood-led references, cinematic loops, and product-style mock demos arranged for faster scanning.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center gap-2 flex-wrap">
-                {TRENDING_TABS.map((tab) => (
+                {HOME_TRENDING_TABS.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -599,27 +603,24 @@ export default function HomePage() {
                   </button>
                 ))}
               </div>
-            </div>
 
-            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end xl:w-auto">
-              <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#2A2A2C] bg-[#141415] focus-within:border-[#FF843D] transition-all min-w-0 sm:min-w-[280px]">
-                <Search size={14} className="text-[#6B6B6F] shrink-0" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by title, creator, or keyword..."
-                  className="text-[13px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent w-full"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} className="text-[#6B6B6F] hover:text-[#FFFFFF] shrink-0">
-                    <X size={12} />
-                  </button>
-                )}
+              <div className="w-full xl:w-auto xl:max-w-[360px]">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#2A2A2C] bg-[#141415] focus-within:border-[#FF843D] transition-all min-w-0">
+                  <Search size={14} className="text-[#6B6B6F] shrink-0" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by title, creator, or keyword..."
+                    className="text-[13px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent w-full"
+                  />
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery('')} className="text-[#6B6B6F] hover:text-[#FFFFFF] shrink-0">
+                      <X size={12} />
+                    </button>
+                  )}
+                </div>
               </div>
-              <button className="inline-flex items-center justify-center gap-2 rounded-full border border-[#2A2A2C] bg-[#101011] px-4 py-2 text-[13px] font-medium text-[#D4D4D8] hover:border-[#FF843D] hover:text-[#FFFFFF] transition-all">
-                View All <span className="text-[11px]">&rarr;</span>
-              </button>
             </div>
           </div>
 
@@ -627,6 +628,7 @@ export default function HomePage() {
           {filteredItems.length > 0 ? filteredItems.map((item) => (
             <article
               key={item.id}
+              onClick={() => handleOpenCommunityDetail(item.id)}
               className="group overflow-hidden rounded-[24px] border border-[rgba(255,255,255,0.06)] bg-[#121213] shadow-[0_1px_3px_rgba(0,0,0,0.3)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,132,61,0.35)] hover:shadow-[0_14px_36px_rgba(0,0,0,0.28)]"
             >
               <div className="aspect-[16/10] relative overflow-hidden">
@@ -655,11 +657,29 @@ export default function HomePage() {
               <div className="p-4">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <h3 className="text-[15px] font-semibold text-[#FFFFFF] leading-6">{item.title}</h3>
-                  <span className="text-[11px] uppercase tracking-[0.16em] text-[#6F6F77] shrink-0">Mock</span>
+                  <span className="text-[11px] uppercase tracking-[0.16em] text-[#6F6F77] shrink-0">{item.badges?.[0] || 'Mock'}</span>
                 </div>
                 <p className="text-[13px] text-[#9A9A9E] leading-6 min-h-[48px]">
                   {item.description}
                 </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {(item.tags || []).slice(0, 2).map((tag) => (
+                    <span
+                      key={`${item.id}-${tag}`}
+                      className="inline-flex h-[26px] items-center rounded-full border border-[rgba(255,255,255,0.08)] bg-[#101011] px-2.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#E7E7EA]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {(item.badges || []).slice(0, 2).map((badge) => (
+                    <span
+                      key={`${item.id}-${badge}`}
+                      className="inline-flex h-[26px] items-center rounded-full border border-[rgba(255,132,61,0.22)] bg-[rgba(255,132,61,0.10)] px-2.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#FFD2B4]"
+                    >
+                      {badge}
+                    </span>
+                  ))}
+                </div>
               </div>
             </article>
           )) : (
@@ -669,6 +689,17 @@ export default function HomePage() {
               <button onClick={() => setSearchQuery('')} className="text-[13px] text-[#FFFFFF] mt-2 font-medium hover:underline">Clear search</button>
             </div>
           )}
+          </div>
+
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={handleOpenCommunityList}
+              className="inline-flex items-center gap-2 rounded-full bg-[#FF843D] px-6 py-3 text-[13px] font-medium text-white shadow-[0_18px_36px_rgba(255,132,61,0.18)] transition-all hover:bg-[#FFA465]"
+            >
+              Explore Community
+              <ArrowRight size={14} />
+            </button>
           </div>
         </div>
       </section>

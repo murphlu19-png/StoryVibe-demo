@@ -6,12 +6,14 @@ interface ScriptState {
   scripts: Script[];
   activeScript: Script | null;
   videoScriptId: string | null;
+  highlightedScriptId: string | null;
   historyOpen: boolean;
   selectedVersion: string;
   pendingScript: Script | null; // 从Generate页面跳转过来的脚本
 
   setActiveScript: (script: Script | null) => void;
   setVideoScriptId: (scriptId: string | null) => void;
+  setHighlightedScriptId: (scriptId: string | null) => void;
   setPendingScript: (script: Script | null) => void;
   acceptPendingScript: () => void;
   selectVersion: (versionId: string) => void;
@@ -25,12 +27,14 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
   scripts: MY_SCRIPTS_LIBRARY,
   activeScript: null,
   videoScriptId: null,
+  highlightedScriptId: null,
   historyOpen: true,
   selectedVersion: 'v1',
   pendingScript: null,
 
   setActiveScript: (script) => set({ activeScript: script }),
   setVideoScriptId: (scriptId) => set({ videoScriptId: scriptId }),
+  setHighlightedScriptId: (scriptId) => set({ highlightedScriptId: scriptId }),
   
   setPendingScript: (script) => set({ pendingScript: script }),
   

@@ -9,7 +9,29 @@ type MockDemoClassificationDetail = {
 
 const fragranceKeywords = ['香水', 'perfume', 'fragrance', '产品', 'product', 'brand', 'logo', '广告', '投放', '品牌短片'];
 const fragranceDetailKeywords = ['产品图', 'logo', '镜头', 'brief', '脚本', '品牌', 'hero shot', 'end-card', 'campaign'];
-const dreamKeywords = ['梦', '梦境', 'dream', 'dreamlike', 'memory', '记忆', '情绪', '光影', '模糊', '柔和'];
+const dreamKeywords = [
+  '梦',
+  '梦境',
+  'dream',
+  'dreamlike',
+  'memory',
+  'memory space',
+  '记忆',
+  '记忆中的空间',
+  '情绪',
+  '情绪流动',
+  'emotional flow',
+  '光影',
+  '模糊',
+  'blurry',
+  '柔和',
+  '安静',
+  'quiet',
+  'less narrative',
+  '不要太叙事化',
+  'three images',
+  '三张图',
+];
 const backroomsKeywords = ['后室', 'backrooms', '第一视角', 'pov', 'vlog', '探索', '15秒', '15 秒', '真实', '紧张'];
 const vagueKeywords = ['模糊', '感觉', '想做', '想先', '帮我梳理', '大概', '一个方向'];
 
@@ -19,6 +41,10 @@ function normalizeInput(inputText: string): string {
 
 function collectMatches(text: string, keywords: string[]): string[] {
   return keywords.filter((keyword) => text.includes(keyword.toLowerCase()));
+}
+
+function includesAll(text: string, signals: string[]): boolean {
+  return signals.every((signal) => text.includes(signal.toLowerCase()));
 }
 
 function countImageReferences(text: string): number {
@@ -39,6 +65,43 @@ export function getMockDemoClassificationDetail(inputText: string, assets: unkno
   const text = normalizeInput(inputText);
   const assetCount = Array.isArray(assets) ? assets.length : 0;
   const imageReferenceCount = countImageReferences(text);
+
+  const matchesExactDreamPrompt =
+    includesAll(text, ['梦境', '15 秒']) &&
+    includesAll(text, ['安静', '模糊', '记忆中的空间']) &&
+    includesAll(text, ['image 1', 'image 2', 'image 3']) &&
+    includesAll(text, ['不要太叙事化', '情绪流动']);
+
+  const matchesExactBackroomsPrompt =
+    includesAll(text, ['真人', 'vlog', '第一视角']) &&
+    includesAll(text, ['后室', '探索']) &&
+    includesAll(text, ['15 秒', '没有素材']) &&
+    includesAll(text, ['真实', '紧张', '手机']);
+
+  if (matchesExactDreamPrompt || (assetCount >= 3 && includesAll(text, ['梦境', 'image 1', 'image 2', 'image 3']))) {
+    return {
+      scenarioId: 'dream_video_with_assets',
+      confidence: matchesExactDreamPrompt ? 0.97 : 0.92,
+      matchedSignals: [
+        'matched dream prompt pattern',
+        'matched Image 1 / Image 2 / Image 3 reference structure',
+        ...(assetCount >= 3 ? [`asset count >= 3 (${assetCount})`] : []),
+      ],
+      reason: 'Matched the dedicated dream-memory mock flow with three-image asset references and emotional-flow wording.',
+    };
+  }
+
+  if (matchesExactBackroomsPrompt) {
+    return {
+      scenarioId: 'backrooms_vlog_fuzzy_no_asset',
+      confidence: 0.96,
+      matchedSignals: [
+        'matched backrooms POV vlog prompt pattern',
+        'matched no-asset suspense exploration structure',
+      ],
+      reason: 'Matched the dedicated Backrooms mock flow with first-person vlog, no-asset, and handheld suspense language.',
+    };
+  }
 
   const fragranceMatches = collectMatches(text, fragranceKeywords);
   const fragranceDetailMatches = collectMatches(text, fragranceDetailKeywords);
@@ -83,12 +146,17 @@ export function getMockDemoClassificationDetail(inputText: string, assets: unkno
     dreamSignals.push('theme is not product-ad driven');
   }
 
-  if (dreamMatches.length >= 1 && (imageReferenceCount >= 3 || assetCount >= 3) && fragranceMatches.length === 0) {
+  if (
+    dreamMatches.length >= 2 &&
+    (imageReferenceCount >= 3 || assetCount >= 3) &&
+    fragranceMatches.length === 0 &&
+    backroomsMatches.length === 0
+  ) {
     return {
       scenarioId: 'dream_video_with_assets',
       confidence: clampConfidence(0.66 + dreamMatches.length * 0.04 + Math.min(assetCount, 4) * 0.03),
       matchedSignals: dreamSignals,
-      reason: 'Matched dream / memory language with enough asset references while remaining clearly non-commercial.',
+      reason: 'Matched dream / memory / emotional-flow language with three-image references while remaining clearly non-commercial and non-Backrooms.',
     };
   }
 

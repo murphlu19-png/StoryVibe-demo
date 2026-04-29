@@ -19,7 +19,7 @@ function truncateText(text: string, maxLength: number) {
 
 function getStructureLabels(scenarioId: string) {
   if (scenarioId === 'dream_video_with_assets') {
-    return ['Arrival', 'Reveal', 'Drift', 'Longing', 'Dissolve'];
+    return ['Arrival', 'Drift', 'Suspension', 'Deepening', 'Fade'];
   }
 
   if (scenarioId === 'fragrance_ad_script_with_assets') {
@@ -32,7 +32,7 @@ function getStructureLabels(scenarioId: string) {
 function getEmotionLevels(scenarioId: string, count: number) {
   const presets: Record<string, number[]> = {
     backrooms_vlog_fuzzy_no_asset: [28, 42, 64, 84, 96],
-    dream_video_with_assets: [22, 34, 52, 70, 58],
+    dream_video_with_assets: [28, 42, 56, 72, 48],
     fragrance_ad_script_with_assets: [34, 48, 62, 76, 88],
   };
 

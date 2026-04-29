@@ -76,28 +76,28 @@ function getMockPreviewMeta(scenarioId: string, segmentIndex: number) {
     ],
     dream_video_with_assets: [
       {
-        title: 'Memory Entrance',
-        caption: 'Subject and haze silhouette',
+        title: 'Arrival',
+        caption: 'Soft opening into the dream',
         background: 'linear-gradient(135deg, rgba(73,82,145,0.86) 0%, rgba(141,113,168,0.7) 40%, rgba(18,18,31,1) 100%)',
       },
       {
-        title: 'Soft Architecture',
-        caption: 'Dream space formation',
+        title: 'Drift',
+        caption: 'Memory-space begins to breathe',
         background: 'linear-gradient(135deg, rgba(67,92,138,0.82) 0%, rgba(164,150,194,0.68) 48%, rgba(19,18,31,1) 100%)',
       },
       {
-        title: 'Living Memory',
-        caption: 'Space reacts to movement',
+        title: 'Suspension',
+        caption: 'Stillness, light, and hush',
         background: 'linear-gradient(135deg, rgba(82,99,152,0.84) 0%, rgba(122,147,193,0.64) 46%, rgba(17,19,30,1) 100%)',
       },
       {
-        title: 'Distant Light',
-        caption: 'Warm bloom in the haze',
+        title: 'Deepening',
+        caption: 'Emotional bloom and softness',
         background: 'linear-gradient(135deg, rgba(116,111,168,0.82) 0%, rgba(213,189,149,0.56) 45%, rgba(23,20,31,1) 100%)',
       },
       {
-        title: 'White Dissolve',
-        caption: 'Final silhouette fade',
+        title: 'Fade',
+        caption: 'Afterglow and dissolution',
         background: 'linear-gradient(135deg, rgba(146,154,191,0.76) 0%, rgba(226,219,213,0.58) 40%, rgba(26,26,34,1) 100%)',
       },
     ],
@@ -163,11 +163,11 @@ function getPurposeTags(scenarioId: string, rowIndex: number, fallback: string) 
       ['CUT TO BLACK'],
     ],
     dream_video_with_assets: [
-      ['ESTABLISH', 'SUBJECT'],
-      ['REVEAL SPACE'],
-      ['EMOTIONAL', 'PROGRESSION'],
-      ['UNRESOLVED', 'LONGING'],
-      ['DREAM FADE'],
+      ['ARRIVAL', 'DREAM OPENING'],
+      ['DRIFT', 'ATMOSPHERIC'],
+      ['SUSPENSION', 'QUIET'],
+      ['BLOOM', 'EMOTIONAL SHIFT'],
+      ['FADE', 'AFTERGLOW'],
     ],
     fragrance_ad_script_with_assets: [
       ['PRODUCT', 'TEXTURE'],
@@ -185,7 +185,7 @@ function createEmptyRow() {
   return {
     _localId: `row-${Math.random().toString(36).slice(2, 10)}`,
     previewImage: '',
-    time: '00-00s',
+    time: '00–00s',
     scene: '',
     purpose: '',
     visualDirection: '',
@@ -516,7 +516,7 @@ function ShotDetailModal({
               isEditing={editingField === 'assetSource'}
               textarea={false}
               quickOptions={assetLibraryItems}
-              placeholder="No asset"
+              placeholder="Add or reference assets..."
               onDoubleClick={() => onBeginFieldEditing('assetSource')}
               onChange={(value) => onChangeField('assetSource', value)}
               onSave={() => onSaveField('assetSource')}
@@ -1139,7 +1139,7 @@ export function ScriptPlanViews({
                                         <textarea
                                           value={editingRowDraft.scene}
                                           onChange={(event) => updateEditingDraft({ scene: event.target.value })}
-                                          placeholder="Describe the visual beat"
+                                          placeholder="Describe the visual moment for this shot..."
                                           className="min-h-[84px] max-h-[176px] w-full resize-y overflow-y-auto rounded-[12px] border border-[#2A2A2C] bg-[#141415] px-3 py-2.5 text-[12px] leading-5 text-[#F3F3F5] outline-none transition-all placeholder:text-[#6F6F77] focus:border-[#FF843D] focus:ring-2 focus:ring-[#FF843D]/20"
                                         />
                                       </div>
@@ -1148,7 +1148,7 @@ export function ScriptPlanViews({
                                         <textarea
                                           value={editingRowDraft.visualDirection}
                                           onChange={(event) => updateEditingDraft({ visualDirection: event.target.value })}
-                                          placeholder="Direction, composition, movement"
+                                          placeholder="Add visual texture, atmosphere, or lighting notes..."
                                           className="min-h-[68px] max-h-[144px] w-full resize-y overflow-y-auto rounded-[12px] border border-[#2A2A2C] bg-[#141415] px-3 py-2.5 text-[12px] leading-5 text-[#D4D4D8] outline-none transition-all placeholder:text-[#6F6F77] focus:border-[#FF843D] focus:ring-2 focus:ring-[#FF843D]/20"
                                         />
                                       </div>
@@ -1169,7 +1169,7 @@ export function ScriptPlanViews({
                                     <textarea
                                       value={editingRowDraft.camera}
                                       onChange={(event) => updateEditingDraft({ camera: event.target.value })}
-                                      placeholder="Camera notes"
+                                      placeholder="Describe the camera movement or framing..."
                                       className="min-h-[84px] max-h-[176px] w-full resize-y overflow-y-auto rounded-[12px] border border-[#2A2A2C] bg-[#141415] px-3 py-2.5 text-[12px] leading-5 text-[#F3F3F5] outline-none transition-all placeholder:text-[#6F6F77] focus:border-[#FF843D] focus:ring-2 focus:ring-[#FF843D]/20"
                                     />
                                   </div>
@@ -1200,7 +1200,7 @@ export function ScriptPlanViews({
                                         )}
                                       </button>
                                       <div className="mt-1.5 text-[10px] leading-4 text-[#7C7C82]">
-                                        {displayRow.assetSource ? displayRow.assetSource : 'No asset attached yet'}
+                                        {displayRow.assetSource ? displayRow.assetSource : 'Add or reference assets...'}
                                       </div>
                                       <div className={`absolute left-0 top-[calc(100%+10px)] z-40 w-[280px] rounded-[16px] border border-[rgba(255,255,255,0.08)] bg-[rgba(16,16,17,0.96)] p-3 shadow-[0_18px_50px_rgba(0,0,0,0.38)] backdrop-blur-xl transition-all duration-200 ease-out ${
                                         assetPopoverRowIndex === index ? 'visible translate-y-0 opacity-100 pointer-events-auto' : 'invisible translate-y-1 opacity-0 pointer-events-none'
@@ -1241,11 +1241,11 @@ export function ScriptPlanViews({
                                     <textarea
                                       value={currentCopyValue}
                                       onChange={(event) => updateCopyDraftValue(event.target.value)}
-                                      placeholder="Caption or dialogue"
+                                      placeholder="Add optional voiceover, inner thought, or spoken line..."
                                       className="min-h-[84px] max-h-[176px] w-full resize-y overflow-y-auto rounded-[12px] border border-[#2A2A2C] bg-[#141415] px-3 py-2.5 text-[12px] leading-5 text-[#F3F3F5] outline-none transition-all placeholder:text-[#6F6F77] focus:border-[#FF843D] focus:ring-2 focus:ring-[#FF843D]/20"
                                     />
                                     <div className="mt-1.5 text-[10px] leading-4 text-[#7C7C82]">
-                                      {(displayRow.audioOrVoice || '').trim() || 'Audio / voice note can stay empty.'}
+                                      {(displayRow.audioOrVoice || '').trim() || 'Add optional voiceover, inner thought, or spoken line...'}
                                     </div>
                                   </div>
                                 </div>

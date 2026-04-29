@@ -3,8 +3,10 @@ import { useScriptStore } from '@/stores/useScriptStore';
 import { useEditorStore } from '@/stores/useEditorStore';
 import { useAppStore } from '@/stores/useAppStore';
 import { useMockDemoStore } from '@/stores/useMockDemoStore';
+import { useGenerateStore } from '@/stores/useGenerateStore';
 import { getMockDemoScenarioById } from '@/lib/mockDemoScenarios';
-import { MockComposerShell } from '@/components/shared/MockComposerShell';
+import { ScriptPlanComposerShell } from '@/components/shared/ScriptPlanComposerShell';
+import { FlowChatboxDock } from '@/components/shared/FlowChatboxDock';
 import { EmotionStructurePanel, MiddleContentTabs, type MiddleContentView } from '@/components/shared/ScriptPlanMiddlePanels';
 import { ScriptPlanViews } from '@/components/shared/ScriptPlanViews';
 import {
@@ -1691,28 +1693,28 @@ function getMockPreviewMeta(scenarioId: string, segmentIndex: number) {
     ],
     dream_video_with_assets: [
       {
-        title: 'Memory Entrance',
-        caption: 'Subject and haze silhouette',
+        title: 'Arrival',
+        caption: 'Soft opening into the dream',
         background: 'linear-gradient(135deg, rgba(73,82,145,0.86) 0%, rgba(141,113,168,0.7) 40%, rgba(18,18,31,1) 100%)',
       },
       {
-        title: 'Soft Architecture',
-        caption: 'Dream space formation',
+        title: 'Drift',
+        caption: 'Memory-space begins to breathe',
         background: 'linear-gradient(135deg, rgba(67,92,138,0.82) 0%, rgba(164,150,194,0.68) 48%, rgba(19,18,31,1) 100%)',
       },
       {
-        title: 'Living Memory',
-        caption: 'Space reacts to movement',
+        title: 'Suspension',
+        caption: 'Stillness, light, and hush',
         background: 'linear-gradient(135deg, rgba(82,99,152,0.84) 0%, rgba(122,147,193,0.64) 46%, rgba(17,19,30,1) 100%)',
       },
       {
-        title: 'Distant Light',
-        caption: 'Warm bloom in the haze',
+        title: 'Deepening',
+        caption: 'Emotional bloom and softness',
         background: 'linear-gradient(135deg, rgba(116,111,168,0.82) 0%, rgba(213,189,149,0.56) 45%, rgba(23,20,31,1) 100%)',
       },
       {
-        title: 'White Dissolve',
-        caption: 'Final silhouette fade',
+        title: 'Fade',
+        caption: 'Afterglow and dissolution',
         background: 'linear-gradient(135deg, rgba(146,154,191,0.76) 0%, rgba(226,219,213,0.58) 40%, rgba(26,26,34,1) 100%)',
       },
     ],
@@ -1871,11 +1873,11 @@ function getPurposeTags(scenarioId: string, rowIndex: number, fallback: string) 
       ['CUT TO BLACK'],
     ],
     dream_video_with_assets: [
-      ['ESTABLISH', 'SUBJECT'],
-      ['REVEAL SPACE'],
-      ['EMOTIONAL', 'PROGRESSION'],
-      ['UNRESOLVED', 'LONGING'],
-      ['DREAM FADE'],
+      ['ARRIVAL', 'DREAM OPENING'],
+      ['DRIFT', 'ATMOSPHERIC'],
+      ['SUSPENSION', 'QUIET'],
+      ['BLOOM', 'EMOTIONAL SHIFT'],
+      ['FADE', 'AFTERGLOW'],
     ],
     fragrance_ad_script_with_assets: [
       ['PRODUCT', 'TEXTURE'],
@@ -2074,7 +2076,7 @@ function ScriptPlanWorkspaceShell({
   onBack: () => void;
 }) {
   return (
-    <div className="relative min-h-[calc(100vh-120px)] pb-24">
+    <div className="relative min-h-[calc(100vh-120px)]">
       <AmbientGlow variant="subtle" fixed={false} />
       <div className="mx-auto max-w-[1080px] space-y-6">
         <PageTopBackStrip label={backLabel} onBack={onBack} />
@@ -2248,7 +2250,25 @@ function ScriptPlanWorkspaceShell({
           </div>
         </div>
 
-        <MockComposerShell mentionAssets={mentionAssets} resetKey={`${title}-script`} footerNote="Composer interactions stay local and do not change the current script plan." />
+        <FlowChatboxDock>
+          {({ onInputFocusChange, onPopoverStateChange, onInteractionLockChange }) => (
+            <ScriptPlanComposerShell
+              mentionAssets={mentionAssets}
+              resetKey={`${title}-script`}
+              scriptShots={rows.map((row, index) => ({
+                id: `${row.time}-${index}`,
+                label: `Shot ${String(index + 1).padStart(2, '0')}`,
+                time: row.time,
+                title: row.purpose || `Beat ${index + 1}`,
+              }))}
+              activeShotId={rows[focusedShotIndex] ? `${rows[focusedShotIndex].time}-${focusedShotIndex}` : `shot-${focusedShotIndex}`}
+              actionLabel="Generate"
+              onInputFocusChange={onInputFocusChange}
+              onPopoverStateChange={onPopoverStateChange}
+              onInteractionLockChange={onInteractionLockChange}
+            />
+          )}
+        </FlowChatboxDock>
       </div>
     </div>
   );
@@ -2519,12 +2539,101 @@ function ShotDetailModal({
 }
 void ShotDetailModal;
 
+function SaveDraftChoiceModal({
+  isOpen,
+  onClose,
+  onSaveToMyScripts,
+  onSaveToAssetLibrary,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSaveToMyScripts: () => void;
+  onSaveToAssetLibrary: () => void;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[320] flex items-center justify-center bg-[#FF843D]/20 p-4 backdrop-blur-[2px]"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-[560px] rounded-[28px] border border-[rgba(255,255,255,0.08)] bg-[#141415] p-6 shadow-[0_16px_48px_rgba(0,0,0,0.42)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="mb-5">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8E8E93]">
+            Save Draft
+          </div>
+          <h3 className="mt-2 text-[22px] font-semibold text-white">Save Draft</h3>
+          <p className="mt-2 text-[13px] leading-6 text-[#9A9A9E]">
+            Choose where you want to save this generated script plan.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={onSaveToMyScripts}
+            className="w-full rounded-[22px] border border-[rgba(255,255,255,0.08)] bg-[rgba(18,18,19,0.88)] p-5 text-left transition-all hover:border-[rgba(255,132,61,0.28)] hover:bg-[rgba(24,24,25,0.96)]"
+          >
+            <div className="text-[15px] font-medium text-white">Save to My Scripts</div>
+            <div className="mt-2 text-[12px] leading-6 text-[#9A9A9E]">
+              Save this script plan as an editable script card in My Scripts.
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={onSaveToAssetLibrary}
+            className="w-full rounded-[22px] border border-[rgba(255,255,255,0.08)] bg-[rgba(18,18,19,0.88)] p-5 text-left transition-all hover:border-[rgba(255,132,61,0.28)] hover:bg-[rgba(24,24,25,0.96)]"
+          >
+            <div className="text-[15px] font-medium text-white">Save to Asset Library</div>
+            <div className="mt-2 text-[12px] leading-6 text-[#9A9A9E]">
+              Save this generated plan as a reusable asset package.
+            </div>
+          </button>
+        </div>
+
+        <div className="mt-5 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-[#2A2A2C] px-4 py-2 text-[12px] font-medium text-[#9A9A9E] transition-all hover:border-[#FF843D] hover:text-white"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main ScriptPage ─── */
 export default function ScriptPage() {
-  const { historyOpen, scripts, activeScript, updateShotInActive, setActiveScript, setVideoScriptId, addScript, deleteScript } = useScriptStore();
-  const { setActiveNav, setPageTitleOverride } = useAppStore();
+  const {
+    historyOpen,
+    scripts,
+    activeScript,
+    updateShotInActive,
+    setActiveScript,
+    setVideoScriptId,
+    addScript,
+    deleteScript,
+    highlightedScriptId,
+    setHighlightedScriptId,
+  } = useScriptStore();
+  const {
+    setActiveNav,
+    setPageTitleOverride,
+    scriptPageIntent,
+    clearScriptPageIntent,
+    scriptPageRoute,
+    setScriptPageRoute,
+  } = useAppStore();
   const { pushUndo } = useEditorStore();
   const { activeScenarioId, scriptPlanReady, startVideoGeneration } = useMockDemoStore();
+  const { addSavedAssetPackage } = useGenerateStore();
   const [pageMode, setPageMode] = useState<'preview' | 'project' | 'project_create' | 'editor'>('preview');
   const [viewMode, setViewMode] = useState<'table' | 'storyboard'>('table');
   const [editingShot, setEditingShot] = useState<any | null>(null);
@@ -2578,6 +2687,8 @@ export default function ScriptPage() {
   const [draggedSequenceId, setDraggedSequenceId] = useState<string | null>(null);
   const [dragOverSequenceId, setDragOverSequenceId] = useState<string | null>(null);
   const [dragReadySequenceId, setDragReadySequenceId] = useState<string | null>(null);
+  const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
+  const [saveToastMessage, setSaveToastMessage] = useState<string | null>(null);
   void storyboardModalDraft;
   void setStoryboardModalDraft;
   void storyboardModalEditingField;
@@ -2620,13 +2731,71 @@ export default function ScriptPage() {
       setPageTitleOverride('Scripts / Project Script');
       return () => setPageTitleOverride(null);
     }
-    if (pageMode === 'editor' || mockScriptPlanActive) {
+    if (pageMode === 'editor' || (scriptPageRoute === 'current_generation' && mockScriptPlanActive)) {
       setPageTitleOverride('Scripts / Script Detail');
       return () => setPageTitleOverride(null);
     }
     setPageTitleOverride('Scripts');
     return () => setPageTitleOverride(null);
-  }, [mockScriptPlanActive, pageMode, setPageTitleOverride]);
+  }, [mockScriptPlanActive, pageMode, scriptPageRoute, setPageTitleOverride]);
+
+  useEffect(() => {
+    if (scriptPageRoute !== 'overview') return;
+    if (pageMode === 'preview') return;
+
+    setActiveProjectId(null);
+    setDraftProject(null);
+    setPageMode('preview');
+  }, [pageMode, scriptPageRoute]);
+
+  useEffect(() => {
+    if (!saveToastMessage) return;
+
+    const timer = window.setTimeout(() => {
+      setSaveToastMessage(null);
+    }, 2400);
+
+    return () => window.clearTimeout(timer);
+  }, [saveToastMessage]);
+
+  useEffect(() => {
+    if (!scriptPageIntent) return;
+
+    if (scriptPageIntent.type === 'script_editor' && activeScript) {
+      setScriptPageRoute('overview');
+      setVideoScriptId(null);
+      setActiveProjectId(null);
+      setEditorReturnMode('preview');
+      setFocusedShotIndex(0);
+      setMiddleView('summary');
+      setViewMode('table');
+      setPageMode('editor');
+      clearScriptPageIntent();
+      return;
+    }
+
+    if (scriptPageIntent.type === 'project_detail') {
+      setScriptPageRoute('overview');
+      const externalProject = hydrateProject(scriptPageIntent.project);
+      setProjectScripts((prev) => {
+        const hasExisting = prev.some((project) => project.id === externalProject.id);
+        if (hasExisting) {
+          return prev.map((project) => (project.id === externalProject.id ? externalProject : project));
+        }
+
+        return [externalProject, ...prev];
+      });
+      setActiveProjectId(externalProject.id);
+      setDraftProject(null);
+      setPageMode('project');
+      clearScriptPageIntent();
+    }
+  }, [
+    activeScript,
+    clearScriptPageIntent,
+    scriptPageIntent,
+    setVideoScriptId,
+  ]);
 
   const clearProjectSequenceHold = () => {
     if (projectSequenceHoldTimerRef.current) {
@@ -2848,7 +3017,7 @@ export default function ScriptPage() {
     };
   }, [editingRowIndex, editingField, mockRows]);
 
-  if (pageMode !== 'editor' && mockScriptPlanActive && mockScenario) {
+  if (scriptPageRoute === 'current_generation' && pageMode !== 'editor' && mockScriptPlanActive && mockScenario) {
     const rows = mockRows.length > 0 ? mockRows : mockScenario.scriptPlan.rows;
     const durationLabel = getDurationLabel(mockScenario.outputSpec, rows);
     const narrativeArc = truncateText(getNarrativeArcText(mockScenario), 132);
@@ -2875,45 +3044,49 @@ export default function ScriptPage() {
         ];
 
     return (
-      <ScriptPlanWorkspaceShell
-        title={`Generated Script Plan · ${mockScenario.scriptPlan.title || mockScenario.label}`}
-        statusLabel="Draft"
-        durationLabel={durationLabel}
-        versionLabel="v1"
-        summaryCards={summaryCards}
-        activeInfoPopover={activeInfoPopover}
-        openInfoPopover={globalOpenInfoPopover}
-        scheduleInfoPopoverClose={globalScheduleInfoPopoverClose}
-        toggleInfoPopover={globalToggleInfoPopover}
-        middleView={middleView}
-        setMiddleView={setMiddleView}
-        rows={rows}
-        middleScenarioId={mockScenario.id}
-        viewMode={viewMode}
-        onPlanViewChange={setViewMode}
-        focusedShotIndex={focusedShotIndex}
-        setFocusedShotIndex={setFocusedShotIndex}
-        onRowsChange={setMockRows}
-        onRhythmReorderRows={(nextRows, nextActiveIndex) => {
-          setMockRows(nextRows);
-          setFocusedShotIndex(nextActiveIndex);
-        }}
-        mentionAssets={composerMentionAssets}
-        outputSpec={mockScenario.outputSpec}
-        videoScenarioLabel={mockScenario.label}
-        onSaveDraft={handleSaveCurrentDraft}
-        onGenerateVideo={() => {
-          setVideoScriptId(null);
-          startVideoGeneration();
-          setActiveNav('edit');
-        }}
-        backLabel="Back to Questions"
-        onBack={() => navigateBackOr('generate')}
-      />
+      <>
+        <ScriptPlanWorkspaceShell
+          title={`Generated Script Plan · ${mockScenario.scriptPlan.title || mockScenario.label}`}
+          statusLabel="Draft"
+          durationLabel={durationLabel}
+          versionLabel="v1"
+          summaryCards={summaryCards}
+          activeInfoPopover={activeInfoPopover}
+          openInfoPopover={globalOpenInfoPopover}
+          scheduleInfoPopoverClose={globalScheduleInfoPopoverClose}
+          toggleInfoPopover={globalToggleInfoPopover}
+          middleView={middleView}
+          setMiddleView={setMiddleView}
+          rows={rows}
+          middleScenarioId={mockScenario.id}
+          viewMode={viewMode}
+          onPlanViewChange={setViewMode}
+          focusedShotIndex={focusedShotIndex}
+          setFocusedShotIndex={setFocusedShotIndex}
+          onRowsChange={setMockRows}
+          onRhythmReorderRows={(nextRows, nextActiveIndex) => {
+            setMockRows(nextRows);
+            setFocusedShotIndex(nextActiveIndex);
+          }}
+          mentionAssets={composerMentionAssets}
+          outputSpec={mockScenario.outputSpec}
+          videoScenarioLabel={mockScenario.label}
+          onSaveDraft={handleSaveCurrentDraft}
+          onGenerateVideo={() => {
+            setVideoScriptId(null);
+            startVideoGeneration();
+            setActiveNav('edit');
+          }}
+          backLabel="Back to Questions"
+          onBack={() => navigateBackOr('generate')}
+        />
+        {renderSaveDraftOverlays()}
+      </>
     );
   }
 
   function createScriptDraftFromRows(title: string, rowsToSave: EditableMockRow[]): Script {
+    const nowLabel = 'Updated just now';
     const normalizedShots = rowsToSave.map((row, index) => ({
       id: `shot-${Date.now()}-${index + 1}`,
       timeRange: row.time || `${index * 3}-${(index + 1) * 3}s`,
@@ -2931,6 +3104,15 @@ export default function ScriptPage() {
       status: 'draft',
       duration: `${normalizedShots.length * 3}s`,
       version: 'v1',
+      createdAt: nowLabel,
+      updatedAt: nowLabel,
+      source: 'generated-flow',
+      shortDescription: mockScenario
+        ? truncateText(getNarrativeArcText(mockScenario), 168)
+        : 'Saved from the current script plan flow.',
+      category: mockScenario?.label || 'Generated Script',
+      coverImage: rowsToSave[0]?.previewImage || normalizedShots[0]?.preview || '/assets/story-1.jpg',
+      outputSpec: mockScenario?.outputSpec || `${normalizedShots.length * 3}s · generated draft`,
       narrativeArc: mockScenario ? getNarrativeArcText(mockScenario) : 'Saved from script plan workspace',
       emotionalGoal: mockScenario ? getEmotionalGoalText(mockScenario) : 'Refine the pacing and emotional arc',
       visualDirection: mockScenario ? mockScenario.scriptPlan.globalDirection : 'Local draft visual direction',
@@ -2940,30 +3122,94 @@ export default function ScriptPage() {
     };
   }
 
-  function handleSaveCurrentDraft() {
+  function buildCurrentDraftScript(): Script | null {
     if (mockScenario && mockRows.length > 0) {
-      const nextDraft = createScriptDraftFromRows(mockScenario.scriptPlan.title || mockScenario.label, mockRows);
-      addScript(nextDraft);
-      setActiveScript(nextDraft);
-      setPageMode('preview');
-      return;
+      return createScriptDraftFromRows(mockScenario.scriptPlan.title || mockScenario.label, mockRows);
     }
 
     if (script) {
       const rowsToSave = savedScriptRows.length > 0 ? savedScriptRows : mapScriptToEditableRows(script);
-      const nextDraft = {
+      return {
         ...script,
         id: `${script.id}-${Date.now()}`,
         version: 'v1',
+        createdAt: script.createdAt || 'Updated just now',
+        updatedAt: 'Updated just now',
+        source: script.source || 'saved-script',
+        coverImage: rowsToSave[0]?.previewImage || script.coverImage || script.shots[0]?.preview || '/assets/story-1.jpg',
         shots: mapEditableRowsToShots(rowsToSave, script),
       };
-      addScript(nextDraft);
-      setActiveScript(nextDraft);
-      setPageMode('preview');
     }
+
+    return null;
+  }
+
+  function buildAssetPackageFromScript(nextDraft: Script) {
+    return {
+      id: `asset-script-${Date.now()}`,
+      type: 'script-package' as const,
+      title: nextDraft.title,
+      summary: nextDraft.shortDescription || truncateText(nextDraft.narrativeArc, 168),
+      outputSpec: nextDraft.outputSpec || `${nextDraft.duration} · ${nextDraft.shots.length} shots`,
+      thumbnail: nextDraft.coverImage || nextDraft.shots[0]?.preview || '/assets/story-1.jpg',
+      thumbnails: nextDraft.shots
+        .map((shot) => shot.preview)
+        .filter((value): value is string => Boolean(value))
+        .slice(0, 6),
+      createdAt: 'Saved just now',
+      script: nextDraft,
+    };
+  }
+
+  function handleSaveCurrentDraft() {
+    setShowSaveDraftModal(true);
+  }
+
+  function handleSaveDraftToMyScripts() {
+    const nextDraft = buildCurrentDraftScript();
+    if (!nextDraft) return;
+
+    addScript(nextDraft);
+    setHighlightedScriptId(nextDraft.id);
+    setActiveScript(null);
+    setScriptPageRoute('overview');
+    setShowSaveDraftModal(false);
+    setPageMode('preview');
+    setSaveToastMessage('Saved to My Scripts.');
+    setActiveNav('script');
+  }
+
+  function handleSaveDraftToAssetLibrary() {
+    const nextDraft = buildCurrentDraftScript();
+    if (!nextDraft) return;
+
+    addSavedAssetPackage(buildAssetPackageFromScript(nextDraft));
+    setShowSaveDraftModal(false);
+    setSaveToastMessage('Saved to Asset Library.');
+    setActiveNav('assets');
+  }
+
+  function renderSaveDraftOverlays() {
+    return (
+      <>
+        <SaveDraftChoiceModal
+          isOpen={showSaveDraftModal}
+          onClose={() => setShowSaveDraftModal(false)}
+          onSaveToMyScripts={handleSaveDraftToMyScripts}
+          onSaveToAssetLibrary={handleSaveDraftToAssetLibrary}
+        />
+        {saveToastMessage ? (
+          <div className="fixed bottom-6 right-6 z-[340] rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,21,0.94)] px-4 py-2 text-[12px] font-medium text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+            {saveToastMessage}
+          </div>
+        ) : null}
+      </>
+    );
   }
 
   const handleOpenScriptDetail = (nextScript: Script) => {
+    setScriptPageRoute('overview');
+    setHighlightedScriptId(null);
     setActiveScript(nextScript);
     setVideoScriptId(null);
     setActiveProjectId(null);
@@ -2975,6 +3221,8 @@ export default function ScriptPage() {
   };
 
   const handleOpenProject = (projectId: string) => {
+    setScriptPageRoute('overview');
+    setHighlightedScriptId(null);
     setActiveProjectId(projectId);
     setDraftProject(null);
     setPageMode('project');
@@ -3003,6 +3251,8 @@ export default function ScriptPage() {
       })),
     };
 
+    setScriptPageRoute('overview');
+    setHighlightedScriptId(null);
     setActiveScript(nextScript);
     setVideoScriptId(null);
     setEditorReturnMode(returnMode);
@@ -3283,57 +3533,60 @@ export default function ScriptPage() {
     const mentionAssets = getScriptMentionAssets(script);
 
     return (
-      <ScriptPlanWorkspaceShell
-        title={`Generated Script Plan · ${script.title}`}
-        statusLabel={script.status === 'complete' ? 'Ready' : script.status === 'in_progress' ? 'In Progress' : 'Draft'}
-        durationLabel={durationLabel}
-        versionLabel={script.version}
-        summaryCards={summaryCards}
-        activeInfoPopover={activeInfoPopover}
-        openInfoPopover={globalOpenInfoPopover}
-        scheduleInfoPopoverClose={globalScheduleInfoPopoverClose}
-        toggleInfoPopover={globalToggleInfoPopover}
-        middleView={middleView}
-        setMiddleView={setMiddleView}
-        rows={rows}
-        middleScenarioId={getScriptThemeId(script)}
-        viewMode={viewMode}
-        onPlanViewChange={setViewMode}
-        focusedShotIndex={focusedShotIndex}
-        setFocusedShotIndex={setFocusedShotIndex}
-        onRowsChange={(nextRows) => {
-          setSavedScriptRows(nextRows);
-          setActiveScript({
-            ...script,
-            shots: mapEditableRowsToShots(nextRows, script),
-          });
-        }}
-        onRhythmReorderRows={(nextRows, nextActiveIndex) => {
-          setFocusedShotIndex(nextActiveIndex);
-          setSavedScriptRows(nextRows);
-          setActiveScript({
-            ...script,
-            shots: mapEditableRowsToShots(nextRows, script),
-          });
-        }}
-        mentionAssets={mentionAssets}
-        outputSpec={outputSpec}
-        videoScenarioLabel={script.title}
-        onSaveDraft={handleSaveCurrentDraft}
-        onGenerateVideo={() => {
-          setVideoScriptId(script.id);
-          startVideoGeneration();
-          setActiveNav('edit');
-        }}
-        backLabel={editorReturnMode === 'preview' ? 'Back to Scripts' : 'Back to Project'}
-        onBack={() => {
-          if (window.history.length > 1 && document.referrer.includes(window.location.origin)) {
-            window.history.back();
-            return;
-          }
-          setPageMode(editorReturnMode);
-        }}
-      />
+      <>
+        <ScriptPlanWorkspaceShell
+          title={`Generated Script Plan · ${script.title}`}
+          statusLabel={script.status === 'complete' ? 'Ready' : script.status === 'in_progress' ? 'In Progress' : 'Draft'}
+          durationLabel={durationLabel}
+          versionLabel={script.version}
+          summaryCards={summaryCards}
+          activeInfoPopover={activeInfoPopover}
+          openInfoPopover={globalOpenInfoPopover}
+          scheduleInfoPopoverClose={globalScheduleInfoPopoverClose}
+          toggleInfoPopover={globalToggleInfoPopover}
+          middleView={middleView}
+          setMiddleView={setMiddleView}
+          rows={rows}
+          middleScenarioId={getScriptThemeId(script)}
+          viewMode={viewMode}
+          onPlanViewChange={setViewMode}
+          focusedShotIndex={focusedShotIndex}
+          setFocusedShotIndex={setFocusedShotIndex}
+          onRowsChange={(nextRows) => {
+            setSavedScriptRows(nextRows);
+            setActiveScript({
+              ...script,
+              shots: mapEditableRowsToShots(nextRows, script),
+            });
+          }}
+          onRhythmReorderRows={(nextRows, nextActiveIndex) => {
+            setFocusedShotIndex(nextActiveIndex);
+            setSavedScriptRows(nextRows);
+            setActiveScript({
+              ...script,
+              shots: mapEditableRowsToShots(nextRows, script),
+            });
+          }}
+          mentionAssets={mentionAssets}
+          outputSpec={outputSpec}
+          videoScenarioLabel={script.title}
+          onSaveDraft={handleSaveCurrentDraft}
+          onGenerateVideo={() => {
+            setVideoScriptId(script.id);
+            startVideoGeneration();
+            setActiveNav('edit');
+          }}
+          backLabel={editorReturnMode === 'preview' ? 'Back to Scripts' : 'Back to Project'}
+          onBack={() => {
+            if (window.history.length > 1 && document.referrer.includes(window.location.origin)) {
+              window.history.back();
+              return;
+            }
+            setPageMode(editorReturnMode);
+          }}
+        />
+        {renderSaveDraftOverlays()}
+      </>
     );
   }
 
@@ -3406,7 +3659,9 @@ export default function ScriptPage() {
                   <div
                     key={s.id}
                     onClick={() => handleOpenScriptDetail(s)}
-                    className="bg-[#141415] rounded-xl border border-[#2A2A2C] overflow-hidden cursor-pointer hover:border-[#FF843D] hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all group"
+                    className={`bg-[#141415] rounded-xl border overflow-hidden cursor-pointer hover:border-[#FF843D] hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all group ${
+                      highlightedScriptId === s.id ? 'border-[#FF843D] shadow-[0_0_0_1px_rgba(255,132,61,0.35)]' : 'border-[#2A2A2C]'
+                    }`}
                   >
                     <div className="aspect-video relative overflow-hidden bg-[#FF843D]">
                       <img src={s.coverImage || s.shots[0]?.preview || '/assets/story-1.jpg'} alt={s.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" />
@@ -3496,6 +3751,7 @@ export default function ScriptPage() {
         </div>
 
         {showUploadModal && <UploadDocumentModal onClose={() => setShowUploadModal(false)} onScriptCreated={(s) => { addScript(s); handleOpenScriptDetail(s); setShowUploadModal(false); }} />}
+        {renderSaveDraftOverlays()}
         {showDeleteModal && (
           <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[#FF843D]/40 p-4" onClick={() => setShowDeleteModal(false)}>
             <div className="bg-[#141415] rounded-2xl w-full max-w-[400px] p-6" onClick={e => e.stopPropagation()}>

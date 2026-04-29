@@ -4,17 +4,29 @@ import { AtSign, CheckCircle2, ChevronDown, ChevronRight, FolderOpen, Plus } fro
 type MentionAsset = {
   id: string;
   name: string;
-  role: string;
+  role?: string;
+  thumbnail?: string;
+};
+
+type ComposerAttachedAsset = {
+  id: string;
+  file: File;
+  previewUrl: string | null;
 };
 
 type MockComposerShellProps = {
   mentionAssets: MentionAsset[];
   resetKey: string;
   ctaLabel?: string;
-  onCta?: () => void;
+  onCta?: (input: string, context: { attachedAssets: File[] }) => void;
   ctaDisabled?: boolean;
   placeholder?: string;
   footerNote?: string;
+  autoFocusSignal?: number;
+  mentionDisplayMode?: 'detailed' | 'compact';
+  disableMentionWhenEmpty?: boolean;
+  onInputFocusChange?: (isFocused: boolean) => void;
+  onPopoverStateChange?: (isOpen: boolean) => void;
 };
 
 export function MockComposerShell({
@@ -25,15 +37,22 @@ export function MockComposerShell({
   ctaDisabled = false,
   placeholder = 'Add more context, attach references, or continue with guided questions...',
   footerNote = 'Composer notes and output settings stay local to this mock flow.',
+  autoFocusSignal,
+  mentionDisplayMode = 'detailed',
+  disableMentionWhenEmpty = false,
+  onInputFocusChange,
+  onPopoverStateChange,
 }: MockComposerShellProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const flowMenuRef = useRef<HTMLDivElement>(null);
   const outputMenuRef = useRef<HTMLDivElement>(null);
   const qualityMenuRef = useRef<HTMLDivElement>(null);
   const mentionMenuRef = useRef<HTMLDivElement>(null);
+  const attachedAssetsRef = useRef<ComposerAttachedAsset[]>([]);
 
   const [chatInput, setChatInput] = useState('');
-  const [attachedAssets, setAttachedAssets] = useState<File[]>([]);
+  const [attachedAssets, setAttachedAssets] = useState<ComposerAttachedAsset[]>([]);
   const [showAssetHint, setShowAssetHint] = useState(false);
   const [isFlowMenuOpen, setIsFlowMenuOpen] = useState(false);
   const [isOutputMenuOpen, setIsOutputMenuOpen] = useState(false);
@@ -48,9 +67,19 @@ export function MockComposerShell({
   });
   const [selectedQuality, setSelectedQuality] = useState('Standard');
 
+  const clearAttachedAssets = () => {
+    attachedAssetsRef.current.forEach((asset) => {
+      if (asset.previewUrl) {
+        URL.revokeObjectURL(asset.previewUrl);
+      }
+    });
+    attachedAssetsRef.current = [];
+    setAttachedAssets([]);
+  };
+
   useEffect(() => {
     setChatInput('');
-    setAttachedAssets([]);
+    clearAttachedAssets();
     setShowAssetHint(false);
     setIsFlowMenuOpen(false);
     setIsOutputMenuOpen(false);
@@ -65,6 +94,27 @@ export function MockComposerShell({
     });
     setSelectedQuality('Standard');
   }, [resetKey]);
+
+  useEffect(() => {
+    attachedAssetsRef.current = attachedAssets;
+  }, [attachedAssets]);
+
+  useEffect(() => {
+    return () => {
+      attachedAssetsRef.current.forEach((asset) => {
+        if (asset.previewUrl) {
+          URL.revokeObjectURL(asset.previewUrl);
+        }
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof autoFocusSignal !== 'number') return;
+    window.setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 0);
+  }, [autoFocusSignal]);
 
   useEffect(() => {
     const closeMenus = () => {
@@ -109,6 +159,10 @@ export function MockComposerShell({
     };
   }, []);
 
+  useEffect(() => {
+    onPopoverStateChange?.(isFlowMenuOpen || isOutputMenuOpen || isQualityMenuOpen || isMentionMenuOpen);
+  }, [isFlowMenuOpen, isMentionMenuOpen, isOutputMenuOpen, isQualityMenuOpen, onPopoverStateChange]);
+
   const outputSpecLabel = outputMode === 'auto'
     ? 'Auto'
     : `${outputSettings.aspectRatio} · ${outputSettings.duration} · ${outputSettings.resolution}`;
@@ -126,7 +180,14 @@ export function MockComposerShell({
   const handleMockAssetSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     if (files.length > 0) {
-      setAttachedAssets((prev) => [...prev, ...files]);
+      setAttachedAssets((prev) => [
+        ...prev,
+        ...files.map((file) => ({
+          id: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2, 7)}`,
+          file,
+          previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+        })),
+      ]);
       setShowAssetHint(false);
     }
 
@@ -148,6 +209,18 @@ export function MockComposerShell({
   };
 
   const showCta = Boolean(ctaLabel && onCta);
+  const isCtaDisabled = ctaDisabled || !chatInput.trim();
+  const resolvedMentionAssets: MentionAsset[] = [
+    ...attachedAssets.map((asset) => ({
+      id: asset.id,
+      name: asset.file.name,
+      role: asset.file.type || 'Attached asset',
+      thumbnail: asset.previewUrl || undefined,
+    })),
+    ...mentionAssets,
+  ];
+  const hasMentionAssets = resolvedMentionAssets.length > 0;
+  const isMentionDisabled = disableMentionWhenEmpty && !hasMentionAssets;
 
   return (
     <div className="rounded-[30px] border border-[rgba(255,255,255,0.08)] bg-[rgba(18,18,19,0.92)] p-4 md:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.3)] backdrop-blur-sm">
@@ -164,11 +237,11 @@ export function MockComposerShell({
           <div className="flex flex-wrap gap-2">
             {attachedAssets.map((asset, index) => (
               <span
-                key={`${asset.name}-${index}`}
+                  key={`${asset.file.name}-${index}`}
                 className="inline-flex items-center gap-2 rounded-full border border-[#2A2A2C] bg-[#101011] px-3 py-1.5 text-[12px] text-[#E7E7EA]"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-[#FF843D]" />
-                {asset.name}
+                  {asset.file.name}
               </span>
             ))}
           </div>
@@ -184,8 +257,11 @@ export function MockComposerShell({
             <Plus size={22} />
           </button>
           <textarea
+            ref={textareaRef}
             value={chatInput}
             onChange={(event) => setChatInput(event.target.value)}
+            onFocus={() => onInputFocusChange?.(true)}
+            onBlur={() => onInputFocusChange?.(false)}
             placeholder={placeholder}
             className="min-h-[72px] flex-1 resize-none rounded-[22px] bg-[#101011] px-4 py-4 text-[14px] leading-7 text-[#F3F3F5] placeholder:text-[#6F6F77] outline-none transition-all focus:ring-2 focus:ring-[#FF843D]/20"
           />
@@ -371,13 +447,15 @@ export function MockComposerShell({
             <div className="relative" ref={mentionMenuRef}>
               <button
                 type="button"
+                disabled={isMentionDisabled}
                 onClick={() => {
+                  if (isMentionDisabled) return;
                   setIsMentionMenuOpen((prev) => !prev);
                   setIsFlowMenuOpen(false);
                   setIsOutputMenuOpen(false);
                   setIsQualityMenuOpen(false);
                 }}
-                className={pillButtonClassName}
+                className={`${pillButtonClassName} ${isMentionDisabled ? 'cursor-not-allowed opacity-45 hover:border-[#2A2A2C] hover:text-[#D4D4D8]' : ''}`}
               >
                 <AtSign size={14} />
               </button>
@@ -386,19 +464,31 @@ export function MockComposerShell({
                   <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8E8E93]">
                     Asset Mentions
                   </div>
-                  {mentionAssets.map((asset) => (
+                  {resolvedMentionAssets.map((asset) => (
                     <button
                       key={asset.id}
                       type="button"
                       onClick={() => appendMention(asset.name)}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[#B0B0B6] transition-all hover:bg-[#1A1A1C] hover:text-[#FFFFFF]"
+                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[#B0B0B6] transition-all hover:bg-[#1A1A1C] hover:text-[#FFFFFF] ${
+                        mentionDisplayMode === 'compact' ? 'items-center' : ''
+                      }`}
                     >
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border border-[#2A2A2C] bg-[#101011] text-[#FF843D]">
-                        <FolderOpen size={15} />
-                      </div>
+                      {asset.thumbnail ? (
+                        <img
+                          src={asset.thumbnail}
+                          alt={asset.name}
+                          className="h-9 w-9 shrink-0 rounded-[12px] border border-[#2A2A2C] object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border border-[#2A2A2C] bg-[#101011] text-[#FF843D]">
+                          <FolderOpen size={15} />
+                        </div>
+                      )}
                       <div className="min-w-0">
                         <div className="text-[12px] font-medium text-[#FFFFFF]">{asset.name}</div>
-                        <div className="mt-1 text-[11px] leading-5 text-[#8E8E93]">{asset.role}</div>
+                        {mentionDisplayMode === 'detailed' && asset.role && (
+                          <div className="mt-1 text-[11px] leading-5 text-[#8E8E93]">{asset.role}</div>
+                        )}
                       </div>
                     </button>
                   ))}
@@ -449,9 +539,12 @@ export function MockComposerShell({
             <button
               onClick={() => {
                 closeComposerMenus();
-                onCta?.();
+                onCta?.(chatInput.trim(), {
+                  attachedAssets: attachedAssets.map((asset) => asset.file),
+                });
+                setChatInput('');
               }}
-              disabled={ctaDisabled}
+              disabled={isCtaDisabled}
               className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#FF843D] px-5 py-3 text-[13px] font-medium text-white transition-all hover:bg-[#FFA465] disabled:cursor-not-allowed disabled:opacity-45 md:w-auto"
             >
               {ctaLabel} <ChevronRight size={14} />

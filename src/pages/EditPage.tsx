@@ -12,7 +12,8 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import { MockComposerShell } from '@/components/shared/MockComposerShell';
+import { ScriptPlanComposerShell } from '@/components/shared/ScriptPlanComposerShell';
+import { FlowChatboxDock } from '@/components/shared/FlowChatboxDock';
 import { EmotionStructurePanel, MiddleContentTabs, type MiddleContentView } from '@/components/shared/ScriptPlanMiddlePanels';
 import { ScriptPlanViews } from '@/components/shared/ScriptPlanViews';
 import { getMockDemoScenarioById } from '@/lib/mockDemoScenarios';
@@ -56,8 +57,8 @@ function getPreviewTheme(scenarioId: string) {
     return {
       background: 'linear-gradient(135deg, rgba(77,85,156,0.92) 0%, rgba(156,120,191,0.72) 42%, rgba(20,20,32,1) 100%)',
       glow: 'rgba(178,145,255,0.32)',
-      previewLabel: 'Dream Memory Render',
-      previewDetail: 'Soft haze · emotional drift · luminous bloom',
+      previewLabel: 'DREAM MEMORY RENDER',
+      previewDetail: 'Soft interior drift · dream-space mood · emotional flow preview',
     };
   }
 
@@ -950,7 +951,7 @@ export default function EditPage() {
       ];
 
   return (
-    <div className="pb-24">
+    <div>
       {actionMessage && (
         <div className="mb-4 rounded-[18px] border border-[rgba(76,217,100,0.18)] bg-[rgba(76,217,100,0.08)] px-4 py-3 text-[12px] text-[#C8F7D4]">
           {actionMessage}
@@ -1029,15 +1030,27 @@ export default function EditPage() {
         summaryScenario={scenario}
       />
 
-      <div className="mt-6">
-        <MockComposerShell
-          mentionAssets={composerMentionAssets}
-          resetKey={`${videoScript?.id || scenario?.id || 'video-session'}-${status}`}
-          ctaLabel="Generate Script"
-          onCta={() => {}}
-          footerNote="Composer controls remain mock-only in the generation workspace."
-        />
-      </div>
+      <FlowChatboxDock>
+        {({ onInputFocusChange, onPopoverStateChange, onInteractionLockChange }) => (
+          <ScriptPlanComposerShell
+            mentionAssets={composerMentionAssets}
+            resetKey={`${videoScript?.id || scenario?.id || 'video-session'}-${status}`}
+            scriptShots={displayedRows.map((row, index) => ({
+              id: `${row.time}-${index}`,
+              label: `Shot ${String(index + 1).padStart(2, '0')}`,
+              time: row.time,
+              title: row.purpose || `Beat ${index + 1}`,
+            }))}
+            activeShotId={displayedRows[focusedShotIndex] ? `${displayedRows[focusedShotIndex].time}-${focusedShotIndex}` : `shot-${focusedShotIndex}`}
+            actionLabel="Generate Script"
+            onAction={() => {}}
+            footerNote="Composer controls remain mock-only in the generation workspace."
+            onInputFocusChange={onInputFocusChange}
+            onPopoverStateChange={onPopoverStateChange}
+            onInteractionLockChange={onInteractionLockChange}
+          />
+        )}
+      </FlowChatboxDock>
     </div>
   );
 }

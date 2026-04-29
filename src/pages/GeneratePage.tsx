@@ -1,31 +1,152 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
 import { useMockDemoStore } from '@/stores/useMockDemoStore';
+import { useScriptStore } from '@/stores/useScriptStore';
 import { getMockDemoScenarioById } from '@/lib/mockDemoScenarios';
+import {
+  MOCK_GENERATE_PROJECT_HISTORY,
+  MOCK_GENERATE_SINGLE_HISTORY,
+  type GenerateHistoryProjectItem,
+  type GenerateHistoryProjectSequence,
+  type GenerateHistorySingleItem,
+} from '@/lib/mockGenerateHistory';
+import { GenerateHistoryPanel } from '@/components/generate/GenerateHistoryPanel';
+import { GenerateWorkspace } from '@/components/generate/GenerateWorkspace';
+import { GeneratePageChatbox } from '@/components/generate/GeneratePageChatbox';
 import { GuidedStageProgress } from '@/components/shared/GuidedStageProgress';
 import { getGuidedStageItems } from '@/lib/mockDemoStageProgress';
 import { MockComposerShell } from '@/components/shared/MockComposerShell';
+import { FlowChatboxDock } from '@/components/shared/FlowChatboxDock';
 import { AmbientGlow } from '@/components/AmbientGlow';
-import { ArrowLeft, CheckCircle2, ChevronRight, FileText, Sparkles } from 'lucide-react';
+import { CheckCircle2, ChevronRight, FileText, Sparkles } from 'lucide-react';
+
+type GenerateHistoryItem = GenerateHistorySingleItem | GenerateHistoryProjectItem;
+type DetailTab = 'description' | 'video' | 'scriptPlan';
+
+function getDefaultDetailTab(item: GenerateHistoryItem): DetailTab {
+  if (item.type === 'project') return 'description';
+  return item.statusTag === 'Draft' ? 'description' : 'video';
+}
+
+function buildHistoryMentionAssets(item: GenerateHistoryItem | null) {
+  if (!item) return [];
+
+  if (item.type === 'single') {
+    return item.script.shots.slice(0, 5).map((shot, index) => ({
+      id: `${item.id}-mention-${shot.id}`,
+      name: `Shot ${String(index + 1).padStart(2, '0')} · ${shot.purpose}`,
+      thumbnail: shot.preview || item.script.coverImage,
+    }));
+  }
+
+  return item.sequences.map((sequence, index) => ({
+    id: `${item.id}-mention-${sequence.id}`,
+    name: `Sequence ${String(index + 1).padStart(2, '0')} · ${sequence.title}`,
+    thumbnail: sequence.thumbnail,
+  }));
+}
+
+function buildScriptFromProjectSequence(sequence: GenerateHistoryProjectSequence) {
+  return {
+    ...sequence.script,
+    id: `${sequence.script.id}-${sequence.id}`,
+    title: sequence.title,
+    duration: sequence.duration,
+    shortDescription: sequence.summary,
+    coverImage: sequence.thumbnail,
+    shots: sequence.script.shots.map((shot) => ({
+      ...shot,
+      preview: shot.preview || sequence.thumbnail,
+    })),
+  };
+}
+
+function buildScriptPageProjectIntent(item: GenerateHistoryProjectItem) {
+  return {
+    id: item.id,
+    title: item.title,
+    status: item.statusTag === 'Draft' ? ('Drafting' as const) : ('Ready' as const),
+    duration: item.duration,
+    description: item.narrativeDirection,
+    cover: item.cover,
+    sequenceCount: item.sequenceCount,
+    aspectRatio: item.aspectRatio,
+    frameRate: item.frameRate,
+    renderMode: item.renderMode,
+    collaborationMode: {
+      summary: item.collaborationMode.split('·')[0]?.trim() || item.collaborationMode,
+      contributors: item.sequences.length,
+      syncStatus: item.collaborationMode.split('·').slice(1).join(' · ').trim() || 'Version synced',
+      tags: item.collaborationMode.split('·').map((part) => part.trim()).filter(Boolean),
+    },
+    narrativeDirection: item.narrativeDirection,
+    lastEdited: item.updatedAt,
+    collaborators: ['SV', 'MK', 'JL'].slice(0, Math.max(2, Math.min(item.sequenceCount, 3))),
+    sequences: item.sequences.map((sequence, index) => ({
+      id: sequence.id,
+      scriptKey: sequence.script.id,
+      number: String(index + 1).padStart(2, '0'),
+      duration: sequence.duration,
+      status: sequence.status === 'Draft' ? ('Draft' as const) : ('Ready' as const),
+      title: sequence.title,
+      description: sequence.summary,
+      tags: [
+        sequence.status.toUpperCase(),
+        sequence.script.category?.split('/')[0]?.trim() || 'SEQUENCE',
+      ],
+      preview: sequence.thumbnail,
+      previewLabel: index === 0 ? 'Main Preview' : undefined,
+      technicalIntent: {
+        motion: sequence.script.shots[0]?.camera || 'Mock motion plan',
+        lighting: sequence.script.visualDirection || 'Mock lighting direction',
+        lens: sequence.script.category || 'Mock lens direction',
+        sound: sequence.script.shots[0]?.copy || sequence.summary,
+      },
+    })),
+  };
+}
 
 export default function GeneratePage() {
-  const { setActiveNav } = useAppStore();
+  const { setActiveNav, setScriptPageIntent, setScriptPageRoute } = useAppStore();
+  const { setActiveScript } = useScriptStore();
   const {
     activeScenarioId,
     currentStage,
     currentQuestionIndex,
     selectedAnswers,
     classificationDetail,
+    startFromPrompt,
     startQuestions,
     selectAnswer,
     nextQuestion,
     goToIntentSummary,
     generateScriptPlan,
   } = useMockDemoStore();
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
+  const [activeDetailTab, setActiveDetailTab] = useState<DetailTab>('description');
+  const [composerFocusSignal, setComposerFocusSignal] = useState(0);
+  const [collapsedGroups, setCollapsedGroups] = useState({ single: false, project: false });
 
   const scenario = useMemo(
     () => (activeScenarioId ? getMockDemoScenarioById(activeScenarioId) : null),
     [activeScenarioId],
+  );
+  const selectedHistoryItem = useMemo<GenerateHistoryItem | null>(
+    () =>
+      MOCK_GENERATE_SINGLE_HISTORY.find((item) => item.id === selectedHistoryId) ||
+      MOCK_GENERATE_PROJECT_HISTORY.find((item) => item.id === selectedHistoryId) ||
+      null,
+    [selectedHistoryId],
+  );
+  const workspaceMentionAssets = useMemo(
+    () => buildHistoryMentionAssets(selectedHistoryItem),
+    [selectedHistoryItem],
+  );
+  const isGenerateFlowStage = Boolean(
+    scenario &&
+      (currentStage === 'ai_understanding' ||
+        currentStage === 'questions' ||
+        currentStage === 'intent_summary'),
   );
 
   const currentQuestion = scenario?.questions[currentQuestionIndex];
@@ -34,16 +155,29 @@ export default function GeneratePage() {
   useEffect(() => {
     if (currentStage === 'intent_summary' && scenario) {
       generateScriptPlan();
+      setScriptPageRoute('current_generation');
       setActiveNav('script');
     }
-  }, [currentStage, generateScriptPlan, scenario, setActiveNav]);
+  }, [currentStage, generateScriptPlan, scenario, setActiveNav, setScriptPageRoute]);
 
   const availableMentionAssets = scenario?.mockAssets.length
     ? scenario.mockAssets
     : [
-        { id: 'default-1', name: 'Image 1 · Subject Reference', role: 'Primary subject and silhouette guidance' },
-        { id: 'default-2', name: 'Image 2 · Scene Reference', role: 'Space, environment, and framing direction' },
-        { id: 'default-3', name: 'Image 3 · Mood Reference', role: 'Lighting, palette, and emotional tone' },
+        {
+          id: 'default-1',
+          name: 'Image 1 · Subject Reference',
+          role: 'Primary subject and silhouette guidance',
+        },
+        {
+          id: 'default-2',
+          name: 'Image 2 · Scene Reference',
+          role: 'Space, environment, and framing direction',
+        },
+        {
+          id: 'default-3',
+          name: 'Image 3 · Mood Reference',
+          role: 'Lighting, palette, and emotional tone',
+        },
       ];
 
   const getUnderstandingSummary = () => {
@@ -51,7 +185,7 @@ export default function GeneratePage() {
       case 'backrooms_vlog_fuzzy_no_asset':
         return 'A realistic first-person vlog inside a Backrooms-like space, built around quiet tension, handheld realism, and a short escalation from exploration to an unresolved final beat.';
       case 'dream_video_with_assets':
-        return 'A quiet dreamlike visual piece shaped by three references: subject, space, and mood. The video should feel like moving through a memory rather than following a literal plot.';
+        return 'A 15-second dreamlike video shaped by three references: Image 1 for the main figure, Image 2 for the remembered space, and Image 3 for mood, light, and color. The piece should feel emotionally immersive and minimally narrative.';
       case 'fragrance_ad_script_with_assets':
         return 'A premium fragrance brand film with a clear commercial brief, using product, urban night, talent mood, and logo references to build a restrained 15-second vertical spot.';
       default:
@@ -70,10 +204,10 @@ export default function GeneratePage() {
         };
       case 'dream_video_with_assets':
         return {
-          topic: 'Dreamlike memory video',
-          style: 'Soft surreal emotional flow',
-          goal: 'Asset-guided visual film',
-          constraint: 'Uses 3 mock references',
+          topic: 'Dreamwalk through a memory space',
+          style: 'Quiet / soft / dreamlike atmospheric flow',
+          goal: 'A poetic 15-second emotional drift',
+          constraint: 'Uses 3 mock references with fixed local roles',
         };
       case 'fragrance_ad_script_with_assets':
         return {
@@ -97,7 +231,7 @@ export default function GeneratePage() {
       case 'backrooms_vlog_fuzzy_no_asset':
         return 'Next, I will guide you through a few brief questions to help turn your idea into an executable video plan.';
       case 'dream_video_with_assets':
-        return 'Next, I will confirm how the references should guide the subject, space, mood, and ending before creating the script plan.';
+        return 'Next, I will confirm the emotional tone, movement, environment, abstraction level, atmospheric structure, and light direction before creating the script plan.';
       case 'fragrance_ad_script_with_assets':
         return 'Next, I will quickly confirm the production priorities before turning your brief into a structured script plan.';
       default:
@@ -108,31 +242,11 @@ export default function GeneratePage() {
   const submittedPrompt = scenario?.homePrompt ?? '';
   const technicalMapping = getTechnicalMapping();
 
-  if (!scenario) {
-    return (
-      <div className="min-h-[calc(100vh-120px)] flex items-center justify-center">
-        <div className="text-center max-w-[520px] px-6">
-          <AmbientGlow variant="warm" fixed={false} />
-          <h2 className="text-[24px] font-semibold text-[#FFFFFF] mb-3">Start from Home</h2>
-          <p className="text-[14px] text-[#9A9A9E] leading-relaxed mb-6">
-            Enter a prompt on Home and click Generate Script. The mock demo flow classifies the prompt locally and routes you into the matching scenario automatically.
-          </p>
-          <button
-            onClick={() => setActiveNav('home')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#FF843D] text-white text-[13px] font-medium hover:bg-[#FFA465] transition-all"
-          >
-            <ArrowLeft size={14} /> Back to Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const renderAiUnderstanding = () => (
     <div className="space-y-5 md:space-y-6">
-      <div className="rounded-[28px] border border-[#2A2A2C] bg-[rgba(20,20,21,0.88)] px-5 py-5 md:px-7 md:py-6 shadow-[0_1px_3px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-        {scenario.mockAssets.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
+      <div className="rounded-[28px] border border-[#2A2A2C] bg-[rgba(20,20,21,0.88)] px-5 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.3)] backdrop-blur-sm md:px-7 md:py-6">
+        {scenario?.mockAssets.length ? (
+          <div className="mb-4 flex flex-wrap gap-2">
             {scenario.mockAssets.map((asset) => (
               <span
                 key={asset.id}
@@ -143,18 +257,16 @@ export default function GeneratePage() {
               </span>
             ))}
           </div>
-        )}
-        <p className="text-[15px] md:text-[17px] leading-8 text-[#F3F3F5]">
-          {submittedPrompt}
-        </p>
+        ) : null}
+        <p className="text-[15px] leading-8 text-[#F3F3F5] md:text-[17px]">{submittedPrompt}</p>
       </div>
 
       <div className="px-1 text-[13px] text-[#8E8E93]">Thought for 7s</div>
 
-      <div className="rounded-[32px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(22,22,24,0.92)_0%,rgba(15,15,16,0.94)_100%)] p-6 md:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-        <div className="flex items-center gap-2 mb-6 text-[#FFFFFF]">
+      <div className="rounded-[32px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(22,22,24,0.92)_0%,rgba(15,15,16,0.94)_100%)] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.3)] backdrop-blur-sm md:p-8">
+        <div className="mb-6 flex items-center gap-2 text-[#FFFFFF]">
           <Sparkles size={16} />
-          <h2 className="text-[14px] md:text-[15px] font-semibold tracking-[0.2em] uppercase">
+          <h2 className="text-[14px] font-semibold uppercase tracking-[0.2em] md:text-[15px]">
             AI Understanding Synthesis
           </h2>
         </div>
@@ -165,7 +277,7 @@ export default function GeneratePage() {
               Narrative Arc Extraction
             </div>
             <div className="rounded-[24px] bg-[#0C0C0D] px-5 py-5 md:px-6 md:py-6">
-              <p className="text-[14px] md:text-[15px] leading-7 text-[#E7E7EA]">
+              <p className="text-[14px] leading-7 text-[#E7E7EA] md:text-[15px]">
                 {getUnderstandingSummary()}
               </p>
             </div>
@@ -186,12 +298,10 @@ export default function GeneratePage() {
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 h-10 w-[3px] rounded-full bg-[#FF843D]" />
                     <div>
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8E8E93] mb-2">
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8E8E93]">
                         {item.label}
                       </div>
-                      <div className="text-[13px] leading-6 text-[#F3F3F5]">
-                        {item.value}
-                      </div>
+                      <div className="text-[13px] leading-6 text-[#F3F3F5]">{item.value}</div>
                     </div>
                   </div>
                 </div>
@@ -200,8 +310,8 @@ export default function GeneratePage() {
           </div>
         </div>
 
-        <div className="mt-5 pt-5 border-t border-[rgba(255,255,255,0.06)] space-y-3">
-          {scenario.aiUnderstanding.detectedAssets && scenario.aiUnderstanding.detectedAssets.length > 0 && (
+        <div className="mt-5 space-y-3 border-t border-[rgba(255,255,255,0.06)] pt-5">
+          {scenario?.aiUnderstanding.detectedAssets?.length ? (
             <div className="flex flex-wrap gap-2">
               {scenario.aiUnderstanding.detectedAssets.map((asset) => (
                 <span
@@ -212,29 +322,42 @@ export default function GeneratePage() {
                 </span>
               ))}
             </div>
-          )}
+          ) : null}
           <div className="text-[12px] leading-6 text-[#8E8E93]">
             <span className="uppercase tracking-[0.18em] text-[#71717A]">Classification:</span>{' '}
-            {classificationDetail?.reason ?? scenario.aiUnderstanding.recommendedFlow}
+            {classificationDetail?.reason ?? scenario?.aiUnderstanding.recommendedFlow}
+          </div>
+          <div className="flex justify-end pt-2">
+            <button
+              type="button"
+              onClick={startQuestions}
+              className="inline-flex items-center gap-2 rounded-full bg-[#FF843D] px-5 py-2.5 text-[13px] font-medium text-white transition-all hover:bg-[#FFA465]"
+            >
+              Start Guided Questions <ChevronRight size={14} />
+            </button>
           </div>
         </div>
       </div>
 
-      <p className="px-1 text-[14px] md:text-[15px] leading-7 text-[#CFCFD4]">
-        {getNextStepCopy()}
-      </p>
+      <p className="px-1 text-[14px] leading-7 text-[#CFCFD4] md:text-[15px]">{getNextStepCopy()}</p>
 
-      <MockComposerShell
-        mentionAssets={availableMentionAssets}
-        resetKey={`${scenario.id}-understanding`}
-        ctaLabel="Start Guided Questions"
-        onCta={startQuestions}
-      />
+      <FlowChatboxDock>
+        {({ onInputFocusChange, onPopoverStateChange }) => (
+          <MockComposerShell
+            mentionAssets={availableMentionAssets}
+            resetKey={`${scenario?.id || 'generate'}-understanding`}
+            ctaLabel="Generate"
+            onCta={() => {}}
+            onInputFocusChange={onInputFocusChange}
+            onPopoverStateChange={onPopoverStateChange}
+          />
+        )}
+      </FlowChatboxDock>
     </div>
   );
 
   const renderQuestionStage = () => {
-    if (!currentQuestion) {
+    if (!scenario || !currentQuestion) {
       goToIntentSummary();
       return null;
     }
@@ -247,15 +370,19 @@ export default function GeneratePage() {
 
     return (
       <div className="space-y-5">
-        <div className="bg-[#141415] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.3)] p-6 md:p-7">
+        <div className="rounded-2xl bg-[#141415] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.3)] md:p-7">
           <GuidedStageProgress stages={guidedStages} />
-          <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-[#9A9A9E] mb-2">{currentQuestion.stage}</div>
-              <h2 className="text-[20px] font-semibold text-[#FFFFFF] mb-2">{currentQuestion.question}</h2>
-              <p className="text-[13px] text-[#9A9A9E] leading-6">{currentQuestion.helper}</p>
+              <div className="mb-2 text-[11px] uppercase tracking-wider text-[#9A9A9E]">
+                {currentQuestion.stage}
+              </div>
+              <h2 className="mb-2 text-[20px] font-semibold text-[#FFFFFF]">
+                {currentQuestion.question}
+              </h2>
+              <p className="text-[13px] leading-6 text-[#9A9A9E]">{currentQuestion.helper}</p>
             </div>
-            <div className="px-3 py-1.5 rounded-full bg-[#0A0A0B] text-[12px] text-[#FFFFFF]">
+            <div className="rounded-full bg-[#0A0A0B] px-3 py-1.5 text-[12px] text-[#FFFFFF]">
               {currentQuestionIndex + 1} / {scenario.questions.length}
             </div>
           </div>
@@ -271,7 +398,7 @@ export default function GeneratePage() {
                 <button
                   key={option.value}
                   onClick={() => selectAnswer(currentQuestion.id, option.value)}
-                  className={`text-left rounded-xl border p-4 transition-all ${
+                  className={`rounded-xl border p-4 text-left transition-all ${
                     isSelected
                       ? 'border-[#FF843D] bg-[#1E1E20]'
                       : 'border-[#2A2A2C] bg-[#0A0A0B] hover:border-[#FF843D]/60'
@@ -279,20 +406,26 @@ export default function GeneratePage() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-[14px] font-medium text-[#FFFFFF] mb-1">{option.label}</div>
-                      <div className="text-[12px] text-[#9A9A9E] leading-5">{option.description}</div>
+                      <div className="mb-1 text-[14px] font-medium text-[#FFFFFF]">
+                        {option.label}
+                      </div>
+                      <div className="text-[12px] leading-5 text-[#9A9A9E]">{option.description}</div>
                     </div>
-                    {isSelected ? <CheckCircle2 size={16} className="text-[#FF843D] shrink-0" /> : null}
+                    {isSelected ? (
+                      <CheckCircle2 size={16} className="shrink-0 text-[#FF843D]" />
+                    ) : null}
                   </div>
-                  {isRecommended && (
-                    <div className="mt-3 text-[11px] uppercase tracking-wider text-[#FF843D]">Recommended</div>
-                  )}
+                  {isRecommended ? (
+                    <div className="mt-3 text-[11px] uppercase tracking-wider text-[#FF843D]">
+                      Recommended
+                    </div>
+                  ) : null}
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
             <div className="text-[12px] text-[#9A9A9E]">
               {selectedValue
                 ? scenario.answerFeedback[currentQuestion.id] ?? 'Selection saved locally.'
@@ -302,89 +435,204 @@ export default function GeneratePage() {
               onClick={() => {
                 if (isLastQuestion) {
                   generateScriptPlan();
+                  setScriptPageRoute('current_generation');
                   setActiveNav('script');
                   return;
                 }
 
                 nextQuestion();
               }}
-              className="px-5 py-2.5 rounded-full bg-[#FF843D] text-white text-[13px] font-medium hover:bg-[#FFA465] transition-all inline-flex items-center gap-2"
+              className="inline-flex items-center gap-2 rounded-full bg-[#FF843D] px-5 py-2.5 text-[13px] font-medium text-white transition-all hover:bg-[#FFA465]"
             >
               Next <ChevronRight size={14} />
             </button>
           </div>
         </div>
 
-        <MockComposerShell
-          mentionAssets={availableMentionAssets}
-          resetKey={`${scenario.id}-questions-${currentQuestionIndex}`}
-        />
+        <FlowChatboxDock>
+          {({ onInputFocusChange, onPopoverStateChange }) => (
+            <MockComposerShell
+              mentionAssets={availableMentionAssets}
+              resetKey={`${scenario.id}-questions-${currentQuestionIndex}`}
+              onInputFocusChange={onInputFocusChange}
+              onPopoverStateChange={onPopoverStateChange}
+            />
+          )}
+        </FlowChatboxDock>
       </div>
     );
   };
 
-  const renderIntentSummary = () => (
-    <div className="bg-[#141415] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.3)] p-6 md:p-7">
-      <div className="flex items-center gap-2 mb-4 text-[#FFFFFF]">
-        <FileText size={16} />
-        <h2 className="text-[18px] font-semibold">{scenario.intentSummary.title}</h2>
-      </div>
-      <p className="text-[14px] text-[#D4D4D8] leading-7 mb-6">{scenario.intentSummary.mainCopy}</p>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="bg-[#0A0A0B] rounded-xl p-4">
-          <h3 className="text-[12px] font-semibold uppercase tracking-wider text-[#9A9A9E] mb-3">Confirmed Direction</h3>
-          <div className="space-y-2">
-            {scenario.intentSummary.confirmedDirection.map((item) => (
-              <div key={item} className="text-[13px] text-[#FFFFFF]">• {item}</div>
-            ))}
+  const renderIntentSummary = () =>
+    scenario ? (
+      <div className="rounded-2xl bg-[#141415] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.3)] md:p-7">
+        <div className="mb-4 flex items-center gap-2 text-[#FFFFFF]">
+          <FileText size={16} />
+          <h2 className="text-[18px] font-semibold">{scenario.intentSummary.title}</h2>
+        </div>
+        <p className="mb-6 text-[14px] leading-7 text-[#D4D4D8]">
+          {scenario.intentSummary.mainCopy}
+        </p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-xl bg-[#0A0A0B] p-4">
+            <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wider text-[#9A9A9E]">
+              Confirmed Direction
+            </h3>
+            <div className="space-y-2">
+              {scenario.intentSummary.confirmedDirection.map((item) => (
+                <div key={item} className="text-[13px] text-[#FFFFFF]">
+                  • {item}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-xl bg-[#0A0A0B] p-4">
+            <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wider text-[#9A9A9E]">
+              Generation Notes
+            </h3>
+            <div className="space-y-2">
+              {scenario.intentSummary.generationNotes.map((item) => (
+                <div key={item} className="text-[13px] text-[#FFFFFF]">
+                  • {item}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="bg-[#0A0A0B] rounded-xl p-4">
-          <h3 className="text-[12px] font-semibold uppercase tracking-wider text-[#9A9A9E] mb-3">Generation Notes</h3>
-          <div className="space-y-2">
-            {scenario.intentSummary.generationNotes.map((item) => (
-              <div key={item} className="text-[13px] text-[#FFFFFF]">• {item}</div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="mt-6 flex justify-end">
-        <button
-          onClick={() => {
-            generateScriptPlan();
-            setActiveNav('script');
-          }}
-          className="px-5 py-2.5 rounded-full bg-[#FF843D] text-white text-[13px] font-medium hover:bg-[#FFA465] transition-all inline-flex items-center gap-2"
-        >
-          {scenario.intentSummary.cta} <ChevronRight size={14} />
-        </button>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-[calc(100vh-120px)] relative pb-24">
-      <AmbientGlow variant="warm" fixed={false} />
-      <div className="max-w-[1080px] mx-auto">
-        <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
-          <div>
-            <div className="text-[11px] uppercase tracking-wider text-[#9A9A9E] mb-2">Generate</div>
-            <h1 className="text-[26px] md:text-[30px] font-bold text-[#FFFFFF]">{scenario.label}</h1>
-            <p className="text-[13px] text-[#9A9A9E] mt-2 max-w-[760px] leading-6">{scenario.outputSpec}</p>
-          </div>
+        <div className="mt-6 flex justify-end">
           <button
-            onClick={() => setActiveNav('home')}
-            className="px-4 py-2 rounded-full border border-[#2A2A2C] text-[13px] text-[#9A9A9E] hover:border-[#FF843D] hover:text-[#FFFFFF] transition-all inline-flex items-center gap-2"
+            onClick={() => {
+              generateScriptPlan();
+              setScriptPageRoute('current_generation');
+              setActiveNav('script');
+            }}
+            className="inline-flex items-center gap-2 rounded-full bg-[#FF843D] px-5 py-2.5 text-[13px] font-medium text-white transition-all hover:bg-[#FFA465]"
           >
-            <ArrowLeft size={14} /> Back to Home
+            {scenario.intentSummary.cta} <ChevronRight size={14} />
           </button>
         </div>
-
-        {currentStage === 'ai_understanding' && renderAiUnderstanding()}
-        {(currentStage === 'questions' || currentStage === 'script_plan') && renderQuestionStage()}
-        {currentStage === 'intent_summary' && null}
-        {(currentStage === 'video_generating' || currentStage === 'video_result') && renderIntentSummary()}
       </div>
+    ) : null;
+
+  const handleToggleHistoryGroup = (group: 'single' | 'project') => {
+    setCollapsedGroups((prev) => ({ ...prev, [group]: !prev[group] }));
+  };
+
+  const handleSelectHistory = (item: GenerateHistoryItem) => {
+    setSelectedHistoryId(item.id);
+    setActiveDetailTab(getDefaultDetailTab(item));
+  };
+
+  const handleNewScript = () => {
+    setSelectedHistoryId(null);
+    setActiveDetailTab('description');
+    setComposerFocusSignal((prev) => prev + 1);
+  };
+
+  const handleOpenPlan = (item: GenerateHistorySingleItem) => {
+    setActiveScript({ ...item.script });
+    setScriptPageIntent({ type: 'script_editor' });
+    setActiveNav('script');
+  };
+
+  const handleOpenProject = (item: GenerateHistoryProjectItem) => {
+    setScriptPageIntent({
+      type: 'project_detail',
+      project: buildScriptPageProjectIntent(item),
+    });
+    setActiveNav('script');
+  };
+
+  const handleOpenProjectSequence = (project: GenerateHistoryProjectItem, sequenceId: string) => {
+    const sequence = project.sequences.find((item) => item.id === sequenceId);
+    if (!sequence) return;
+
+    setActiveScript(buildScriptFromProjectSequence(sequence));
+    setScriptPageIntent({ type: 'script_editor' });
+    setActiveNav('script');
+  };
+
+  const handleGenerateFromWorkspace = (input: string, attachedAssets: File[]) => {
+    const assetInputs = attachedAssets.map((file, index) => ({
+      id: `${file.name}-${index}-${file.lastModified}`,
+      name: file.name,
+      type: file.type,
+    }));
+    startFromPrompt(input, assetInputs);
+  };
+
+  return (
+    <div className="relative min-h-[calc(100vh-120px)]">
+      <AmbientGlow variant="warm" fixed={false} />
+
+      {isGenerateFlowStage && scenario ? (
+        <div className="mx-auto max-w-[1080px]">
+          <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div className="mb-2 text-[11px] uppercase tracking-wider text-[#9A9A9E]">Generate</div>
+              <h1 className="text-[26px] font-bold text-[#FFFFFF] md:text-[30px]">{scenario.label}</h1>
+              <p className="mt-2 max-w-[760px] text-[13px] leading-6 text-[#9A9A9E]">
+                {scenario.outputSpec}
+              </p>
+            </div>
+          </div>
+
+          {currentStage === 'ai_understanding' && renderAiUnderstanding()}
+          {currentStage === 'questions' && renderQuestionStage()}
+          {currentStage === 'intent_summary' && null}
+          {(currentStage === 'video_generating' || currentStage === 'video_result') &&
+            renderIntentSummary()}
+        </div>
+      ) : (
+        <div className="mx-auto flex min-h-[calc(100vh-120px)] max-w-[1460px] flex-col">
+          <div className="mb-6">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8E8E93]">
+              Generate
+            </div>
+            <h1 className="mt-2 text-[28px] font-semibold text-white md:text-[32px]">
+              Generate Workspace
+            </h1>
+            <p className="mt-3 max-w-[860px] text-[14px] leading-7 text-[#9A9A9E]">
+              Browse history, inspect previous scripts, and continue generating directly from this workspace without returning to Home.
+            </p>
+          </div>
+
+          <div className="grid min-h-0 flex-1 gap-5 lg:grid-cols-[272px_minmax(0,1fr)]">
+            <div className="min-h-0">
+              <GenerateHistoryPanel
+                singleItems={MOCK_GENERATE_SINGLE_HISTORY}
+                projectItems={MOCK_GENERATE_PROJECT_HISTORY}
+                selectedHistoryId={selectedHistoryId}
+                collapsedGroups={collapsedGroups}
+                onToggleGroup={handleToggleHistoryGroup}
+                onSelectHistory={handleSelectHistory}
+                onNewScript={handleNewScript}
+              />
+            </div>
+
+            <div className="min-h-0">
+              <GenerateWorkspace
+                selectedItem={selectedHistoryItem}
+                activeDetailTab={activeDetailTab}
+                onDetailTabChange={setActiveDetailTab}
+                onOpenPlan={handleOpenPlan}
+                onOpenProject={handleOpenProject}
+                onOpenSequence={handleOpenProjectSequence}
+              />
+            </div>
+          </div>
+
+          <div className="sticky bottom-0 z-10 mt-5 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/96 to-transparent pt-6">
+            <GeneratePageChatbox
+              resetKey={`generate-workspace-${selectedHistoryId ?? 'new'}`}
+              autoFocusSignal={composerFocusSignal}
+              mentionAssets={workspaceMentionAssets}
+              selectedContextTitle={selectedHistoryItem?.title ?? null}
+              onSubmit={handleGenerateFromWorkspace}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

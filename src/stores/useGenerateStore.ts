@@ -3,6 +3,18 @@ import type { Script } from '@/types';
 import type { IntentAnalysis, GuidedQuestion } from '@/lib/ai-service';
 import type { UserInputState, DynamicQuestion } from '@/lib/conversation-engine';
 
+export type SavedAssetPackage = {
+  id: string;
+  type: 'script-package';
+  title: string;
+  summary: string;
+  outputSpec: string;
+  thumbnail: string;
+  thumbnails: string[];
+  createdAt: string;
+  script: Script;
+};
+
 interface GenerateState {
   // Agent 状态
   step: 'idle' | 'uploading' | 'analyzing' | 'synthesis' | 'questioning' | 'generating' | 'complete';
@@ -34,6 +46,7 @@ interface GenerateState {
   viewMode: 'table' | 'storyboard';
   activeTab: 'description' | 'video';
   selectedShot: any | null;
+  savedAssetPackages: SavedAssetPackage[];
   
   // HomePage → GeneratePage 桥接（用户输入传递）
   pendingHomeInput: { text: string; filePreviews: { id: string; url: string; type: string; name: string }[]; formatSettings: GenerateState['formatSettings'] } | null;
@@ -62,6 +75,7 @@ interface GenerateState {
   setThinkingProgress: (p: number) => void;
   setUserText: (text: string) => void;
   addFiles: (files: File[]) => void;
+  addMockPreview: (preview: { id: string; url: string; type: string; name: string }) => void;
   removeFile: (id: string) => void;
   setUserInputState: (state: UserInputState) => void;
   setAnalysis: (analysis: IntentAnalysis | null) => void;
@@ -74,6 +88,7 @@ interface GenerateState {
   skipQuestion: (questionId: string) => void;
   goBackToStep: (stepIndex: number) => void;
   setGeneratedScript: (script: Script | null) => void;
+  addSavedAssetPackage: (item: SavedAssetPackage) => void;
   setViewMode: (mode: 'table' | 'storyboard') => void;
   setActiveTab: (tab: 'description' | 'video') => void;
   setSelectedShot: (shot: any | null) => void;
@@ -109,6 +124,7 @@ const initialState = {
   viewMode: 'table' as const,
   activeTab: 'description' as const,
   selectedShot: null,
+  savedAssetPackages: [],
   formatSettings: {
     aspectRatio: '9:16',
     duration: '30s',
@@ -150,6 +166,11 @@ export const useGenerateStore = create<GenerateState>((set, get) => ({
       filePreviews: [...s.filePreviews, ...previews],
     }));
   },
+
+  addMockPreview: (preview) =>
+    set((s) => ({
+      filePreviews: [preview, ...s.filePreviews.filter((item) => item.id !== preview.id)],
+    })),
   
   removeFile: (id) => {
     set((s) => ({
@@ -208,6 +229,10 @@ export const useGenerateStore = create<GenerateState>((set, get) => ({
   },
   
   setGeneratedScript: (script) => set({ generatedScript: script }),
+  addSavedAssetPackage: (item) =>
+    set((s) => ({
+      savedAssetPackages: [item, ...s.savedAssetPackages],
+    })),
   setViewMode: (mode) => set({ viewMode: mode }),
   setActiveTab: (tab) => set({ activeTab: tab }),
   setSelectedShot: (shot) => set({ selectedShot: shot }),

@@ -63,6 +63,9 @@ export interface Script {
   status: 'draft' | 'in_progress' | 'complete';
   duration: string;
   version: string;
+  createdAt?: string;
+  updatedAt?: string;
+  source?: 'generated-flow' | 'saved-script' | 'project' | 'imported';
   shortDescription?: string;
   category?: string;
   coverImage?: string;
@@ -81,12 +84,18 @@ export interface CommunityItem {
   id: string;
   title: string;
   creator: string;
+  handle?: string;
   creatorAvatar: string;
   likes: number;
   duration: string;
   description: string;
   category: string;
   image?: string;
+  mediaUrl?: string;
+  type?: 'video' | 'image';
+  date?: string;
+  tags?: string[];
+  badges?: string[];
   whyItWorks?: string;
   bestUsedFor?: string[];
 }

@@ -1,39 +1,126 @@
-import { useState, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
+import { useCommunityStore } from '@/stores/useCommunityStore';
 import { useGenerateStore } from '@/stores/useGenerateStore';
-import { MOCK_COMMUNITY_ITEMS } from '@/lib/constants';
-import {
-  Search, Heart, Clock, Image, Play, X, Bookmark,
-  FileText, Film, Aperture, Volume2, Sparkles, ArrowRight,
-  SlidersHorizontal, Grid3X3, LayoutList, LayoutTemplate
-} from 'lucide-react';
-
-// Community filter categories
-const CONTENT_TYPES = ['All', 'Narrative', 'Experimental', 'Product', 'Lifestyle', 'Environment'];
-const DURATIONS = ['All', '< 1min', '1-3min', '3-5min', '> 5min'];
-const VISUAL_STYLES = ['All', 'Cinematic', 'Documentary', 'Abstract', 'Neon', 'Minimalist'];
+import { COMMUNITY_FILTER_CHIPS, COMMUNITY_INSPIRATIONS, COMMUNITY_PRIMARY_TABS } from '@/lib/mockCommunityInspirations';
+import { ChevronLeft, ChevronRight, Heart, Maximize2, MoreHorizontal, Pause, Play, Search, Sparkles, Bookmark, X, Users, ArrowUpRight } from 'lucide-react';
 
 export default function CommunityPage() {
-  const [activeType, setActiveType] = useState('All');
-  const [activeDuration, setActiveDuration] = useState('All');
-  const [activeStyle, setActiveStyle] = useState('All');
+  const [activeTab, setActiveTab] = useState<(typeof COMMUNITY_PRIMARY_TABS)[number]>('Trending');
+  const [activeFilter, setActiveFilter] = useState<(typeof COMMUNITY_FILTER_CHIPS)[number]>('Recent');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedVideo, setSelectedVideo] = useState<typeof MOCK_COMMUNITY_ITEMS[0] | null>(null);
-  const [showAnalysis, setShowAnalysis] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-
-  const { setActiveNav } = useAppStore();
-  const { setGeneratedScript } = useGenerateStore();
+  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [actionMessage, setActionMessage] = useState('');
+  const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const filtered = MOCK_COMMUNITY_ITEMS.filter(item => {
-    const matchesType = activeType === 'All' || item.category === activeType;
-    const matchesSearch = !searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase()) || item.creator.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesType && matchesSearch;
-  });
+  const { setActiveNav, setPageTitleOverride } = useAppStore();
+  const {
+    selectedInspirationId,
+    detailSource,
+    detailTab,
+    detailFilter,
+    openCommunityDetailFromCommunity,
+    closeCommunityDetail,
+    requestHomeTrendingScroll,
+  } = useCommunityStore();
+  const { setGeneratedScript, setUserText } = useGenerateStore();
 
-  const handleUseAsReference = (item: typeof MOCK_COMMUNITY_ITEMS[0]) => {
-    // 将社区作品作为参考导入Generate流程
+  useEffect(() => {
+    setPageTitleOverride(selectedInspirationId ? 'Community / Inspiration' : null);
+    return () => setPageTitleOverride(null);
+  }, [selectedInspirationId, setPageTitleOverride]);
+
+  useEffect(() => {
+    if (!selectedInspirationId && detailSource === 'community') {
+      if (detailTab && COMMUNITY_PRIMARY_TABS.includes(detailTab as (typeof COMMUNITY_PRIMARY_TABS)[number])) {
+        setActiveTab(detailTab as (typeof COMMUNITY_PRIMARY_TABS)[number]);
+      }
+      if (detailFilter && COMMUNITY_FILTER_CHIPS.includes(detailFilter as (typeof COMMUNITY_FILTER_CHIPS)[number])) {
+        setActiveFilter(detailFilter as (typeof COMMUNITY_FILTER_CHIPS)[number]);
+      }
+    }
+  }, [detailFilter, detailSource, detailTab, selectedInspirationId]);
+
+  useEffect(() => {
+    if (!actionMessage) return;
+    const timer = window.setTimeout(() => setActionMessage(''), 2600);
+    return () => window.clearTimeout(timer);
+  }, [actionMessage]);
+
+  const itemsForTab = useMemo(() => {
+    switch (activeTab) {
+      case 'Following':
+        return COMMUNITY_INSPIRATIONS.filter((item) => ['@c_aigc', '@nightframe', '@atelier_motion', '@analog_haze'].includes(item.handle || ''));
+      case 'Saved':
+        return COMMUNITY_INSPIRATIONS.filter((item) => savedIds.includes(item.id));
+      case 'Templates':
+        return COMMUNITY_INSPIRATIONS.filter((item) => item.tags?.includes('Premium') || item.tags?.includes('Commercial') || item.badges?.includes('Featured'));
+      case 'Creators':
+        return [...COMMUNITY_INSPIRATIONS].sort((a, b) => a.creator.localeCompare(b.creator));
+      default:
+        return COMMUNITY_INSPIRATIONS;
+    }
+  }, [activeTab, savedIds]);
+
+  const filteredItems = useMemo(() => {
+    return itemsForTab
+      .filter((item) => {
+        const matchesFilter = activeTab !== 'Trending'
+          ? true
+          : activeFilter === 'Recent'
+            ? true
+            : activeFilter === 'Popular'
+              ? item.badges?.includes('Popular') || item.badges?.includes('Featured') || item.likes > 200
+              : item.category === activeFilter || item.tags?.includes(activeFilter);
+
+        const query = searchQuery.trim().toLowerCase();
+        const matchesSearch = !query
+          || item.title.toLowerCase().includes(query)
+          || item.creator.toLowerCase().includes(query)
+          || item.handle?.toLowerCase().includes(query)
+          || item.description.toLowerCase().includes(query)
+          || item.tags?.some((tag) => tag.toLowerCase().includes(query));
+
+        return matchesFilter && matchesSearch;
+      })
+      .sort((a, b) => {
+        if (activeTab === 'Trending' && activeFilter === 'Recent') {
+          return (b.date || '').localeCompare(a.date || '');
+        }
+        if (activeTab === 'Trending' && activeFilter === 'Popular') {
+          return b.likes - a.likes;
+        }
+        return 0;
+      });
+  }, [activeFilter, activeTab, itemsForTab, searchQuery]);
+
+  const selectedItem = useMemo(
+    () => COMMUNITY_INSPIRATIONS.find((item) => item.id === selectedInspirationId) || null,
+    [selectedInspirationId],
+  );
+
+  const detailItems = useMemo(() => (activeTab === 'Trending' ? COMMUNITY_INSPIRATIONS : itemsForTab), [activeTab, itemsForTab]);
+  const selectedIndex = selectedItem ? detailItems.findIndex((item) => item.id === selectedItem.id) : -1;
+
+  const navigateDetail = (direction: 'prev' | 'next') => {
+    if (!selectedItem || detailItems.length === 0) return;
+    const offset = direction === 'next' ? 1 : -1;
+    const nextIndex = (selectedIndex + offset + detailItems.length) % detailItems.length;
+    openCommunityDetailFromCommunity(detailItems[nextIndex].id, { tab: activeTab, filter: activeFilter });
+  };
+
+  const handleCloseDetail = () => {
+    if (detailSource === 'home-trending') {
+      closeCommunityDetail();
+      requestHomeTrendingScroll();
+      setActiveNav('home');
+      return;
+    }
+    closeCommunityDetail();
+  };
+
+  const handleUseAsReference = (item: typeof COMMUNITY_INSPIRATIONS[number]) => {
     setGeneratedScript({
       id: `ref-${item.id}`,
       title: `Reference: ${item.title}`,
@@ -42,335 +129,352 @@ export default function CommunityPage() {
       version: 'v1',
       narrativeArc: item.description,
       emotionalGoal: item.category,
-      visualDirection: 'Based on community reference',
-      rhythm: 'To be determined',
-      assetLogic: 'Reference-based',
+      visualDirection: `Reference based on ${item.title}`,
+      rhythm: (item.bestUsedFor || []).join(' · ') || 'Reference pacing',
+      assetLogic: `Community reference from ${item.creator}`,
       shots: [],
     } as any);
-    setActiveNav('generate');
-    setSelectedVideo(null);
+    setActionMessage('Added as reference to current workspace');
   };
 
-  return (
-    <div>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-[24px] font-bold text-[#FFFFFF]">Community</h2>
-          <p className="text-[13px] text-[#9A9A9E] mt-1">Explore AI-generated creations and use them as creative references</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Search */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#2A2A2C] bg-[#141415] focus-within:border-[#FF843D] transition-all">
-            <Search size={14} className="text-[#6B6B6F]" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search videos, creators, styles..."
-              className="text-[13px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent w-[200px]"
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery('')}>
-                <X size={12} className="text-[#6B6B6F]" />
+  const handleUseForScript = (item: typeof COMMUNITY_INSPIRATIONS[number]) => {
+    setUserText(`${item.title}. ${item.description}`);
+    setActiveNav('generate');
+    setActionMessage('Loaded reference into script prompt seed');
+  };
+
+  const handleSave = (itemId: string) => {
+    setSavedIds((prev) => (prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]));
+    setActionMessage(savedIds.includes(itemId) ? 'Removed from Community references' : 'Saved to Community references');
+  };
+
+  const togglePlayback = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play().catch(() => undefined);
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  if (selectedItem) {
+    const isSaved = savedIds.includes(selectedItem.id);
+    const mediaIsVideo = selectedItem.type === 'video' && selectedItem.mediaUrl;
+    const backLabel = detailSource === 'home-trending' ? 'Back to Trending Inspirations' : 'Back to Community';
+
+    return (
+      <div className="space-y-5">
+        <button
+          type="button"
+          onClick={handleCloseDetail}
+          className="inline-flex items-center gap-2 rounded-full border border-[#2A2A2C] bg-[#101011] px-4 py-2 text-[13px] text-[#D4D4D8] transition-all hover:border-[#FF843D] hover:text-white"
+        >
+          <ChevronLeft size={14} /> {backLabel}
+        </button>
+
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_72px_360px]">
+          <div className="rounded-[28px] border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,21,0.92)] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+            <div className="overflow-hidden rounded-[24px] border border-[rgba(255,255,255,0.06)] bg-[#0E0E0F]">
+              <div className="relative aspect-video overflow-hidden">
+                {mediaIsVideo ? (
+                  <video
+                    ref={videoRef}
+                    className="h-full w-full object-cover"
+                    poster={selectedItem.image}
+                    src={selectedItem.mediaUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                ) : (
+                  <img src={selectedItem.image} alt={selectedItem.title} className="h-full w-full object-cover" />
+                )}
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.12)_48%,rgba(0,0,0,0.62)_100%)]" />
+                <button
+                  type="button"
+                  onClick={togglePlayback}
+                  className="absolute left-6 top-6 inline-flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,21,0.78)] text-white backdrop-blur-sm transition-all hover:border-[rgba(255,132,61,0.28)] hover:text-[#FFB07A]"
+                >
+                  {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+                </button>
+                <button
+                  type="button"
+                  className="absolute right-6 top-6 inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,21,0.78)] text-[#D4D4D8] backdrop-blur-sm transition-all hover:border-[rgba(255,132,61,0.28)] hover:text-white"
+                >
+                  <Maximize2 size={16} />
+                </button>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-[rgba(255,255,255,0.14)]">
+                    <div className="h-full w-[58%] rounded-full bg-[#FF843D]" />
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-[12px] text-[#E7E7EA]">
+                    <span>00:09</span>
+                    <span>{selectedItem.duration}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-row justify-center gap-3 xl:flex-col xl:items-center">
+            {[
+              { key: 'close', icon: X, onClick: handleCloseDetail },
+              { key: 'prev', icon: ChevronLeft, onClick: () => navigateDetail('prev') },
+              { key: 'next', icon: ChevronRight, onClick: () => navigateDetail('next') },
+            ].map((control) => {
+              const Icon = control.icon;
+              return (
+                <button
+                  key={control.key}
+                  type="button"
+                  onClick={control.onClick}
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#2A2A2C] bg-[#101011] text-[#B2B2B8] transition-all hover:border-[#FF843D] hover:text-white"
+                >
+                  <Icon size={16} />
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="rounded-[28px] border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,21,0.92)] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+            <div className="flex items-center justify-between gap-3 border-b border-[rgba(255,255,255,0.06)] pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,#FF843D_0%,#B44B0D_100%)] text-[13px] font-semibold text-white">
+                  {selectedItem.creator.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-[13px] font-semibold text-white">{selectedItem.creator}</div>
+                  <div className="text-[12px] text-[#8E8E93]">{selectedItem.handle}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="rounded-full border border-[#2A2A2C] px-3 py-1.5 text-[12px] text-[#D4D4D8] transition-all hover:border-[#FF843D] hover:text-white">Follow</button>
+                <div className="inline-flex items-center gap-1 rounded-full border border-[#2A2A2C] px-3 py-1.5 text-[12px] text-[#D4D4D8]">
+                  <Heart size={12} className="text-[#FF843D]" /> {selectedItem.likes}
+                </div>
+                <button className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#2A2A2C] text-[#A1A1AA] transition-all hover:border-[#FF843D] hover:text-white">
+                  <MoreHorizontal size={14} />
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <h2 className="text-[24px] font-semibold leading-8 text-white">{selectedItem.title}</h2>
+              <p className="mt-3 text-[13px] leading-6 text-[#A1A1AA]">{selectedItem.description}</p>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="inline-flex h-[28px] items-center rounded-full border border-[#2A2A2C] bg-[#101011] px-3 text-[10px] font-medium uppercase tracking-[0.12em] text-[#E7E7EA]">{selectedItem.date}</span>
+              <span className="inline-flex h-[28px] items-center rounded-full border border-[#2A2A2C] bg-[#101011] px-3 text-[10px] font-medium uppercase tracking-[0.12em] text-[#E7E7EA]">AI-generated content</span>
+              <span className="inline-flex h-[28px] items-center rounded-full border border-[#2A2A2C] bg-[#101011] px-3 text-[10px] font-medium uppercase tracking-[0.12em] text-[#E7E7EA]">{selectedItem.category}</span>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => handleUseAsReference(selectedItem)}
+                className="inline-flex items-center gap-2 rounded-full bg-[#FF843D] px-4 py-2.5 text-[13px] font-medium text-white transition-all hover:bg-[#FFA465]"
+              >
+                <Sparkles size={14} /> Use as Reference
               </button>
-            )}
+              <button
+                type="button"
+                onClick={() => handleUseForScript(selectedItem)}
+                className="inline-flex items-center gap-2 rounded-full border border-[#2A2A2C] bg-[#101011] px-4 py-2.5 text-[13px] text-[#D4D4D8] transition-all hover:border-[#FF843D] hover:text-white"
+              >
+                <ArrowUpRight size={14} /> Use for Script
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSave(selectedItem.id)}
+                className="inline-flex items-center gap-2 rounded-full border border-[#2A2A2C] bg-[#101011] px-4 py-2.5 text-[13px] text-[#D4D4D8] transition-all hover:border-[#FF843D] hover:text-white"
+              >
+                <Bookmark size={14} className={isSaved ? 'fill-[#FF843D] text-[#FF843D]' : ''} /> Save
+              </button>
+            </div>
+
+            <div className="mt-6 rounded-[22px] border border-[rgba(255,255,255,0.06)] bg-[#101011] p-4">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8E8E93]">Why it works</div>
+              <p className="mt-3 text-[13px] leading-6 text-[#D4D4D8]">{selectedItem.whyItWorks}</p>
+            </div>
+
+            <div className="mt-4 rounded-[22px] border border-[rgba(255,255,255,0.06)] bg-[#101011] p-4">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8E8E93]">Best used for</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(selectedItem.bestUsedFor || []).map((useCase) => (
+                  <span key={`${selectedItem.id}-${useCase}`} className="inline-flex h-[30px] items-center rounded-full border border-[#2A2A2C] bg-[#141415] px-3 text-[11px] text-[#E7E7EA]">
+                    {useCase}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
-          {/* View toggle */}
-          <div className="flex rounded-lg border border-[#2A2A2C] overflow-hidden">
-            <button onClick={() => setViewMode('grid')} className={`px-3 py-2 ${viewMode === 'grid' ? 'bg-[#FF843D] text-white' : 'text-[#9A9A9E]'}`}>
-              <Grid3X3 size={14} />
-            </button>
-            <button onClick={() => setViewMode('list')} className={`px-3 py-2 ${viewMode === 'list' ? 'bg-[#FF843D] text-white' : 'text-[#9A9A9E]'}`}>
-              <LayoutList size={14} />
+        </div>
+
+        {actionMessage && (
+          <div className="fixed bottom-6 left-1/2 z-[220] -translate-x-1/2 rounded-full border border-[rgba(255,132,61,0.28)] bg-[rgba(20,20,21,0.94)] px-4 py-2 text-[13px] text-white shadow-[0_18px_40px_rgba(0,0,0,0.32)]">
+            {actionMessage}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-[28px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.96)_0%,rgba(16,16,17,0.96)_100%)] p-5 md:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <h2 className="text-[24px] font-bold text-[#FFFFFF]">Community</h2>
+            <p className="mt-2 max-w-[720px] text-[13px] leading-6 text-[#9A9A9E]">
+              Explore community references, mock videos, and reusable visual prompts.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2 rounded-xl border border-[#2A2A2C] bg-[#141415] px-3 py-2 transition-all focus-within:border-[#FF843D]">
+              <Search size={14} className="text-[#6B6B6F]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search community inspirations..."
+                className="w-[220px] bg-transparent text-[13px] text-white outline-none placeholder:text-[#6B6B6F]"
+              />
+            </div>
+            <button className="inline-flex items-center gap-2 rounded-full border border-[#2A2A2C] bg-[#101011] px-4 py-2 text-[13px] text-[#D4D4D8] transition-all hover:border-[#FF843D] hover:text-white">
+              <Users size={14} /> Submit Reference
             </button>
           </div>
         </div>
       </div>
 
-      {/* Filter Panel */}
-      <div className="bg-[#141415] rounded-xl border border-[#2A2A2C] p-4 mb-6">
-        <div className="flex items-center gap-6 flex-wrap">
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal size={14} className="text-[#6B6B6F]" />
-            <span className="text-[12px] font-medium text-[#9A9A9E]">Filters:</span>
-          </div>
-          {/* Content Type */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-[#6B6B6F] uppercase">Type</span>
-            <div className="flex gap-1">
-              {CONTENT_TYPES.slice(0, 4).map(t => (
-                <button key={t} onClick={() => setActiveType(t)} className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${activeType === t ? 'bg-[#FF843D] text-white' : 'bg-[#141415] text-[#9A9A9E] hover:bg-[#1E1E20]'}`}>
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Duration */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-[#6B6B6F] uppercase">Duration</span>
-            <div className="flex gap-1">
-              {DURATIONS.map(d => (
-                <button key={d} onClick={() => setActiveDuration(d)} className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${activeDuration === d ? 'bg-[#FF843D] text-white' : 'bg-[#141415] text-[#9A9A9E] hover:bg-[#1E1E20]'}`}>
-                  {d}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Visual Style */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] text-[#6B6B6F] uppercase">Style</span>
-            <div className="flex gap-1">
-              {VISUAL_STYLES.slice(0, 4).map(s => (
-                <button key={s} onClick={() => setActiveStyle(s)} className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${activeStyle === s ? 'bg-[#FF843D] text-white' : 'bg-[#141415] text-[#9A9A9E] hover:bg-[#1E1E20]'}`}>
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Grid */}
-      <div className={viewMode === 'grid' ? 'grid grid-cols-3 gap-5' : 'space-y-4'}>
-        {filtered.map((item) => (
-          <div key={item.id} className={`group cursor-pointer ${viewMode === 'list' ? 'flex gap-4 bg-[#141415] rounded-xl border border-[#2A2A2C] overflow-hidden hover:border-[#FF843D] transition-all' : ''}`}>
-            {/* Thumbnail / Video Area */}
-            <div 
-              className={`relative overflow-hidden rounded-xl bg-[#FF843D] ${viewMode === 'list' ? 'w-[240px] shrink-0' : 'aspect-[4/3] mb-3'}`}
-              onClick={() => setSelectedVideo(item)}
-            >
-              <img src={item.image || `/assets/trending-${(parseInt(item.id) % 6) + 1}.jpg`} alt={item.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-              {/* Play overlay */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-[#FF843D]/30">
-                <div className="w-12 h-12 bg-[#141415] rounded-full flex items-center justify-center shadow-lg">
-                  <Play size={20} className="text-white ml-0.5" />
-                </div>
-              </div>
-              {/* Duration badge */}
-              <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-black/60 rounded text-white text-[11px] font-medium flex items-center gap-1">
-                <Clock size={10} /> {item.duration}
-              </div>
-              {/* Category badge */}
-              <div className="absolute top-2 left-2 px-2 py-0.5 bg-[#141415]/90 rounded text-[10px] font-medium text-[#FFFFFF]">
-                {item.category}
-              </div>
-            </div>
-            {/* Info */}
-            <div className={viewMode === 'list' ? 'py-3 pr-4 flex-1' : ''}>
-              <h3 className="text-[15px] font-semibold text-[#FFFFFF] group-hover:text-[#333] transition-colors">{item.title}</h3>
-              <p className="text-[12px] text-[#9A9A9E] mt-1">{item.creator}</p>
-              <p className="text-[12px] text-[#6B6B6F] mt-1 line-clamp-2">{item.description}</p>
-              <div className="flex items-center justify-between mt-2">
-                <div className="flex items-center gap-1 text-[12px] text-[#9A9A9E]">
-                  <Heart size={12} className="text-red-400 fill-red-400" /> {item.likes.toLocaleString()}
-                </div>
-                {/* Quick actions */}
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); handleUseAsReference(item); }}
-                    className="px-3 py-1.5 bg-[#FF843D] text-white text-[11px] font-medium rounded-full hover:bg-[#FFA465] transition-all flex items-center gap-1"
-                  >
-                    <Sparkles size={10} /> Use as Ref
-                  </button>
-                  <button className="px-3 py-1.5 border border-[#2A2A2C] text-[11px] text-[#9A9A9E] rounded-full hover:border-[#FF843D] transition-all flex items-center gap-1">
-                    <Bookmark size={10} /> Save
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="flex flex-wrap gap-2">
+        {COMMUNITY_PRIMARY_TABS.map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`rounded-full px-4 py-2 text-[13px] font-medium transition-all ${
+              activeTab === tab
+                ? 'bg-[#FF843D] text-white shadow-[0_8px_20px_rgba(255,132,61,0.2)]'
+                : 'border border-[#2A2A2C] bg-[#101011] text-[#9A9A9E] hover:border-[#FF843D] hover:text-white'
+            }`}
+          >
+            {tab}
+          </button>
         ))}
       </div>
 
-      {/* Video Detail Modal */}
-      {selectedVideo && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center" onClick={() => setSelectedVideo(null)}>
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="relative bg-[#141415] rounded-2xl w-full max-w-[900px] max-h-[90vh] overflow-y-auto m-4" onClick={e => e.stopPropagation()}>
-            {/* Video Player */}
-            <div className="aspect-video bg-[#FF843D] relative">
-              <video 
-                ref={videoRef}
-                className="w-full h-full"
-                poster={selectedVideo.image || `/assets/trending-${(parseInt(selectedVideo.id) % 6) + 1}.jpg`}
-                controls
-                autoPlay
+      <div className="flex flex-wrap gap-2">
+        {COMMUNITY_FILTER_CHIPS.map((chip) => (
+          <button
+            key={chip}
+            type="button"
+            onClick={() => setActiveFilter(chip)}
+            className={`rounded-full px-3 py-1.5 text-[12px] transition-all ${
+              activeFilter === chip && activeTab === 'Trending'
+                ? 'bg-[rgba(255,132,61,0.14)] text-[#FFD2B4] border border-[rgba(255,132,61,0.28)]'
+                : 'border border-[#2A2A2C] bg-[#101011] text-[#8E8E93] hover:border-[#FF843D] hover:text-white'
+            } ${activeTab !== 'Trending' ? 'opacity-45' : ''}`}
+          >
+            {chip}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {filteredItems.map((item) => {
+          const isSaved = savedIds.includes(item.id);
+
+          return (
+            <article
+              key={item.id}
+              className="group overflow-hidden rounded-[24px] border border-[rgba(255,255,255,0.06)] bg-[#121213] shadow-[0_1px_3px_rgba(0,0,0,0.3)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,132,61,0.35)] hover:shadow-[0_14px_36px_rgba(0,0,0,0.28)]"
+            >
+              <button
+                type="button"
+                onClick={() => openCommunityDetailFromCommunity(item.id, { tab: activeTab, filter: activeFilter })}
+                className="block w-full text-left"
               >
-                <source src="/assets/demo-video.mp4" type="video/mp4" />
-              </video>
-              <button onClick={() => setSelectedVideo(null)} className="absolute top-3 right-3 w-8 h-8 bg-[#FF843D]/50 rounded-full flex items-center justify-center text-white hover:bg-[#FF843D] transition-all">
-                <X size={14} />
-              </button>
-            </div>
-            
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h2 className="text-[20px] font-bold text-[#FFFFFF]">{selectedVideo.title}</h2>
-                  <p className="text-[13px] text-[#9A9A9E] mt-1">{selectedVideo.creator} · {selectedVideo.duration} · {selectedVideo.category}</p>
-                </div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => handleUseAsReference(selectedVideo)}
-                    className="px-4 py-2 bg-[#FF843D] text-white text-[13px] font-medium rounded-full hover:bg-[#FFA465] transition-all flex items-center gap-2"
-                  >
-                    <Sparkles size={14} /> Use as Reference
-                  </button>
-                  <button className="px-4 py-2 border border-[#2A2A2C] text-[13px] text-[#9A9A9E] rounded-full hover:border-[#FF843D] transition-all flex items-center gap-2">
-                    <Bookmark size={14} /> Save
-                  </button>
-                </div>
-              </div>
-
-              <p className="text-[14px] text-[#9A9A9E] leading-relaxed mb-6">{selectedVideo.description}</p>
-
-              {/* Why it works + Best used for */}
-              {selectedVideo.whyItWorks && (
-                <div className="mb-5 bg-[#141415] rounded-xl p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles size={14} className="text-[#FFFFFF]" />
-                    <h4 className="text-[13px] font-semibold text-[#FFFFFF]">Why it works</h4>
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <img src={item.image} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.14)_50%,rgba(0,0,0,0.72)_100%)]" />
+                  <div className="absolute left-3 right-3 top-3 flex items-center justify-between gap-3">
+                    <span className="rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,21,0.84)] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-white">
+                      {item.category}
+                    </span>
+                    <span className="rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,21,0.78)] px-2.5 py-1 text-[11px] text-[#E7E7EA]">
+                      {item.duration}
+                    </span>
                   </div>
-                  <p className="text-[13px] text-[#D4D4D8] leading-relaxed">{selectedVideo.whyItWorks}</p>
-                </div>
-              )}
-
-              {selectedVideo.bestUsedFor && (
-                <div className="mb-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <LayoutTemplate size={14} className="text-[#FFFFFF]" />
-                    <h4 className="text-[13px] font-semibold text-[#FFFFFF]">Best used for</h4>
+                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,21,0.84)] px-2.5 py-1 text-[11px] text-[#E7E7EA]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#FF843D]" />
+                      {item.creator}
+                    </div>
+                    <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(255,255,255,0.08)] bg-[rgba(20,20,21,0.8)] text-white">
+                      <Play size={14} className="ml-0.5" />
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedVideo.bestUsedFor.map((use, i) => (
-                      <span key={i} className="px-3 py-1.5 bg-[#141415] rounded-full text-[12px] text-[#D4D4D8] font-medium">
-                        {use}
+                </div>
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-[16px] font-semibold leading-6 text-white">{item.title}</h3>
+                    <span className="shrink-0 text-[11px] uppercase tracking-[0.16em] text-[#6F6F77]">{item.badges?.[0] || 'Mock'}</span>
+                  </div>
+                  <div className="mt-2 text-[12px] text-[#8E8E93]">{item.handle}</div>
+                  <p className="mt-2 line-clamp-2 text-[13px] leading-6 text-[#9A9A9E]">{item.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {(item.tags || []).slice(0, 3).map((tag) => (
+                      <span key={`${item.id}-${tag}`} className="inline-flex h-[26px] items-center rounded-full border border-[#2A2A2C] bg-[#101011] px-2.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#E7E7EA]">
+                        {tag}
                       </span>
                     ))}
                   </div>
                 </div>
-              )}
-
-              {/* Analysis Toggle */}
-              <button 
-                onClick={() => setShowAnalysis(!showAnalysis)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#141415] rounded-xl text-[13px] font-medium text-[#FFFFFF] hover:bg-[#1E1E20] transition-all mb-4"
-              >
-                <Film size={14} /> {showAnalysis ? 'Hide' : 'Show'} AI Analysis & Deconstruction
               </button>
 
-              {/* Analysis Panel */}
-              {showAnalysis && (
-                <div className="bg-[#0A0A0B] rounded-xl p-5 border border-[#2A2A2C]">
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Script Framework */}
-                    <div className="p-4 bg-[#141415] rounded-xl">
-                      <div className="flex items-center gap-2 mb-3">
-                        <FileText size={14} className="text-[#FFFFFF]" />
-                        <h4 className="text-[13px] font-semibold text-[#FFFFFF]">Script Framework</h4>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-[12px]">
-                          <span className="text-[#6B6B6F]">Genre</span>
-                          <span className="text-[#FFFFFF] font-medium">{selectedVideo.category}</span>
-                        </div>
-                        <div className="flex justify-between text-[12px]">
-                          <span className="text-[#6B6B6F]">Narrative Arc</span>
-                          <span className="text-[#FFFFFF] font-medium">Setup → Confrontation → Resolution</span>
-                        </div>
-                        <div className="flex justify-between text-[12px]">
-                          <span className="text-[#6B6B6F]">Emotional Goal</span>
-                          <span className="text-[#FFFFFF] font-medium">Nostalgia + Wonder</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Shot Breakdown */}
-                    <div className="p-4 bg-[#141415] rounded-xl">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Aperture size={14} className="text-[#FFFFFF]" />
-                        <h4 className="text-[13px] font-semibold text-[#FFFFFF]">Shot Breakdown</h4>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-[12px]">
-                          <span className="text-[#6B6B6F]">Total Shots</span>
-                          <span className="text-[#FFFFFF] font-medium">12</span>
-                        </div>
-                        <div className="flex justify-between text-[12px]">
-                          <span className="text-[#6B6B6F]">Camera</span>
-                          <span className="text-[#FFFFFF] font-medium">Static + Slow Pan</span>
-                        </div>
-                        <div className="flex justify-between text-[12px]">
-                          <span className="text-[#6B6B6F]">Lighting</span>
-                          <span className="text-[#FFFFFF] font-medium">Natural + Practical</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Audio Analysis */}
-                    <div className="p-4 bg-[#141415] rounded-xl">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Volume2 size={14} className="text-[#FFFFFF]" />
-                        <h4 className="text-[13px] font-semibold text-[#FFFFFF]">Audio & Score</h4>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-[12px]">
-                          <span className="text-[#6B6B6F]">Music Style</span>
-                          <span className="text-[#FFFFFF] font-medium">Ambient / Cinematic</span>
-                        </div>
-                        <div className="flex justify-between text-[12px]">
-                          <span className="text-[#6B6B6F]">Tempo</span>
-                          <span className="text-[#FFFFFF] font-medium">72 BPM</span>
-                        </div>
-                        <div className="flex justify-between text-[12px]">
-                          <span className="text-[#6B6B6F]">Key</span>
-                          <span className="text-[#FFFFFF] font-medium">F Minor</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Key Extractable Assets */}
-                    <div className="p-4 bg-[#141415] rounded-xl">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Image size={14} className="text-[#FFFFFF]" />
-                        <h4 className="text-[13px] font-semibold text-[#FFFFFF]">Extractable Assets</h4>
-                      </div>
-                      <div className="space-y-2">
-                        {['Golden Hour Establishing Shot', 'Close-up Portrait Frame', 'Transition Texture'].map((asset, i) => (
-                          <div key={i} className="flex items-center gap-2 text-[12px]">
-                            <div className="w-8 h-8 rounded bg-[#2A2A2C] flex items-center justify-center">
-                              <Film size={10} className="text-[#9A9A9E]" />
-                            </div>
-                            <span className="text-[#FFFFFF]">{asset}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Potential Script */}
-                  <div className="mt-4 p-4 bg-[#141415] rounded-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Sparkles size={14} className="text-[#FFFFFF]" />
-                      <h4 className="text-[13px] font-semibold text-[#FFFFFF]">Potential Script Direction</h4>
-                    </div>
-                    <p className="text-[12px] text-[#9A9A9E] leading-relaxed">
-                      Based on this reference, a similar script could explore {selectedVideo.category.toLowerCase()} themes 
-                      with a focus on visual storytelling. The pacing suggests a slow-burn approach with emotional payoff 
-                      in the final third. Consider using similar lighting and color grading for cohesion.
-                    </p>
-                    <button 
-                      onClick={() => handleUseAsReference(selectedVideo)}
-                      className="mt-3 px-4 py-2 bg-[#FF843D] text-white text-[12px] font-medium rounded-full hover:bg-[#FFA465] transition-all flex items-center gap-2"
-                    >
-                      <ArrowRight size={12} /> Generate Similar Script
-                    </button>
-                  </div>
+              <div className="flex items-center justify-between border-t border-[rgba(255,255,255,0.05)] px-4 py-3">
+                <div className="inline-flex items-center gap-1 text-[12px] text-[#A1A1AA]">
+                  <Heart size={12} className="text-[#FF843D]" /> {item.likes}
                 </div>
-              )}
-            </div>
-          </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleUseAsReference(item)}
+                    className="rounded-full bg-[#FF843D] px-3 py-1.5 text-[11px] font-medium text-white transition-all hover:bg-[#FFA465]"
+                  >
+                    Use as Reference
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSave(item.id)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#2A2A2C] text-[#A1A1AA] transition-all hover:border-[#FF843D] hover:text-white"
+                  >
+                    <Bookmark size={13} className={isSaved ? 'fill-[#FF843D] text-[#FF843D]' : ''} />
+                  </button>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      {filteredItems.length === 0 && (
+        <div className="rounded-[24px] border border-[rgba(255,255,255,0.06)] bg-[#121213] px-6 py-14 text-center">
+          <Search size={28} className="mx-auto text-[#6B6B6F]" />
+          <div className="mt-3 text-[15px] font-medium text-white">No inspirations match the current filters.</div>
+          <div className="mt-2 text-[13px] text-[#8E8E93]">Try another tab, clear the search, or switch the filter chip.</div>
+        </div>
+      )}
+
+      {actionMessage && (
+        <div className="fixed bottom-6 left-1/2 z-[220] -translate-x-1/2 rounded-full border border-[rgba(255,132,61,0.28)] bg-[rgba(20,20,21,0.94)] px-4 py-2 text-[13px] text-white shadow-[0_18px_40px_rgba(0,0,0,0.32)]">
+          {actionMessage}
         </div>
       )}
     </div>

@@ -314,6 +314,86 @@ export const PRESET_BACKROOMS_SCRIPT: Script = {
   ],
 };
 
+export const PRESET_DREAMWALK_MEMORY_SCRIPT: Script = {
+  id: 'preset-dreamwalk-memory-001',
+  title: 'Dreamwalk Through a Memory Space',
+  status: 'draft',
+  duration: '15s',
+  version: 'v1',
+  category: 'Dreamlike / Atmospheric',
+  coverImage: '/assets/trending-7.jpg',
+  outputSpec: '9:16 vertical · around 15 seconds · dreamlike atmospheric short video',
+  shortDescription:
+    'A quiet 15-second dreamlike short where a figure drifts through a remembered interior space shaped by soft light, blur, and emotional atmosphere.',
+  narrativeArc:
+    'This video unfolds as a drifting dream fragment: a solitary figure moves slowly through a remembered interior space, while the environment, light, and motion dissolve into one continuous emotional atmosphere. Rather than telling a clear story, the piece lingers in sensation, memory, and quiet transition.',
+  emotionalGoal:
+    'Create a quiet, immersive emotional state that feels calm, intimate, and slightly melancholic - like moving through a dream you almost remember after waking.',
+  visualDirection:
+    'Use a soft, dreamlike visual language built around diffused edges, gentle blur, floating camera movement, and a memory-space environment. The main figure should feel present but never sharply defined, as if seen through the softness of recollection.',
+  rhythm:
+    '5 gentle beats moving from arrival, drift, pause, and emotional deepening toward a soft unresolved fade. The pacing should remain slow and fluid throughout.',
+  assetLogic:
+    'Image 1 -> Main Character Reference\nImage 2 -> Dream Space Reference\nImage 3 -> Mood / Lighting Reference',
+  shots: [
+    {
+      id: 'dw-1',
+      timeRange: '0-3s',
+      preview: '/assets/trending-7.jpg',
+      visual:
+        'A soft opening into the dream space. The subject appears quietly within a remembered interior, moving slowly as if entering a fading memory.',
+      purpose: 'SET THE TONE',
+      camera: 'Slow floating push-in',
+      asset: 'Image 1 · Main Character Reference · Image 2 · Dream Space Reference · Image 3 · Mood / Lighting Reference',
+      copy: 'It feels like stepping into a place I almost remember.',
+    },
+    {
+      id: 'dw-2',
+      timeRange: '3-6s',
+      preview: '/assets/trending-6.jpg',
+      visual:
+        'The figure drifts deeper into the environment. The space feels calm and familiar, yet emotionally distant and unreal.',
+      purpose: 'BUILD ATMOSPHERE',
+      camera: 'Slow lateral drift',
+      asset: 'Image 1 · Main Character Reference · Image 2 · Dream Space Reference',
+      copy: 'Nothing here feels unfamiliar, but nothing feels fully real.',
+    },
+    {
+      id: 'dw-3',
+      timeRange: '6-9s',
+      preview: '/assets/story-4.jpg',
+      visual:
+        'Motion slows into near stillness. Light, shadow, and texture become the emotional center of the frame.',
+      purpose: 'HOLD THE DREAM',
+      camera: 'Near-static frame with subtle sway',
+      asset: 'Image 2 · Dream Space Reference · Image 3 · Mood / Lighting Reference',
+      copy: 'For a moment, the dream stops moving and simply breathes.',
+    },
+    {
+      id: 'dw-4',
+      timeRange: '9-12s',
+      preview: '/assets/story-2.jpg',
+      visual:
+        'The dream deepens. The space grows softer and more fluid, as if the memory is dissolving from within.',
+      purpose: 'DEEPEN FEELING',
+      camera: 'Slow inward drift',
+      asset: 'Image 1 · Main Character Reference · Image 3 · Mood / Lighting Reference',
+      copy: 'The space grows softer, as if it is remembering itself while I pass through it.',
+    },
+    {
+      id: 'dw-5',
+      timeRange: '12-15s',
+      preview: '/assets/trending-5.jpg',
+      visual:
+        'The subject and space gently fade, leaving behind only a soft emotional trace.',
+      purpose: 'LEAVE AN AFTERGLOW',
+      camera: 'Minimal motion hold',
+      asset: 'Image 3 · Mood / Lighting Reference',
+      copy: 'And then it begins to disappear, before I can understand where I was.',
+    },
+  ],
+};
+
 export const PRESET_CITYWALK_SCRIPT: Script = {
   id: 'preset-citywalk-001',
   title: 'Shenzhen City Walk — A Day in the Life',
@@ -436,6 +516,7 @@ export const PRESET_RAINY_CAFE_SCRIPT: Script = {
 };
 
 export const MY_SCRIPTS_LIBRARY: Script[] = [
+  PRESET_DREAMWALK_MEMORY_SCRIPT,
   {
     ...PRESET_BACKROOMS_SCRIPT,
     id: 'my-backrooms-vlog-001',

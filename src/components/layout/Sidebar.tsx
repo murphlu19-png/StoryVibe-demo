@@ -20,7 +20,7 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const { activeNav, pageTitleOverride, setActiveNav } = useAppStore();
+  const { activeNav, pageTitleOverride, setActiveNav, setScriptPageRoute } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const baseTitleMap: Record<string, string> = {
     home: 'Home',
@@ -32,6 +32,13 @@ export default function Sidebar() {
     user: 'Developer',
   };
   const pageTitle = pageTitleOverride || baseTitleMap[activeNav] || 'Workspace';
+
+  const handleNavClick = (navId: string) => {
+    if (navId === 'script') {
+      setScriptPageRoute('overview');
+    }
+    setActiveNav(navId);
+  };
 
   return (
     <>
@@ -50,7 +57,7 @@ export default function Sidebar() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveNav(item.id)}
+                onClick={() => handleNavClick(item.id)}
                 className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${
                   isActive ? 'bg-[#1E1E20] text-[#FFFFFF]' : 'text-[#6B6B6F] hover:text-[#9A9A9E]'
                 }`}
@@ -102,7 +109,10 @@ export default function Sidebar() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => { setActiveNav(item.id); setMobileOpen(false); }}
+                  onClick={() => {
+                    handleNavClick(item.id);
+                    setMobileOpen(false);
+                  }}
                   className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-left transition-all ${
                     isActive ? 'bg-[#FF843D] text-white' : 'bg-[#141415] text-[#FFFFFF]'
                   }`}
@@ -138,7 +148,7 @@ export default function Sidebar() {
           return (
             <button
               key={item.id}
-              onClick={() => setActiveNav(item.id)}
+              onClick={() => handleNavClick(item.id)}
               className={`flex flex-col items-center justify-center w-14 h-14 rounded-lg transition-all ${
                 isActive ? 'text-[#FFFFFF]' : 'text-[#6B6B6F]'
               }`}

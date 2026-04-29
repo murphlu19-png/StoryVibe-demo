@@ -5,6 +5,7 @@ import { useGenerateStore } from '@/stores/useGenerateStore';
 import { useScriptStore } from '@/stores/useScriptStore';
 import { AgentService } from '@/lib/ai-service';
 import { FakeAIAssetPanel } from '@/components/fake-demo/FakeAIAssetPanel';
+import { FlowChatboxDock } from '@/components/shared/FlowChatboxDock';
 import {
   Plus, Search, Image, Video, FileText, Music, Tablet,
   Sparkles, X, ArrowRight, Loader2,
@@ -83,7 +84,13 @@ interface AssetChatMessage {
   actions?: { label: string; type: string }[];
 }
 
-function AssetAIFooter({ projectName }: { projectName: string }) {
+function AssetAIFooter({
+  projectName,
+  onInputFocusChange,
+}: {
+  projectName: string;
+  onInputFocusChange?: (isFocused: boolean) => void;
+}) {
   const [messages, setMessages] = useState<AssetChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -356,6 +363,8 @@ function AssetAIFooter({ projectName }: { projectName: string }) {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onFocus={() => onInputFocusChange?.(true)}
+            onBlur={() => onInputFocusChange?.(false)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }}}
             placeholder="Describe what you need — search, find similar, migrate, or generate ideas..."
             className="flex-1 min-h-[44px] max-h-[120px] resize-none text-[14px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent leading-relaxed py-2"
@@ -386,7 +395,7 @@ export default function AssetsPage() {
   const [activeFilter, setActiveFilter] = useState('ALL');
 
   const { setActiveNav, setSplitView } = useAppStore();
-  const { setGeneratedScript } = useGenerateStore();
+  const { setGeneratedScript, filePreviews, savedAssetPackages } = useGenerateStore();
   const { setPendingScript, acceptPendingScript } = useScriptStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
@@ -446,7 +455,7 @@ export default function AssetsPage() {
   };
 
   return (
-    <div className="pb-24 relative">
+    <div className="relative">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -526,6 +535,62 @@ export default function AssetsPage() {
             </div>
           );
         })}
+        {savedAssetPackages.map((asset) => {
+          const isVisible = activeFilter === 'ALL' || activeFilter === 'Others' || activeFilter === 'Picture';
+          if (!isVisible) return null;
+
+          return (
+            <div
+              key={asset.id}
+              className="aspect-square rounded-xl flex flex-col items-center justify-center group transition-all cursor-pointer relative overflow-hidden"
+            >
+              <img
+                src={asset.thumbnail}
+                alt={asset.title}
+                className="absolute inset-0 w-full h-full object-cover opacity-85 transition-all group-hover:opacity-100 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-black/35 transition-all group-hover:bg-black/18" />
+              <FileText size={24} className="relative z-10 mb-1 text-white/85 transition-colors" />
+              <span className="relative z-10 px-2 text-center text-[10px] uppercase tracking-wider text-white/75">
+                Script Package
+              </span>
+              <span className="relative z-10 mt-1 line-clamp-2 px-3 text-center text-[10px] text-white/85">
+                {asset.title}
+              </span>
+              <div className="absolute left-2 top-2 rounded-full bg-[#141415]/88 px-2 py-1 text-[9px] uppercase tracking-[0.16em] text-[#FFD2B4]">
+                Saved
+              </div>
+            </div>
+          );
+        })}
+        {filePreviews.map((asset) => {
+          const TypeIcon = typeIcons[asset.type] || Image;
+          return (
+            <div
+              key={asset.id}
+              className="aspect-square rounded-xl flex flex-col items-center justify-center group transition-all cursor-pointer relative overflow-hidden"
+            >
+              {asset.url ? (
+                <img
+                  src={asset.url}
+                  alt={asset.name}
+                  className="absolute inset-0 w-full h-full object-cover opacity-85 transition-all group-hover:opacity-100 group-hover:scale-105"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-[linear-gradient(135deg,#2A2A34_0%,#17171B_100%)]" />
+              )}
+              <div className="absolute inset-0 bg-black/25 transition-all group-hover:bg-black/10" />
+              <TypeIcon size={24} className="relative z-10 mb-1 text-white/80 transition-colors" />
+              <span className="relative z-10 px-2 text-center text-[10px] uppercase tracking-wider text-white/75">{asset.type}</span>
+              <span className="relative z-10 mt-1 line-clamp-2 px-3 text-center text-[10px] text-white/80">{asset.name}</span>
+              <div className="absolute left-2 top-2 rounded-full bg-[#141415]/88 px-2 py-1 text-[9px] uppercase tracking-[0.16em] text-[#FFD2B4]">
+                Mock
+              </div>
+            </div>
+          );
+        })}
         {/* Upload New */}
         <button
           onClick={() => fileInputRef.current?.click()}
@@ -600,8 +665,14 @@ export default function AssetsPage() {
         <AssetDetailModal index={detailAsset} onClose={() => setDetailAsset(null)} />
       )}
 
-      {/* Bottom AI Dialog */}
-      <AssetAIFooter projectName={activeProjectData?.name || 'Project'} />
+      <FlowChatboxDock handleLabel="Asset AI">
+        {({ onInputFocusChange }) => (
+          <AssetAIFooter
+            projectName={activeProjectData?.name || 'Project'}
+            onInputFocusChange={onInputFocusChange}
+          />
+        )}
+      </FlowChatboxDock>
 
       {/* ══════ AI ASSET PANEL ══════ */}
       <FakeAIAssetPanel isOpen={aiPanelOpen} onClose={() => setAiPanelOpen(false)} />
