@@ -1,3 +1,4 @@
+import { assetPath } from '@/lib/assetPath';
 import { useEffect, useRef, useState } from 'react';
 import { useScriptStore } from '@/stores/useScriptStore';
 import { useEditorStore } from '@/stores/useEditorStore';
@@ -5,6 +6,7 @@ import { useAppStore } from '@/stores/useAppStore';
 import { useMockDemoStore } from '@/stores/useMockDemoStore';
 import { useGenerateStore } from '@/stores/useGenerateStore';
 import { getMockDemoScenarioById } from '@/lib/mockDemoScenarios';
+import { BACKROOMS_MOCK_STILLS, BACKROOMS_MOCK_VIDEO } from '@/lib/mockBackroomsAssets';
 import { ScriptPlanComposerShell } from '@/components/shared/ScriptPlanComposerShell';
 import { FlowChatboxDock } from '@/components/shared/FlowChatboxDock';
 import { EmotionStructurePanel, MiddleContentTabs, type MiddleContentView } from '@/components/shared/ScriptPlanMiddlePanels';
@@ -84,7 +86,7 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
     title: 'Misty Hallway',
     duration: '15s',
     summary: 'Dreamlike corridor sequence with slow-floating motion and emotional drift.',
-    preview: '/assets/trending-7.jpg',
+    preview: assetPath('/assets/trending-7.jpg'),
     tags: ['OPENING', 'DRIFT', 'ATMOSPHERIC'],
     status: 'Draft',
     technicalIntent: {
@@ -101,7 +103,7 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
       version: 'v1',
       category: 'Dreamlike / Atmospheric',
       shortDescription: 'A softened hallway drifts from stillness into a low echo of memory and motion.',
-      coverImage: '/assets/trending-7.jpg',
+      coverImage: assetPath('/assets/trending-7.jpg'),
       outputSpec: '21:9 widescreen · 15s · atmospheric sequence',
       narrativeArc: 'Opening into a softened corridor, drifting through suspended space, catching a quiet echo, then fading before the tension fully resolves.',
       emotionalGoal: 'Create a floating, wistful sensation that feels intimate, suspended, and slightly unreal.',
@@ -109,10 +111,10 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
       rhythm: 'Opening → Drift → Echo → Fade',
       assetLogic: 'Environment-first references with selective texture inserts and minimal subject presence.',
       shots: [
-        { id: 'mh-1', timeRange: '0-4s', preview: '/assets/trending-7.jpg', visual: 'A misty hallway comes into view with softened fluorescent bloom and slow forward movement.', purpose: 'OPENING', camera: 'Slow dolly in', asset: 'GENERATED', copy: 'The hallway opens like a memory you almost remember.' },
-        { id: 'mh-2', timeRange: '4-8s', preview: '/assets/story-4.jpg', visual: 'The frame drifts left toward a half-lit doorway where fog hangs in the air.', purpose: 'DRIFT', camera: 'Floating lateral move', asset: 'GENERATED', copy: 'Nothing moves, but the air still feels disturbed.' },
-        { id: 'mh-3', timeRange: '8-12s', preview: '/assets/story-2.jpg', visual: 'A reflected glint appears on the wall before dissolving back into haze.', purpose: 'ECHO', camera: 'Gentle push and hold', asset: 'GENERATED', copy: 'A glimmer catches, then slips away before it can become a sign.' },
-        { id: 'mh-4', timeRange: '12-15s', preview: '/assets/story-3.jpg', visual: 'The corridor recedes into darkness as the glow softens toward black.', purpose: 'FADE', camera: 'Locked frame', asset: 'GENERATED', copy: 'The image fades before the space gives up its meaning.' },
+        { id: 'mh-1', timeRange: '0-4s', preview: assetPath('/assets/trending-7.jpg'), visual: 'A misty hallway comes into view with softened fluorescent bloom and slow forward movement.', purpose: 'OPENING', camera: 'Slow dolly in', asset: 'GENERATED', copy: 'The hallway opens like a memory you almost remember.' },
+        { id: 'mh-2', timeRange: '4-8s', preview: assetPath('/assets/story-4.jpg'), visual: 'The frame drifts left toward a half-lit doorway where fog hangs in the air.', purpose: 'DRIFT', camera: 'Floating lateral move', asset: 'GENERATED', copy: 'Nothing moves, but the air still feels disturbed.' },
+        { id: 'mh-3', timeRange: '8-12s', preview: assetPath('/assets/story-2.jpg'), visual: 'A reflected glint appears on the wall before dissolving back into haze.', purpose: 'ECHO', camera: 'Gentle push and hold', asset: 'GENERATED', copy: 'A glimmer catches, then slips away before it can become a sign.' },
+        { id: 'mh-4', timeRange: '12-15s', preview: assetPath('/assets/story-3.jpg'), visual: 'The corridor recedes into darkness as the glow softens toward black.', purpose: 'FADE', camera: 'Locked frame', asset: 'GENERATED', copy: 'The image fades before the space gives up its meaning.' },
       ],
     },
   },
@@ -121,7 +123,7 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
     title: 'Neon Rooftop',
     duration: '18s',
     summary: 'A nocturnal rooftop beat balancing velocity, skyline texture, and fashion-forward movement.',
-    preview: '/assets/story-5.jpg',
+    preview: assetPath('/assets/story-5.jpg'),
     tags: ['CITY GLOW', 'MOTION', 'STYLE'],
     status: 'Draft',
     technicalIntent: {
@@ -138,7 +140,7 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
       version: 'v1',
       category: 'Stylized / Urban',
       shortDescription: 'A rooftop sequence where neon spill and skyline reflections keep the frame in motion.',
-      coverImage: '/assets/story-5.jpg',
+      coverImage: assetPath('/assets/story-5.jpg'),
       outputSpec: '16:9 landscape · 18s · stylized rooftop beat',
       narrativeArc: 'Begin with skyline reveal, pivot into motion around the subject, then peak on a held rooftop silhouette before release.',
       emotionalGoal: 'Feel kinetic, aspirational, and slightly dangerous while staying clean and cinematic.',
@@ -146,10 +148,10 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
       rhythm: 'Reveal → Orbit → Lift → Hold',
       assetLogic: 'Hero rooftop plates, skyline inserts, and one clean silhouette performance reference.',
       shots: [
-        { id: 'nr-1', timeRange: '0-5s', preview: '/assets/story-5.jpg', visual: 'The skyline blooms behind a rooftop ledge as neon reflections cut across the frame.', purpose: 'REVEAL', camera: 'Wide reveal push', asset: 'GENERATED', copy: 'The city hums below before the motion starts.' },
-        { id: 'nr-2', timeRange: '5-10s', preview: '/assets/trending-6.jpg', visual: 'A subtle orbit wraps around the subject while wind catches fabric and neon spill hits the face.', purpose: 'ORBIT', camera: 'Controlled orbit', asset: 'GENERATED', copy: 'Movement turns the rooftop into a stage.' },
-        { id: 'nr-3', timeRange: '10-14s', preview: '/assets/story-4.jpg', visual: 'The camera rises slightly as the skyline expands and reflections sharpen underfoot.', purpose: 'LIFT', camera: 'Rise and slide', asset: 'GENERATED', copy: 'The skyline widens as the beat lifts.' },
-        { id: 'nr-4', timeRange: '14-18s', preview: '/assets/story-2.jpg', visual: 'A final silhouette hold against neon haze closes the sequence with clean tension.', purpose: 'HOLD', camera: 'Static hold', asset: 'GENERATED', copy: 'Then everything settles into a single frame.' },
+        { id: 'nr-1', timeRange: '0-5s', preview: assetPath('/assets/story-5.jpg'), visual: 'The skyline blooms behind a rooftop ledge as neon reflections cut across the frame.', purpose: 'REVEAL', camera: 'Wide reveal push', asset: 'GENERATED', copy: 'The city hums below before the motion starts.' },
+        { id: 'nr-2', timeRange: '5-10s', preview: assetPath('/assets/trending-6.jpg'), visual: 'A subtle orbit wraps around the subject while wind catches fabric and neon spill hits the face.', purpose: 'ORBIT', camera: 'Controlled orbit', asset: 'GENERATED', copy: 'Movement turns the rooftop into a stage.' },
+        { id: 'nr-3', timeRange: '10-14s', preview: assetPath('/assets/story-4.jpg'), visual: 'The camera rises slightly as the skyline expands and reflections sharpen underfoot.', purpose: 'LIFT', camera: 'Rise and slide', asset: 'GENERATED', copy: 'The skyline widens as the beat lifts.' },
+        { id: 'nr-4', timeRange: '14-18s', preview: assetPath('/assets/story-2.jpg'), visual: 'A final silhouette hold against neon haze closes the sequence with clean tension.', purpose: 'HOLD', camera: 'Static hold', asset: 'GENERATED', copy: 'Then everything settles into a single frame.' },
       ],
     },
   },
@@ -158,7 +160,7 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
     title: 'Backrooms Entrance',
     duration: '15s',
     summary: 'A liminal suspense opener where the environment destabilizes the viewer frame by frame.',
-    preview: '/mock/backrooms/分镜 01.png',
+    preview: BACKROOMS_MOCK_STILLS[0],
     tags: ['OPENING', 'SUSPENSE', 'LIMINAL'],
     status: 'Ready',
     technicalIntent: {
@@ -175,20 +177,20 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
       version: 'v1',
       category: 'Liminal / Suspense',
       shortDescription: 'A found-footage style first-person sequence that opens into a fluorescent maze and ends on a glitch.',
-      coverImage: '/mock/backrooms/分镜 01.png',
+      coverImage: BACKROOMS_MOCK_STILLS[0],
       outputSpec: '16:9 landscape · 15s · realistic handheld suspense vlog',
       narrativeArc: 'Opening → Spatial Confusion → Anomaly → Escalation → Blackout',
       emotionalGoal: 'Build unease through repetition, uncertainty, and one final interruption that implies immediate danger.',
       visualDirection: 'Fluorescent yellow rooms, stained carpet, repeating walls, handheld motion, and subtle glitch artifacts.',
       rhythm: 'Opening → Spatial Confusion → Anomaly → Escalation → Blackout',
       assetLogic: 'Use found-footage POV plates and real environment stills to keep the sequence grounded.',
-      videoAsset: '/mock/backrooms/demo video.mp4',
+      videoAsset: BACKROOMS_MOCK_VIDEO,
       shots: [
-        { id: 'be-1', timeRange: '0-3s', preview: '/mock/backrooms/分镜 01.png', visual: 'A hand adjusts the phone while a yellow hallway stretches forward under humming lights.', purpose: 'OPENING', camera: 'Handheld POV', asset: 'GENERATED', copy: 'I thought this was just another office hallway.' },
-        { id: 'be-2', timeRange: '3-6s', preview: '/mock/backrooms/分镜 02.png', visual: 'The camera pans left and right, but every corridor repeats with impossible sameness.', purpose: 'SPATIAL CONFUSION', camera: 'Slow pan and hold', asset: 'GENERATED', copy: 'No matter where I turn, it looks the same.' },
-        { id: 'be-3', timeRange: '6-9s', preview: '/mock/backrooms/分镜 03.png', visual: 'A handprint-like mark interrupts the blank wall, too fresh for the dead space around it.', purpose: 'ANOMALY', camera: 'Cautious step-in', asset: 'GENERATED', copy: 'That mark was not there a second ago.' },
-        { id: 'be-4', timeRange: '9-12s', preview: '/mock/backrooms/分镜 04.png', visual: 'The hallway behind the viewer feels longer than before as one distant light cuts out.', purpose: 'ESCALATION', camera: 'Fast turn back', asset: 'GENERATED', copy: 'The room changed while I was looking away.' },
-        { id: 'be-5', timeRange: '12-15s', preview: '/mock/backrooms/分镜 05.png', visual: 'A sound lands directly behind the camera and the feed distorts into black.', purpose: 'BLACKOUT', camera: 'Backpedal and glitch', asset: 'GENERATED', copy: 'Wait... there is something behind me.' },
+        { id: 'be-1', timeRange: '0-3s', preview: BACKROOMS_MOCK_STILLS[0], visual: 'A hand adjusts the phone while a yellow hallway stretches forward under humming lights.', purpose: 'OPENING', camera: 'Handheld POV', asset: 'GENERATED', copy: 'I thought this was just another office hallway.' },
+        { id: 'be-2', timeRange: '3-6s', preview: BACKROOMS_MOCK_STILLS[1], visual: 'The camera pans left and right, but every corridor repeats with impossible sameness.', purpose: 'SPATIAL CONFUSION', camera: 'Slow pan and hold', asset: 'GENERATED', copy: 'No matter where I turn, it looks the same.' },
+        { id: 'be-3', timeRange: '6-9s', preview: BACKROOMS_MOCK_STILLS[2], visual: 'A handprint-like mark interrupts the blank wall, too fresh for the dead space around it.', purpose: 'ANOMALY', camera: 'Cautious step-in', asset: 'GENERATED', copy: 'That mark was not there a second ago.' },
+        { id: 'be-4', timeRange: '9-12s', preview: BACKROOMS_MOCK_STILLS[3], visual: 'The hallway behind the viewer feels longer than before as one distant light cuts out.', purpose: 'ESCALATION', camera: 'Fast turn back', asset: 'GENERATED', copy: 'The room changed while I was looking away.' },
+        { id: 'be-5', timeRange: '12-15s', preview: BACKROOMS_MOCK_STILLS[4], visual: 'A sound lands directly behind the camera and the feed distorts into black.', purpose: 'BLACKOUT', camera: 'Backpedal and glitch', asset: 'GENERATED', copy: 'Wait... there is something behind me.' },
       ],
     },
   },
@@ -197,7 +199,7 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
     title: 'City Walk Intro',
     duration: '20s',
     summary: 'A lifestyle-forward opener that establishes movement, observation, and city-scale texture.',
-    preview: '/assets/citywalk/landmark.png',
+    preview: assetPath('/assets/citywalk/landmark.png'),
     tags: ['LIFESTYLE', 'VLOG', 'FORWARD MOTION'],
     status: 'Draft',
     technicalIntent: {
@@ -214,7 +216,7 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
       version: 'v1',
       category: 'Lifestyle / Vlog',
       shortDescription: 'A clean city opener alternating landmark scale with tactile street-level moments.',
-      coverImage: '/assets/citywalk/landmark.png',
+      coverImage: assetPath('/assets/citywalk/landmark.png'),
       outputSpec: '16:9 landscape · 20s · lifestyle city intro',
       narrativeArc: 'Street Intro → Movement → Observation → Close-up → Outro',
       emotionalGoal: 'Feel fresh, curious, and socially legible while staying cinematic and relaxed.',
@@ -222,11 +224,11 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
       rhythm: 'Street Intro → Movement → Observation → Close-up → Outro',
       assetLogic: 'Landmark plates, crosswalk details, storefront textures, and one close-up insert for rhythm change.',
       shots: [
-        { id: 'cw-1', timeRange: '0-4s', preview: '/assets/citywalk/landmark.png', visual: 'A clean landmark reveal opens the city identity with a steady forward move.', purpose: 'STREET INTRO', camera: 'Steady wide push', asset: 'GENERATED', copy: 'Morning starts wide, before the walk narrows into detail.' },
-        { id: 'cw-2', timeRange: '4-8s', preview: '/assets/citywalk/morning.png', visual: 'The camera joins the street flow at eye level, carrying the viewer into motion.', purpose: 'MOVEMENT', camera: 'Handheld walk-through', asset: 'GENERATED', copy: 'The city rhythm becomes the pacing engine.' },
-        { id: 'cw-3', timeRange: '8-12s', preview: '/assets/story-1.jpg', visual: 'A pause on signage and reflective glass gives the route its observational tone.', purpose: 'OBSERVATION', camera: 'Slow pan hold', asset: 'GENERATED', copy: 'Details ground the walk without stopping its momentum.' },
-        { id: 'cw-4', timeRange: '12-16s', preview: '/assets/story-3.jpg', visual: 'A close-up cut catches passing texture before the lens lifts back to the street.', purpose: 'CLOSE-UP', camera: 'Quick detail insert', asset: 'GENERATED', copy: 'The close-up gives the route a tactile beat.' },
-        { id: 'cw-5', timeRange: '16-20s', preview: '/assets/story-4.jpg', visual: 'The shot opens back into public space for a light, forward-looking outro.', purpose: 'OUTRO', camera: 'Wide exit frame', asset: 'GENERATED', copy: 'Then the walk keeps going beyond the frame.' },
+        { id: 'cw-1', timeRange: '0-4s', preview: assetPath('/assets/citywalk/landmark.png'), visual: 'A clean landmark reveal opens the city identity with a steady forward move.', purpose: 'STREET INTRO', camera: 'Steady wide push', asset: 'GENERATED', copy: 'Morning starts wide, before the walk narrows into detail.' },
+        { id: 'cw-2', timeRange: '4-8s', preview: assetPath('/assets/citywalk/morning.png'), visual: 'The camera joins the street flow at eye level, carrying the viewer into motion.', purpose: 'MOVEMENT', camera: 'Handheld walk-through', asset: 'GENERATED', copy: 'The city rhythm becomes the pacing engine.' },
+        { id: 'cw-3', timeRange: '8-12s', preview: assetPath('/assets/story-1.jpg'), visual: 'A pause on signage and reflective glass gives the route its observational tone.', purpose: 'OBSERVATION', camera: 'Slow pan hold', asset: 'GENERATED', copy: 'Details ground the walk without stopping its momentum.' },
+        { id: 'cw-4', timeRange: '12-16s', preview: assetPath('/assets/story-3.jpg'), visual: 'A close-up cut catches passing texture before the lens lifts back to the street.', purpose: 'CLOSE-UP', camera: 'Quick detail insert', asset: 'GENERATED', copy: 'The close-up gives the route a tactile beat.' },
+        { id: 'cw-5', timeRange: '16-20s', preview: assetPath('/assets/story-4.jpg'), visual: 'The shot opens back into public space for a light, forward-looking outro.', purpose: 'OUTRO', camera: 'Wide exit frame', asset: 'GENERATED', copy: 'Then the walk keeps going beyond the frame.' },
       ],
     },
   },
@@ -235,7 +237,7 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
     title: 'Fragrance Close-up Scene',
     duration: '12s',
     summary: 'A clean commercial insert built around premium close-up texture and controlled motion.',
-    preview: '/assets/fragrance/closeup.png',
+    preview: assetPath('/assets/fragrance/closeup.png'),
     tags: ['COMMERCIAL', 'PRODUCT', 'DETAIL'],
     status: 'Ready',
     technicalIntent: {
@@ -252,7 +254,7 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
       version: 'v1',
       category: 'Clean / Commercial',
       shortDescription: 'A premium product micro-sequence focused on materiality, reflection, and brand calm.',
-      coverImage: '/assets/fragrance/closeup.png',
+      coverImage: assetPath('/assets/fragrance/closeup.png'),
       outputSpec: '16:9 landscape · 12s · clean commercial insert',
       narrativeArc: 'Reveal → Detail Sweep → Hold → Signature',
       emotionalGoal: 'Feel premium, precise, and controlled with a polished commercial finish.',
@@ -260,10 +262,10 @@ const SEQUENCE_LIBRARY: SequenceLibraryItem[] = [
       rhythm: 'Reveal → Detail Sweep → Hold → Signature',
       assetLogic: 'Product hero plates, glass macro passes, and one typographic end card.',
       shots: [
-        { id: 'fc-1', timeRange: '0-3s', preview: '/assets/fragrance/closeup.png', visual: 'The bottle emerges from shadow with a precise line of highlight.', purpose: 'REVEAL', camera: 'Macro push', asset: 'PRODUCT', copy: 'The object arrives before the brand speaks.' },
-        { id: 'fc-2', timeRange: '3-6s', preview: '/assets/fragrance/detail.png', visual: 'A lateral slide traces glass edges and liquid tone through soft reflection.', purpose: 'DETAIL SWEEP', camera: 'Macro slide', asset: 'PRODUCT', copy: 'Texture and light carry the premium signal.' },
-        { id: 'fc-3', timeRange: '6-9s', preview: '/assets/story-3.jpg', visual: 'The frame settles on a centered hold for a clean product read.', purpose: 'HOLD', camera: 'Locked macro hold', asset: 'PRODUCT', copy: 'The product sits in stillness with full clarity.' },
-        { id: 'fc-4', timeRange: '9-12s', preview: '/assets/story-2.jpg', visual: 'The sequence closes on a signature end card with one final reflective accent.', purpose: 'SIGNATURE', camera: 'Static end card', asset: 'BRAND', copy: 'A final polished note completes the scene.' },
+        { id: 'fc-1', timeRange: '0-3s', preview: assetPath('/assets/fragrance/closeup.png'), visual: 'The bottle emerges from shadow with a precise line of highlight.', purpose: 'REVEAL', camera: 'Macro push', asset: 'PRODUCT', copy: 'The object arrives before the brand speaks.' },
+        { id: 'fc-2', timeRange: '3-6s', preview: assetPath('/assets/fragrance/detail.png'), visual: 'A lateral slide traces glass edges and liquid tone through soft reflection.', purpose: 'DETAIL SWEEP', camera: 'Macro slide', asset: 'PRODUCT', copy: 'Texture and light carry the premium signal.' },
+        { id: 'fc-3', timeRange: '6-9s', preview: assetPath('/assets/story-3.jpg'), visual: 'The frame settles on a centered hold for a clean product read.', purpose: 'HOLD', camera: 'Locked macro hold', asset: 'PRODUCT', copy: 'The product sits in stillness with full clarity.' },
+        { id: 'fc-4', timeRange: '9-12s', preview: assetPath('/assets/story-2.jpg'), visual: 'The sequence closes on a signature end card with one final reflective accent.', purpose: 'SIGNATURE', camera: 'Static end card', asset: 'BRAND', copy: 'A final polished note completes the scene.' },
       ],
     },
   },
@@ -295,7 +297,7 @@ function createEmptyProjectDraft(): ProjectScript {
     status: 'Drafting',
     duration: '00:00',
     description: '',
-    cover: '/assets/story-1.jpg',
+    cover: assetPath('/assets/story-1.jpg'),
     sequenceCount: 0,
     aspectRatio: '16:9 Landscape',
     frameRate: '24fps Cinematic',
@@ -320,7 +322,7 @@ const MOCK_PROJECT_SCRIPTS: ProjectScript[] = [
     status: 'Drafting',
     duration: '01:24',
     description: 'A dreamlike passage through softened interior spaces, unfolding as a sequence of memory fragments.',
-    cover: '/assets/trending-7.jpg',
+    cover: assetPath('/assets/trending-7.jpg'),
     sequenceCount: 3,
     aspectRatio: '21:9 Wide Screen',
     frameRate: '24fps Cinematic',
@@ -347,7 +349,7 @@ const MOCK_PROJECT_SCRIPTS: ProjectScript[] = [
     status: 'Ready',
     duration: '01:06',
     description: 'A found-footage project stitched from escalating liminal sequences and controlled POV drift.',
-    cover: '/assets/trending-5.jpg',
+    cover: assetPath('/assets/trending-5.jpg'),
     sequenceCount: 2,
     aspectRatio: '16:9 Landscape',
     frameRate: '24fps Cinematic',
@@ -370,7 +372,7 @@ const MOCK_PROJECT_SCRIPTS: ProjectScript[] = [
         title: 'Corner Anomaly',
         description: 'Use a hesitant camera turn to reveal spatial inconsistency and rising dread.',
         tags: ['ANOMALY', 'SPATIAL DRIFT', 'SUSPENSE'],
-        preview: '/assets/trending-3.jpg',
+        preview: assetPath('/assets/trending-3.jpg'),
         technicalIntent: {
           motion: 'Quick turn and pause',
           lighting: 'Yellow overhead spill',
@@ -386,7 +388,7 @@ const MOCK_PROJECT_SCRIPTS: ProjectScript[] = [
     status: 'Drafting',
     duration: '01:32',
     description: 'A paced urban walkthrough combining multiple script plans into a single premium lifestyle reel.',
-    cover: '/assets/citywalk/landmark.png',
+    cover: assetPath('/assets/citywalk/landmark.png'),
     sequenceCount: 2,
     aspectRatio: '16:9 Landscape',
     frameRate: '30fps Social',
@@ -409,7 +411,7 @@ const MOCK_PROJECT_SCRIPTS: ProjectScript[] = [
         title: 'Crosswalk Texture',
         description: 'Move into human-scale rhythm and tactile city details before the next landmark beat.',
         tags: ['DETAIL CUT', 'URBAN RHYTHM', 'TEXTURE'],
-        preview: '/assets/citywalk/morning.png',
+        preview: assetPath('/assets/citywalk/morning.png'),
         technicalIntent: {
           motion: 'Walk-by lateral move',
           lighting: 'Soft skylight',
@@ -478,7 +480,7 @@ function ScriptListRow({
       className="grid cursor-pointer gap-4 rounded-[20px] border border-[#2A2A2C] bg-[#141415] p-4 transition-all hover:border-[#FF843D] hover:bg-[#171718] md:grid-cols-[120px_minmax(0,1fr)_auto] md:items-center"
     >
       <div className="overflow-hidden rounded-[16px] border border-[rgba(255,255,255,0.06)] bg-[#101011]">
-        <img src={script.coverImage || script.shots[0]?.preview || '/assets/story-1.jpg'} alt={script.title} className="aspect-[16/10] h-full w-full object-cover" />
+        <img src={script.coverImage || script.shots[0]?.preview || assetPath('/assets/story-1.jpg')} alt={script.title} className="aspect-[16/10] h-full w-full object-cover" />
       </div>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
@@ -1787,7 +1789,7 @@ function mapEditableRowsToShots(rows: EditableMockRow[], currentScript: Script) 
   return rows.map((row, index) => ({
     id: currentScript.shots[index]?.id ?? `${currentScript.id}-shot-${index + 1}`,
     timeRange: row.time,
-    preview: row.previewImage ?? currentScript.shots[index]?.preview ?? currentScript.coverImage ?? '/assets/story-1.jpg',
+    preview: row.previewImage ?? currentScript.shots[index]?.preview ?? currentScript.coverImage ?? assetPath('/assets/story-1.jpg'),
     visual: row.scene,
     purpose: row.purpose,
     camera: row.camera,
@@ -3114,7 +3116,7 @@ export default function ScriptPage() {
         ? truncateText(getNarrativeArcText(mockScenario), 168)
         : 'Saved from the current script plan flow.',
       category: mockScenario?.label || 'Generated Script',
-      coverImage: rowsToSave[0]?.previewImage || normalizedShots[0]?.preview || '/assets/story-1.jpg',
+      coverImage: rowsToSave[0]?.previewImage || normalizedShots[0]?.preview || assetPath('/assets/story-1.jpg'),
       outputSpec: mockScenario?.outputSpec || `${normalizedShots.length * 3}s · generated draft`,
       narrativeArc: mockScenario ? getNarrativeArcText(mockScenario) : 'Saved from script plan workspace',
       emotionalGoal: mockScenario ? getEmotionalGoalText(mockScenario) : 'Refine the pacing and emotional arc',
@@ -3139,7 +3141,7 @@ export default function ScriptPage() {
         createdAt: script.createdAt || 'Updated just now',
         updatedAt: 'Updated just now',
         source: script.source || 'saved-script',
-        coverImage: rowsToSave[0]?.previewImage || script.coverImage || script.shots[0]?.preview || '/assets/story-1.jpg',
+        coverImage: rowsToSave[0]?.previewImage || script.coverImage || script.shots[0]?.preview || assetPath('/assets/story-1.jpg'),
         shots: mapEditableRowsToShots(rowsToSave, script),
       };
     }
@@ -3154,7 +3156,7 @@ export default function ScriptPage() {
       title: nextDraft.title,
       summary: nextDraft.shortDescription || truncateText(nextDraft.narrativeArc, 168),
       outputSpec: nextDraft.outputSpec || `${nextDraft.duration} · ${nextDraft.shots.length} shots`,
-      thumbnail: nextDraft.coverImage || nextDraft.shots[0]?.preview || '/assets/story-1.jpg',
+      thumbnail: nextDraft.coverImage || nextDraft.shots[0]?.preview || assetPath('/assets/story-1.jpg'),
       thumbnails: nextDraft.shots
         .map((shot) => shot.preview)
         .filter((value): value is string => Boolean(value))
@@ -3288,7 +3290,7 @@ export default function ScriptPage() {
     if (pageMode === 'project_create' && draftProject) {
       updateDraftProject((project) => ({
         ...project,
-        cover: project.cover === '/assets/story-1.jpg' ? source.preview : project.cover,
+        cover: project.cover === assetPath('/assets/story-1.jpg') ? source.preview : project.cover,
         sequences: [
           ...project.sequences,
           createProjectSequenceFromLibrary(sequenceKey, project.sequences.length + 1, 'draft'),
@@ -3667,7 +3669,7 @@ export default function ScriptPage() {
                     }`}
                   >
                     <div className="aspect-video relative overflow-hidden bg-[#FF843D]">
-                      <img src={s.coverImage || s.shots[0]?.preview || '/assets/story-1.jpg'} alt={s.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" />
+                      <img src={s.coverImage || s.shots[0]?.preview || assetPath('/assets/story-1.jpg')} alt={s.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                       <div className="absolute bottom-3 left-3 right-3">
                         <span className="px-2 py-1 bg-[#141415]/90 rounded text-[10px] font-medium text-[#FFFFFF]">{s.duration}</span>

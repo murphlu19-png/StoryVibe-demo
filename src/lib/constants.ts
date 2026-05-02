@@ -1,4 +1,6 @@
+import { assetPath } from '@/lib/assetPath';
 import type { Question, Script, CommunityItem, Project, ScriptVersion, Chapter } from '@/types';
+import { BACKROOMS_MOCK_STILLS, BACKROOMS_MOCK_VIDEO } from '@/lib/mockBackroomsAssets';
 
 export const NAV_ITEMS = [
   { id: 'home', label: 'Home', icon: 'Home' },
@@ -38,14 +40,14 @@ export const QUICK_MODES = [
 
 // Trending images map to generated assets
 const TRENDING_IMAGES: Record<string, string> = {
-  '1': '/assets/trending-5.jpg',
-  '2': '/assets/trending-3.jpg',
-  '3': '/assets/trending-7.jpg',
-  '4': '/assets/story-4.jpg',
-  '5': '/assets/story-2.jpg',
-  '6': '/assets/citywalk/morning.png',
-  '7': '/assets/citywalk/landmark.png',
-  '8': '/assets/trending-6.jpg',
+  '1': assetPath('/assets/trending-5.jpg'),
+  '2': assetPath('/assets/trending-3.jpg'),
+  '3': assetPath('/assets/trending-7.jpg'),
+  '4': assetPath('/assets/story-4.jpg'),
+  '5': assetPath('/assets/story-2.jpg'),
+  '6': assetPath('/assets/citywalk/morning.png'),
+  '7': assetPath('/assets/citywalk/landmark.png'),
+  '8': assetPath('/assets/trending-6.jpg'),
 };
 
 export const TRENDING_ITEMS = [
@@ -271,12 +273,12 @@ export const MOCK_SCRIPT: Script = {
 
 // Community cover images
 const COMMUNITY_IMAGES: Record<string, string> = {
-  '1': '/assets/trending-1.jpg',
-  '2': '/assets/trending-4.jpg',
-  '3': '/assets/trending-5.jpg',
-  '4': '/assets/trending-3.jpg',
-  '5': '/assets/trending-4.jpg',
-  '6': '/assets/trending-6.jpg',
+  '1': assetPath('/assets/trending-1.jpg'),
+  '2': assetPath('/assets/trending-4.jpg'),
+  '3': assetPath('/assets/trending-5.jpg'),
+  '4': assetPath('/assets/trending-3.jpg'),
+  '5': assetPath('/assets/trending-4.jpg'),
+  '6': assetPath('/assets/trending-6.jpg'),
 };
 
 export const MOCK_COMMUNITY_ITEMS: CommunityItem[] = [
@@ -301,16 +303,16 @@ export const PRESET_BACKROOMS_SCRIPT: Script = {
   visualDirection: 'Warm fluorescent lighting against desaturated yellow walls. Long corridors with repeating patterns. Occasional glitches and VHS distortion. POV camera to immerse the viewer as the wanderer.',
   rhythm: 'Slow, deliberate pacing in opening. Accelerating heartbeat rhythm in middle sequence. Abrupt cut to black at climax.',
   assetLogic: 'AI-generated liminal space imagery as primary visual anchor. No human faces — only shadows and silhouettes to preserve mystery.',
-  videoAsset: '/mock/backrooms/demo video.mp4',
+  videoAsset: BACKROOMS_MOCK_VIDEO,
   shots: [
-    { id: 'br-1', timeRange: '0-8s', preview: '/mock/backrooms/分镜 01.png', visual: 'Wide shot: empty yellow corridor stretching to infinity. Flickering fluorescent lights. "No one around for miles."', purpose: 'SET THE MOOD', camera: 'Static wide, slow push-in', asset: 'GENERATED', copy: 'I remember the exact moment I noclipped. One second I was walking home. The next... I was here.' },
-    { id: 'br-2', timeRange: '8-16s', preview: '/mock/backrooms/分镜 02.png', visual: 'POV walking down corridor. Wallpaper pattern repeats. Distant hum of fluorescent lights. Shadow flickers at the edge of frame.', purpose: 'BUILD TENSION', camera: 'POV handheld, subtle drift', asset: 'GENERATED', copy: 'The walls are damp. The carpet smells like wet cardboard. And the lights... they never stop buzzing.' },
-    { id: 'br-3', timeRange: '16-24s', preview: '/mock/backrooms/分镜 03.png', visual: 'Turning a corner — identical corridor. A single wooden door with a rusted handle. Door slightly ajar.', purpose: 'INTRODUCE MYSTERY', camera: 'Slow pan right, reveal door', asset: 'GENERATED', copy: 'Every room looks the same. But this door... this door wasn\'t here before.' },
-    { id: 'br-4', timeRange: '24-32s', preview: '/mock/backrooms/分镜 04.png', visual: 'Entering the door — darker room. Water on the floor. Reflections on the ceiling. Something moves in the water.', purpose: 'RAISE STAKES', camera: 'Low angle, follow the water', asset: 'GENERATED', copy: 'Level 2, they call it. The water is knee-deep. And something is swimming beneath my feet.' },
-    { id: 'br-5', timeRange: '32-40s', preview: '/mock/backrooms/分镜 05.png', visual: 'Running now. Corridors blur. Breath visible in cold air. A figure stands at the end of the hall — back turned, motionless.', purpose: 'CLIMAX BUILD', camera: 'Shaky handheld, running POV', asset: 'GENERATED', copy: 'I\'m not alone anymore. I can hear it breathing. I can smell it — like copper and mold.' },
-    { id: 'br-6', timeRange: '40-48s', preview: '/assets/backrooms-4.jpg', visual: 'The figure turns. Face obscured by shadow. Long limbs. Wrong proportions. It starts walking toward camera.', purpose: 'CONFRONTATION', camera: 'Rapid zoom out, then freeze frame', asset: 'GENERATED', copy: 'It doesn\'t run. It glides. Like it knows I have nowhere to go.' },
-    { id: 'br-7', timeRange: '48-54s', preview: '/assets/backrooms-5.jpg', visual: 'Emergency exit sign glowing red. Sprint toward it. Hand reaches for the push bar. Static electricity builds.', purpose: 'ESCAPE ATTEMPT', camera: 'Over-the-shoulder, desperate motion', asset: 'GENERATED', copy: 'There\'s an exit. There\'s always an exit. Right? Please tell me there\'s an exit.' },
-    { id: 'br-8', timeRange: '54-60s', preview: '/assets/backrooms-1.jpg', visual: 'Cut to black. A single fluorescent light flickers on. Same yellow corridor. Same buzzing. Different number on the wall: "Level 922."', purpose: 'UNSETTLING RESOLUTION', camera: 'Static wide. Hold for 3 seconds. Fade.', asset: 'GENERATED', copy: 'The door opened. But I didn\'t escape. I just went deeper. Welcome to Level 922.' },
+    { id: 'br-1', timeRange: '0-8s', preview: BACKROOMS_MOCK_STILLS[0], visual: 'Wide shot: empty yellow corridor stretching to infinity. Flickering fluorescent lights. "No one around for miles."', purpose: 'SET THE MOOD', camera: 'Static wide, slow push-in', asset: 'GENERATED', copy: 'I remember the exact moment I noclipped. One second I was walking home. The next... I was here.' },
+    { id: 'br-2', timeRange: '8-16s', preview: BACKROOMS_MOCK_STILLS[1], visual: 'POV walking down corridor. Wallpaper pattern repeats. Distant hum of fluorescent lights. Shadow flickers at the edge of frame.', purpose: 'BUILD TENSION', camera: 'POV handheld, subtle drift', asset: 'GENERATED', copy: 'The walls are damp. The carpet smells like wet cardboard. And the lights... they never stop buzzing.' },
+    { id: 'br-3', timeRange: '16-24s', preview: BACKROOMS_MOCK_STILLS[2], visual: 'Turning a corner — identical corridor. A single wooden door with a rusted handle. Door slightly ajar.', purpose: 'INTRODUCE MYSTERY', camera: 'Slow pan right, reveal door', asset: 'GENERATED', copy: 'Every room looks the same. But this door... this door wasn\'t here before.' },
+    { id: 'br-4', timeRange: '24-32s', preview: BACKROOMS_MOCK_STILLS[3], visual: 'Entering the door — darker room. Water on the floor. Reflections on the ceiling. Something moves in the water.', purpose: 'RAISE STAKES', camera: 'Low angle, follow the water', asset: 'GENERATED', copy: 'Level 2, they call it. The water is knee-deep. And something is swimming beneath my feet.' },
+    { id: 'br-5', timeRange: '32-40s', preview: BACKROOMS_MOCK_STILLS[4], visual: 'Running now. Corridors blur. Breath visible in cold air. A figure stands at the end of the hall — back turned, motionless.', purpose: 'CLIMAX BUILD', camera: 'Shaky handheld, running POV', asset: 'GENERATED', copy: 'I\'m not alone anymore. I can hear it breathing. I can smell it — like copper and mold.' },
+    { id: 'br-6', timeRange: '40-48s', preview: BACKROOMS_MOCK_STILLS[3], visual: 'The figure turns. Face obscured by shadow. Long limbs. Wrong proportions. It starts walking toward camera.', purpose: 'CONFRONTATION', camera: 'Rapid zoom out, then freeze frame', asset: 'GENERATED', copy: 'It doesn\'t run. It glides. Like it knows I have nowhere to go.' },
+    { id: 'br-7', timeRange: '48-54s', preview: BACKROOMS_MOCK_STILLS[4], visual: 'Emergency exit sign glowing red. Sprint toward it. Hand reaches for the push bar. Static electricity builds.', purpose: 'ESCAPE ATTEMPT', camera: 'Over-the-shoulder, desperate motion', asset: 'GENERATED', copy: 'There\'s an exit. There\'s always an exit. Right? Please tell me there\'s an exit.' },
+    { id: 'br-8', timeRange: '54-60s', preview: BACKROOMS_MOCK_STILLS[0], visual: 'Cut to black. A single fluorescent light flickers on. Same yellow corridor. Same buzzing. Different number on the wall: "Level 922."', purpose: 'UNSETTLING RESOLUTION', camera: 'Static wide. Hold for 3 seconds. Fade.', asset: 'GENERATED', copy: 'The door opened. But I didn\'t escape. I just went deeper. Welcome to Level 922.' },
   ],
 };
 
@@ -321,7 +323,7 @@ export const PRESET_DREAMWALK_MEMORY_SCRIPT: Script = {
   duration: '15s',
   version: 'v1',
   category: 'Dreamlike / Atmospheric',
-  coverImage: '/assets/trending-7.jpg',
+  coverImage: assetPath('/assets/trending-7.jpg'),
   outputSpec: '9:16 vertical · around 15 seconds · dreamlike atmospheric short video',
   shortDescription:
     'A quiet 15-second dreamlike short where a figure drifts through a remembered interior space shaped by soft light, blur, and emotional atmosphere.',
@@ -339,7 +341,7 @@ export const PRESET_DREAMWALK_MEMORY_SCRIPT: Script = {
     {
       id: 'dw-1',
       timeRange: '0-3s',
-      preview: '/assets/trending-7.jpg',
+      preview: assetPath('/assets/trending-7.jpg'),
       visual:
         'A soft opening into the dream space. The subject appears quietly within a remembered interior, moving slowly as if entering a fading memory.',
       purpose: 'SET THE TONE',
@@ -350,7 +352,7 @@ export const PRESET_DREAMWALK_MEMORY_SCRIPT: Script = {
     {
       id: 'dw-2',
       timeRange: '3-6s',
-      preview: '/assets/trending-6.jpg',
+      preview: assetPath('/assets/trending-6.jpg'),
       visual:
         'The figure drifts deeper into the environment. The space feels calm and familiar, yet emotionally distant and unreal.',
       purpose: 'BUILD ATMOSPHERE',
@@ -361,7 +363,7 @@ export const PRESET_DREAMWALK_MEMORY_SCRIPT: Script = {
     {
       id: 'dw-3',
       timeRange: '6-9s',
-      preview: '/assets/story-4.jpg',
+      preview: assetPath('/assets/story-4.jpg'),
       visual:
         'Motion slows into near stillness. Light, shadow, and texture become the emotional center of the frame.',
       purpose: 'HOLD THE DREAM',
@@ -372,7 +374,7 @@ export const PRESET_DREAMWALK_MEMORY_SCRIPT: Script = {
     {
       id: 'dw-4',
       timeRange: '9-12s',
-      preview: '/assets/story-2.jpg',
+      preview: assetPath('/assets/story-2.jpg'),
       visual:
         'The dream deepens. The space grows softer and more fluid, as if the memory is dissolving from within.',
       purpose: 'DEEPEN FEELING',
@@ -383,7 +385,7 @@ export const PRESET_DREAMWALK_MEMORY_SCRIPT: Script = {
     {
       id: 'dw-5',
       timeRange: '12-15s',
-      preview: '/assets/trending-5.jpg',
+      preview: assetPath('/assets/trending-5.jpg'),
       visual:
         'The subject and space gently fade, leaving behind only a soft emotional trace.',
       purpose: 'LEAVE AN AFTERGLOW',
@@ -406,13 +408,13 @@ export const PRESET_CITYWALK_SCRIPT: Script = {
   rhythm: 'Upbeat tempo matching city energy. Quick cuts during shopping and transit. Longer holds during spa and dinner to create contrast and breathing room.',
   assetLogic: 'User-uploaded lifestyle photos as primary visuals. Real locations in Shenzhen for authenticity. Natural light priority.',
   shots: [
-    { id: 'cw-1', timeRange: '0-6s', preview: '/assets/citywalk/morning.png', visual: 'Soft morning light through blinds. Girl stretching on bed in silk pajamas. Sunlight catches her hair. Peaceful, luxurious start to the day.', purpose: 'SET THE MOOD', camera: 'Static medium, gentle morning glow', asset: 'UPLOADED', copy: 'Every great day starts with a slow morning. Coffee first. Everything else can wait.' },
-    { id: 'cw-2', timeRange: '6-12s', preview: '/assets/citywalk/subway.png', visual: 'Stepping onto the escalator in a sleek metro station. Gray blazer, designer bag, confident smile. City rhythm begins.', purpose: 'INTRODUCE JOURNEY', camera: 'Low angle tracking shot', asset: 'UPLOADED', copy: 'Shenzhen\'s metro is my runway. Platform shoes? Mandatory.' },
-    { id: 'cw-3', timeRange: '12-18s', preview: '/assets/citywalk/landmark.png', visual: 'Standing before a towering glass skyscraper. Low angle makes her look powerful. Hand shielding eyes from sun. Urban explorer energy.', purpose: 'ESTABLISH LOCATION', camera: 'Extreme low angle, upward gaze', asset: 'UPLOADED', copy: 'This city is always building higher. And honestly? So am I.' },
-    { id: 'cw-4', timeRange: '18-24s', preview: '/assets/citywalk/shopping.png', visual: 'Night shopping haul. Multiple bags from premium stores. Walking through mall gates, hair flowing. Pure joy and satisfaction.', purpose: 'BUILD ENERGY', camera: 'Follow shot, dynamic movement', asset: 'UPLOADED', copy: 'Retail therapy is real. And yes, I got matching sets.' },
-    { id: 'cw-5', timeRange: '24-30s', preview: '/assets/citywalk/fashion.png', visual: 'Inside a bright boutique. Trying on a jacket, pointing at the mirror with a cheeky grin. Shopping bags in hand. Fashion is play.', purpose: 'SHOW PERSONALITY', camera: 'Medium close-up, mirror reflection', asset: 'UPLOADED', copy: 'Rule #1: If it makes you smile, buy it. Rule #2: No regrets.' },
-    { id: 'cw-6', timeRange: '30-36s', preview: '/assets/citywalk/spa.png', visual: 'Luxury spa treatment. Steaming facial, eyes closed, complete relaxation. Golden leather recliner. Warm ambient lighting. The calm between city storms.', purpose: 'CREATE CONTRAST', camera: 'Close-up, shallow depth of field', asset: 'UPLOADED', copy: 'Even city girls need to pause. This is my reset button.' },
-    { id: 'cw-7', timeRange: '36-45s', preview: '/assets/citywalk/dinner.png', visual: 'Hotpot night with friends. Hands clinking beer glasses over a bubbling pot. Warm, communal, alive. The perfect end to a perfect day.', purpose: 'WARM RESOLUTION', camera: 'Overhead wide, capturing the group energy', asset: 'UPLOADED', copy: 'The best part of any day? Sharing it with people who get you. Cheers, Shenzhen.' },
+    { id: 'cw-1', timeRange: '0-6s', preview: assetPath('/assets/citywalk/morning.png'), visual: 'Soft morning light through blinds. Girl stretching on bed in silk pajamas. Sunlight catches her hair. Peaceful, luxurious start to the day.', purpose: 'SET THE MOOD', camera: 'Static medium, gentle morning glow', asset: 'UPLOADED', copy: 'Every great day starts with a slow morning. Coffee first. Everything else can wait.' },
+    { id: 'cw-2', timeRange: '6-12s', preview: assetPath('/assets/citywalk/subway.png'), visual: 'Stepping onto the escalator in a sleek metro station. Gray blazer, designer bag, confident smile. City rhythm begins.', purpose: 'INTRODUCE JOURNEY', camera: 'Low angle tracking shot', asset: 'UPLOADED', copy: 'Shenzhen\'s metro is my runway. Platform shoes? Mandatory.' },
+    { id: 'cw-3', timeRange: '12-18s', preview: assetPath('/assets/citywalk/landmark.png'), visual: 'Standing before a towering glass skyscraper. Low angle makes her look powerful. Hand shielding eyes from sun. Urban explorer energy.', purpose: 'ESTABLISH LOCATION', camera: 'Extreme low angle, upward gaze', asset: 'UPLOADED', copy: 'This city is always building higher. And honestly? So am I.' },
+    { id: 'cw-4', timeRange: '18-24s', preview: assetPath('/assets/citywalk/shopping.png'), visual: 'Night shopping haul. Multiple bags from premium stores. Walking through mall gates, hair flowing. Pure joy and satisfaction.', purpose: 'BUILD ENERGY', camera: 'Follow shot, dynamic movement', asset: 'UPLOADED', copy: 'Retail therapy is real. And yes, I got matching sets.' },
+    { id: 'cw-5', timeRange: '24-30s', preview: assetPath('/assets/citywalk/fashion.png'), visual: 'Inside a bright boutique. Trying on a jacket, pointing at the mirror with a cheeky grin. Shopping bags in hand. Fashion is play.', purpose: 'SHOW PERSONALITY', camera: 'Medium close-up, mirror reflection', asset: 'UPLOADED', copy: 'Rule #1: If it makes you smile, buy it. Rule #2: No regrets.' },
+    { id: 'cw-6', timeRange: '30-36s', preview: assetPath('/assets/citywalk/spa.png'), visual: 'Luxury spa treatment. Steaming facial, eyes closed, complete relaxation. Golden leather recliner. Warm ambient lighting. The calm between city storms.', purpose: 'CREATE CONTRAST', camera: 'Close-up, shallow depth of field', asset: 'UPLOADED', copy: 'Even city girls need to pause. This is my reset button.' },
+    { id: 'cw-7', timeRange: '36-45s', preview: assetPath('/assets/citywalk/dinner.png'), visual: 'Hotpot night with friends. Hands clinking beer glasses over a bubbling pot. Warm, communal, alive. The perfect end to a perfect day.', purpose: 'WARM RESOLUTION', camera: 'Overhead wide, capturing the group energy', asset: 'UPLOADED', copy: 'The best part of any day? Sharing it with people who get you. Cheers, Shenzhen.' },
   ],
 };
 
@@ -423,7 +425,7 @@ export const PRESET_COZY_BEDROOM_SCRIPT: Script = {
   duration: '30s',
   version: 'v1',
   category: 'Lifestyle / Soft Daily',
-  coverImage: '/assets/citywalk/morning.png',
+  coverImage: assetPath('/assets/citywalk/morning.png'),
   outputSpec: '9:16 vertical · around 30 seconds · warm morning routine film',
   shortDescription: 'A soft domestic morning with warm light, gentle pacing, and intimate everyday details.',
   narrativeArc: 'A gentle bedroom morning unfolds from first light to the moment the subject is ready to step into the day, emphasizing comfort, slowness, and ritual.',
@@ -432,12 +434,12 @@ export const PRESET_COZY_BEDROOM_SCRIPT: Script = {
   rhythm: 'Start slow with light and fabric details, then move into a steady sequence of actions before resolving on a calm final frame.',
   assetLogic: 'Bedroom textures, window light, and close-up routine details carry the story more than dialogue.',
   shots: [
-    { id: 'cb-1', timeRange: '0-5s', preview: '/assets/citywalk/morning.png', visual: 'Sunlight slips across rumpled bedding as the subject opens one eye and stretches into the frame.', purpose: 'OPEN SOFTLY', camera: 'Static close wide', asset: 'UPLOADED', copy: 'The room wakes up before I do.' },
-    { id: 'cb-2', timeRange: '5-10s', preview: '/assets/story-1.jpg', visual: 'Hands pull back linen curtains, letting warmer light flood the room and brighten the bedside table.', purpose: 'LET IN LIGHT', camera: 'Gentle side pan', asset: 'UPLOADED', copy: 'Every morning starts with this exact glow.' },
-    { id: 'cb-3', timeRange: '10-15s', preview: '/assets/story-2.jpg', visual: 'Steam rises from a ceramic mug while a notebook, glasses, and phone sit untouched nearby.', purpose: 'SET ROUTINE', camera: 'Macro detail hold', asset: 'UPLOADED', copy: 'No rush. Just one quiet ritual at a time.' },
-    { id: 'cb-4', timeRange: '15-20s', preview: '/assets/story-4.jpg', visual: 'The subject ties back their hair in the mirror, framed by soft bathroom reflections and pastel tones.', purpose: 'BUILD PRESENCE', camera: 'Mirror medium shot', asset: 'UPLOADED', copy: 'It feels easier to face the day when the space feels kind.' },
-    { id: 'cb-5', timeRange: '20-25s', preview: '/assets/trending-7.jpg', visual: 'A quick sequence of skincare, folded sleeves, and a tidy made bed suggests calm order.', purpose: 'COMPLETE RITUAL', camera: 'Detail montage', asset: 'UPLOADED', copy: 'Little actions add up to a better pace.' },
-    { id: 'cb-6', timeRange: '25-30s', preview: '/assets/trending-6.jpg', visual: 'The subject pauses by the window with coffee in hand before stepping out of frame.', purpose: 'QUIET RESOLVE', camera: 'Slow pull back', asset: 'UPLOADED', copy: 'For one second, the whole morning feels perfectly enough.' },
+    { id: 'cb-1', timeRange: '0-5s', preview: assetPath('/assets/citywalk/morning.png'), visual: 'Sunlight slips across rumpled bedding as the subject opens one eye and stretches into the frame.', purpose: 'OPEN SOFTLY', camera: 'Static close wide', asset: 'UPLOADED', copy: 'The room wakes up before I do.' },
+    { id: 'cb-2', timeRange: '5-10s', preview: assetPath('/assets/story-1.jpg'), visual: 'Hands pull back linen curtains, letting warmer light flood the room and brighten the bedside table.', purpose: 'LET IN LIGHT', camera: 'Gentle side pan', asset: 'UPLOADED', copy: 'Every morning starts with this exact glow.' },
+    { id: 'cb-3', timeRange: '10-15s', preview: assetPath('/assets/story-2.jpg'), visual: 'Steam rises from a ceramic mug while a notebook, glasses, and phone sit untouched nearby.', purpose: 'SET ROUTINE', camera: 'Macro detail hold', asset: 'UPLOADED', copy: 'No rush. Just one quiet ritual at a time.' },
+    { id: 'cb-4', timeRange: '15-20s', preview: assetPath('/assets/story-4.jpg'), visual: 'The subject ties back their hair in the mirror, framed by soft bathroom reflections and pastel tones.', purpose: 'BUILD PRESENCE', camera: 'Mirror medium shot', asset: 'UPLOADED', copy: 'It feels easier to face the day when the space feels kind.' },
+    { id: 'cb-5', timeRange: '20-25s', preview: assetPath('/assets/trending-7.jpg'), visual: 'A quick sequence of skincare, folded sleeves, and a tidy made bed suggests calm order.', purpose: 'COMPLETE RITUAL', camera: 'Detail montage', asset: 'UPLOADED', copy: 'Little actions add up to a better pace.' },
+    { id: 'cb-6', timeRange: '25-30s', preview: assetPath('/assets/trending-6.jpg'), visual: 'The subject pauses by the window with coffee in hand before stepping out of frame.', purpose: 'QUIET RESOLVE', camera: 'Slow pull back', asset: 'UPLOADED', copy: 'For one second, the whole morning feels perfectly enough.' },
   ],
 };
 
@@ -448,7 +450,7 @@ export const PRESET_CYBERPUNK_ALLEY_SCRIPT: Script = {
   duration: '20s',
   version: 'v1',
   category: 'Action / Sci-Fi',
-  coverImage: '/assets/trending-3.jpg',
+  coverImage: assetPath('/assets/trending-3.jpg'),
   outputSpec: '16:9 widescreen · around 20 seconds · neon kinetic chase film',
   shortDescription: 'A neon-lit pursuit through wet alleyways with rising speed and synthetic tension.',
   narrativeArc: 'A stolen data drive triggers a chase through a rain-slick alley network, escalating from stealth to full-speed pursuit in under twenty seconds.',
@@ -457,12 +459,12 @@ export const PRESET_CYBERPUNK_ALLEY_SCRIPT: Script = {
   rhythm: 'Minimal setup, immediate acceleration, peak intensity around the middle, then a sharp unresolved exit.',
   assetLogic: 'Environment, reflections, and velocity cues define the chase more than dialogue or character exposition.',
   shots: [
-    { id: 'cp-1', timeRange: '0-3s', preview: '/assets/trending-3.jpg', visual: 'A runner slips through a narrow neon alley, glancing back as police drones enter the frame behind.', purpose: 'THROW INTO ACTION', camera: 'Fast shoulder-level tracking', asset: 'GENERATED', copy: 'Don’t stop. Don’t look back.' },
-    { id: 'cp-2', timeRange: '3-6s', preview: '/assets/trending-4.jpg', visual: 'Boots splash through puddles while holographic signage flickers across walls and face.', purpose: 'INCREASE VELOCITY', camera: 'Low-angle sprint cam', asset: 'GENERATED', copy: 'The whole alley feels wired to expose me.' },
-    { id: 'cp-3', timeRange: '6-10s', preview: '/assets/trending-5.jpg', visual: 'A drone scans the corner ahead as the subject slides under a closing security gate.', purpose: 'RAISE STAKES', camera: 'Whip pan into crouch', asset: 'GENERATED', copy: 'Too close. Way too close.' },
-    { id: 'cp-4', timeRange: '10-14s', preview: '/assets/trending-6.jpg', visual: 'The chase erupts onto a wider service lane with glowing cables overhead and traffic haze beyond.', purpose: 'PEAK TENSION', camera: 'Handheld push with shake', asset: 'GENERATED', copy: 'Every light is a warning now.' },
-    { id: 'cp-5', timeRange: '14-17s', preview: '/assets/trending-7.jpg', visual: 'A hard pivot into darkness reveals a brief hiding place lit only by a blinking vending panel.', purpose: 'FALSE SAFETY', camera: 'Fast pivot then hold', asset: 'GENERATED', copy: 'If I stay still, maybe the city forgets me.' },
-    { id: 'cp-6', timeRange: '17-20s', preview: '/assets/trending-2.jpg', visual: 'A final sprint launches into a rain curtain as the image tears with digital interference.', purpose: 'CUT ON ESCAPE', camera: 'Rear follow, rapid blur', asset: 'GENERATED', copy: 'Run first. Decode later.' },
+    { id: 'cp-1', timeRange: '0-3s', preview: assetPath('/assets/trending-3.jpg'), visual: 'A runner slips through a narrow neon alley, glancing back as police drones enter the frame behind.', purpose: 'THROW INTO ACTION', camera: 'Fast shoulder-level tracking', asset: 'GENERATED', copy: 'Don’t stop. Don’t look back.' },
+    { id: 'cp-2', timeRange: '3-6s', preview: assetPath('/assets/trending-4.jpg'), visual: 'Boots splash through puddles while holographic signage flickers across walls and face.', purpose: 'INCREASE VELOCITY', camera: 'Low-angle sprint cam', asset: 'GENERATED', copy: 'The whole alley feels wired to expose me.' },
+    { id: 'cp-3', timeRange: '6-10s', preview: assetPath('/assets/trending-5.jpg'), visual: 'A drone scans the corner ahead as the subject slides under a closing security gate.', purpose: 'RAISE STAKES', camera: 'Whip pan into crouch', asset: 'GENERATED', copy: 'Too close. Way too close.' },
+    { id: 'cp-4', timeRange: '10-14s', preview: assetPath('/assets/trending-6.jpg'), visual: 'The chase erupts onto a wider service lane with glowing cables overhead and traffic haze beyond.', purpose: 'PEAK TENSION', camera: 'Handheld push with shake', asset: 'GENERATED', copy: 'Every light is a warning now.' },
+    { id: 'cp-5', timeRange: '14-17s', preview: assetPath('/assets/trending-7.jpg'), visual: 'A hard pivot into darkness reveals a brief hiding place lit only by a blinking vending panel.', purpose: 'FALSE SAFETY', camera: 'Fast pivot then hold', asset: 'GENERATED', copy: 'If I stay still, maybe the city forgets me.' },
+    { id: 'cp-6', timeRange: '17-20s', preview: assetPath('/assets/trending-2.jpg'), visual: 'A final sprint launches into a rain curtain as the image tears with digital interference.', purpose: 'CUT ON ESCAPE', camera: 'Rear follow, rapid blur', asset: 'GENERATED', copy: 'Run first. Decode later.' },
   ],
 };
 
@@ -473,7 +475,7 @@ export const PRESET_DREAMY_FASHION_SCRIPT: Script = {
   duration: '25s',
   version: 'v1',
   category: 'Fashion / Dreamlike',
-  coverImage: '/assets/trending-7.jpg',
+  coverImage: assetPath('/assets/trending-7.jpg'),
   outputSpec: '4:5 portrait · around 25 seconds · airy cinematic fashion film',
   shortDescription: 'An airy fashion portrait sequence drifting through city light, fabric motion, and stylized pauses.',
   narrativeArc: 'A fashion muse moves through a city block as if through a dream, turning everyday sidewalks into a soft editorial progression.',
@@ -482,11 +484,11 @@ export const PRESET_DREAMY_FASHION_SCRIPT: Script = {
   rhythm: 'Measured editorial beats with pauses on silhouette, motion accents, and one final hero look.',
   assetLogic: 'Wardrobe, gesture, and reflected city light carry the concept; dialogue stays sparse and impressionistic.',
   shots: [
-    { id: 'df-1', timeRange: '0-5s', preview: '/assets/trending-7.jpg', visual: 'The subject steps out from a glass facade in a flowing coat, backlit by pale afternoon haze.', purpose: 'HERO ENTRANCE', camera: 'Editorial medium follow', asset: 'UPLOADED', copy: 'The city softens when the look lands right.' },
-    { id: 'df-2', timeRange: '5-9s', preview: '/assets/story-4.jpg', visual: 'Fabric catches wind near a crosswalk while reflections double the silhouette in nearby windows.', purpose: 'SHOW TEXTURE', camera: 'Slow side track', asset: 'UPLOADED', copy: 'Every movement leaves a little afterimage.' },
-    { id: 'df-3', timeRange: '9-14s', preview: '/assets/trending-6.jpg', visual: 'Close-up on jewelry, fingertips, and a soft turn of the chin under diffused street light.', purpose: 'DETAIL PAUSE', camera: 'Close portrait cut-in', asset: 'UPLOADED', copy: 'It’s less about posing and more about drifting.' },
-    { id: 'df-4', timeRange: '14-19s', preview: '/assets/story-2.jpg', visual: 'The subject moves through a quiet side street as the pace slows and the styling becomes the environment.', purpose: 'SUSTAIN MOOD', camera: 'Long-lens glide', asset: 'UPLOADED', copy: 'For a second, the whole block feels curated.' },
-    { id: 'df-5', timeRange: '19-25s', preview: '/assets/trending-5.jpg', visual: 'A final stop under warm reflected light turns into a clean editorial hero frame.', purpose: 'FINAL LOOK', camera: 'Static hero frame', asset: 'UPLOADED', copy: 'Leave the frame before the spell breaks.' },
+    { id: 'df-1', timeRange: '0-5s', preview: assetPath('/assets/trending-7.jpg'), visual: 'The subject steps out from a glass facade in a flowing coat, backlit by pale afternoon haze.', purpose: 'HERO ENTRANCE', camera: 'Editorial medium follow', asset: 'UPLOADED', copy: 'The city softens when the look lands right.' },
+    { id: 'df-2', timeRange: '5-9s', preview: assetPath('/assets/story-4.jpg'), visual: 'Fabric catches wind near a crosswalk while reflections double the silhouette in nearby windows.', purpose: 'SHOW TEXTURE', camera: 'Slow side track', asset: 'UPLOADED', copy: 'Every movement leaves a little afterimage.' },
+    { id: 'df-3', timeRange: '9-14s', preview: assetPath('/assets/trending-6.jpg'), visual: 'Close-up on jewelry, fingertips, and a soft turn of the chin under diffused street light.', purpose: 'DETAIL PAUSE', camera: 'Close portrait cut-in', asset: 'UPLOADED', copy: 'It’s less about posing and more about drifting.' },
+    { id: 'df-4', timeRange: '14-19s', preview: assetPath('/assets/story-2.jpg'), visual: 'The subject moves through a quiet side street as the pace slows and the styling becomes the environment.', purpose: 'SUSTAIN MOOD', camera: 'Long-lens glide', asset: 'UPLOADED', copy: 'For a second, the whole block feels curated.' },
+    { id: 'df-5', timeRange: '19-25s', preview: assetPath('/assets/trending-5.jpg'), visual: 'A final stop under warm reflected light turns into a clean editorial hero frame.', purpose: 'FINAL LOOK', camera: 'Static hero frame', asset: 'UPLOADED', copy: 'Leave the frame before the spell breaks.' },
   ],
 };
 
@@ -497,7 +499,7 @@ export const PRESET_RAINY_CAFE_SCRIPT: Script = {
   duration: '35s',
   version: 'v1',
   category: 'Mood Film / Narrative',
-  coverImage: '/assets/trending-5.jpg',
+  coverImage: assetPath('/assets/trending-5.jpg'),
   outputSpec: '16:9 landscape · around 35 seconds · moody narrative cafe film',
   shortDescription: 'An intimate rainy-night cafe scene built on reflection, silence, and unresolved emotion.',
   narrativeArc: 'A rainy evening cafe visit becomes a quiet internal turning point, moving from solitude to a fragile sense of emotional release.',
@@ -506,12 +508,12 @@ export const PRESET_RAINY_CAFE_SCRIPT: Script = {
   rhythm: 'Gentle opening, reflective middle, one emotional crest, then a restrained close that leaves room for interpretation.',
   assetLogic: 'Window reflections, table details, and body language carry most of the narrative. Dialogue stays minimal and interior.',
   shots: [
-    { id: 'rn-1', timeRange: '0-6s', preview: '/assets/trending-5.jpg', visual: 'Rain tracks down the cafe window while the subject sits alone, half-lit by warm practical light.', purpose: 'SET MOOD', camera: 'Static interior wide', asset: 'UPLOADED', copy: 'The rain makes everything feel farther away.' },
-    { id: 'rn-2', timeRange: '6-12s', preview: '/assets/story-2.jpg', visual: 'A spoon stirs a dark coffee slowly as outside headlights smear into abstract color.', purpose: 'DETAIL EMOTION', camera: 'Macro tabletop', asset: 'UPLOADED', copy: 'I keep circling the same thought without saying it.' },
-    { id: 'rn-3', timeRange: '12-18s', preview: '/assets/story-4.jpg', visual: 'The subject watches the door as if expecting someone, then looks back down with a small breath.', purpose: 'SUGGEST LONGING', camera: 'Portrait medium hold', asset: 'UPLOADED', copy: 'Maybe waiting is just another way of remembering.' },
-    { id: 'rn-4', timeRange: '18-24s', preview: '/assets/trending-6.jpg', visual: 'Hands wrap tighter around the mug while reflections on the table double the gesture.', purpose: 'RAISE FEELING', camera: 'Close hand detail', asset: 'UPLOADED', copy: 'Some nights are quieter than silence.' },
-    { id: 'rn-5', timeRange: '24-30s', preview: '/assets/trending-7.jpg', visual: 'A distant smile appears as a memory surfaces, caught in the glow of the window.', purpose: 'SOFT TURN', camera: 'Slow push in', asset: 'UPLOADED', copy: 'I thought the feeling was gone. It wasn’t.' },
-    { id: 'rn-6', timeRange: '30-35s', preview: '/assets/trending-3.jpg', visual: 'The camera lingers on the empty chair across the table as rain continues outside.', purpose: 'OPEN ENDING', camera: 'Static closing frame', asset: 'UPLOADED', copy: 'Some stories end by simply not ending yet.' },
+    { id: 'rn-1', timeRange: '0-6s', preview: assetPath('/assets/trending-5.jpg'), visual: 'Rain tracks down the cafe window while the subject sits alone, half-lit by warm practical light.', purpose: 'SET MOOD', camera: 'Static interior wide', asset: 'UPLOADED', copy: 'The rain makes everything feel farther away.' },
+    { id: 'rn-2', timeRange: '6-12s', preview: assetPath('/assets/story-2.jpg'), visual: 'A spoon stirs a dark coffee slowly as outside headlights smear into abstract color.', purpose: 'DETAIL EMOTION', camera: 'Macro tabletop', asset: 'UPLOADED', copy: 'I keep circling the same thought without saying it.' },
+    { id: 'rn-3', timeRange: '12-18s', preview: assetPath('/assets/story-4.jpg'), visual: 'The subject watches the door as if expecting someone, then looks back down with a small breath.', purpose: 'SUGGEST LONGING', camera: 'Portrait medium hold', asset: 'UPLOADED', copy: 'Maybe waiting is just another way of remembering.' },
+    { id: 'rn-4', timeRange: '18-24s', preview: assetPath('/assets/trending-6.jpg'), visual: 'Hands wrap tighter around the mug while reflections on the table double the gesture.', purpose: 'RAISE FEELING', camera: 'Close hand detail', asset: 'UPLOADED', copy: 'Some nights are quieter than silence.' },
+    { id: 'rn-5', timeRange: '24-30s', preview: assetPath('/assets/trending-7.jpg'), visual: 'A distant smile appears as a memory surfaces, caught in the glow of the window.', purpose: 'SOFT TURN', camera: 'Slow push in', asset: 'UPLOADED', copy: 'I thought the feeling was gone. It wasn’t.' },
+    { id: 'rn-6', timeRange: '30-35s', preview: assetPath('/assets/trending-3.jpg'), visual: 'The camera lingers on the empty chair across the table as rain continues outside.', purpose: 'OPEN ENDING', camera: 'Static closing frame', asset: 'UPLOADED', copy: 'Some stories end by simply not ending yet.' },
   ],
 };
 
@@ -523,7 +525,7 @@ export const MY_SCRIPTS_LIBRARY: Script[] = [
     title: 'Backrooms First-Person Vlog',
     duration: '15s',
     category: 'Liminal Horror / POV Vlog',
-    coverImage: '/assets/trending-5.jpg',
+    coverImage: BACKROOMS_MOCK_STILLS[0],
     outputSpec: '16:9 landscape · around 15 seconds · realistic handheld tension vlog',
     shortDescription: 'A liminal first-person exploration short where fluorescent repetition turns into dread.',
     shots: PRESET_BACKROOMS_SCRIPT.shots.slice(0, 5).map((shot, index) => ({
@@ -537,7 +539,7 @@ export const MY_SCRIPTS_LIBRARY: Script[] = [
     id: 'my-citywalk-001',
     title: 'Shenzhen City Walk Vlog',
     category: 'Lifestyle / City Vlog',
-    coverImage: '/assets/citywalk/landmark.png',
+    coverImage: assetPath('/assets/citywalk/landmark.png'),
     outputSpec: '16:9 landscape · around 45 seconds · vibrant city walk story',
     shortDescription: 'A day-to-night Shenzhen lifestyle reel with movement, fashion, and city rhythm.',
   },
@@ -552,7 +554,7 @@ export const PRESET_TEMPLATES = [
     id: 'backrooms',
     title: 'Backrooms Adventure',
     description: 'Suspense horror in liminal spaces. 8 shots, 60s.',
-    thumbnail: '/assets/backrooms-1.jpg',
+    thumbnail: BACKROOMS_MOCK_STILLS[0],
     script: PRESET_BACKROOMS_SCRIPT,
     genre: 'Horror / Suspense',
     shots: 8,
@@ -562,7 +564,7 @@ export const PRESET_TEMPLATES = [
     id: 'citywalk',
     title: 'Shenzhen City Walk Vlog',
     description: 'A day in the life of a city girl. 7 shots, 45s.',
-    thumbnail: '/assets/citywalk/landmark.png',
+    thumbnail: assetPath('/assets/citywalk/landmark.png'),
     script: PRESET_CITYWALK_SCRIPT,
     genre: 'Lifestyle / Vlog',
     shots: 7,

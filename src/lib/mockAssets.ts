@@ -1,5 +1,7 @@
+import { assetPath } from '@/lib/assetPath';
 import type { Script } from '@/types';
 import type { SavedAssetPackage } from '@/stores/useGenerateStore';
+import { BACKROOMS_MOCK_STILLS } from '@/lib/mockBackroomsAssets';
 
 export type AssetOwner = 'my' | 'shared';
 export type AssetKind = 'image' | 'video' | 'audio' | 'text' | 'pack' | 'preset' | 'style';
@@ -42,7 +44,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Picture',
     name: 'Dream Portrait Reference',
     description: 'Soft portrait reference for dreamlike character framing.',
-    thumbnail: '/assets/trending-7.jpg',
+    thumbnail: assetPath('/assets/trending-7.jpg'),
     tags: ['dream', 'portrait', 'soft', 'character'],
     source: 'mock',
   },
@@ -53,7 +55,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Picture',
     name: 'Memory Hallway Interior',
     description: 'Quiet interior hallway for spatial reference.',
-    thumbnail: '/assets/story-1.jpg',
+    thumbnail: assetPath('/assets/story-1.jpg'),
     tags: ['memory', 'hallway', 'interior', 'space'],
     source: 'mock',
   },
@@ -64,7 +66,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Picture',
     name: 'Sunset Desert Light',
     description: 'Warm sunset mood and color reference.',
-    thumbnail: '/assets/story-2.jpg',
+    thumbnail: assetPath('/assets/story-2.jpg'),
     tags: ['sunset', 'warm', 'light', 'mood'],
     source: 'mock',
   },
@@ -75,7 +77,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Picture',
     name: 'Rain Window Mood',
     description: 'Diffused light and reflective window texture.',
-    thumbnail: '/assets/story-3.jpg',
+    thumbnail: assetPath('/assets/story-3.jpg'),
     tags: ['rain', 'window', 'reflection', 'texture'],
     source: 'mock',
   },
@@ -86,7 +88,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Picture',
     name: 'Forest Morning Haze',
     description: 'Misty natural atmosphere reference.',
-    thumbnail: '/assets/trending-5.jpg',
+    thumbnail: assetPath('/assets/trending-5.jpg'),
     tags: ['forest', 'mist', 'morning', 'atmosphere'],
     source: 'mock',
   },
@@ -97,7 +99,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Picture',
     name: 'Neon Street Color',
     description: 'Night city color and lighting reference.',
-    thumbnail: '/assets/story-5.jpg',
+    thumbnail: assetPath('/assets/story-5.jpg'),
     tags: ['neon', 'street', 'night', 'city'],
     source: 'mock',
   },
@@ -108,7 +110,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Video',
     name: 'Corridor Walk Clip',
     description: 'Slow handheld walk through a narrow interior corridor.',
-    thumbnail: '/mock/backrooms/分镜 01.png',
+    thumbnail: BACKROOMS_MOCK_STILLS[0],
     duration: '12s',
     tags: ['corridor', 'walk', 'handheld', 'interior'],
     source: 'mock',
@@ -120,7 +122,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Video',
     name: 'Ocean Surface Loop',
     description: 'Calm surface motion and reflective water texture.',
-    thumbnail: '/assets/story-4.jpg',
+    thumbnail: assetPath('/assets/story-4.jpg'),
     duration: '18s',
     tags: ['ocean', 'water', 'surface', 'calm'],
     source: 'mock',
@@ -132,7 +134,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Video',
     name: 'City Rain B-roll',
     description: 'Neon rain street ambience and slow urban movement.',
-    thumbnail: '/assets/trending-6.jpg',
+    thumbnail: assetPath('/assets/trending-6.jpg'),
     duration: '24s',
     tags: ['city', 'rain', 'neon', 'b-roll'],
     source: 'mock',
@@ -144,7 +146,7 @@ export const MOCK_MY_ASSETS: LibraryAsset[] = [
     category: 'Video',
     name: 'Soft Bedroom Routine',
     description: 'Quiet lifestyle motion reference.',
-    thumbnail: '/assets/story-1.jpg',
+    thumbnail: assetPath('/assets/story-1.jpg'),
     duration: '16s',
     tags: ['bedroom', 'routine', 'lifestyle', 'soft'],
     source: 'mock',
@@ -267,7 +269,7 @@ export const MOCK_SHARED_ASSETS: LibraryAsset[] = [
     category: 'Picture',
     name: 'Editorial Silhouette Frame',
     description: 'Shared fashion silhouette reference from the team library.',
-    thumbnail: '/assets/trending-2.jpg',
+    thumbnail: assetPath('/assets/trending-2.jpg'),
     tags: ['fashion', 'silhouette', 'editorial'],
     source: 'mock',
   },
@@ -278,7 +280,7 @@ export const MOCK_SHARED_ASSETS: LibraryAsset[] = [
     category: 'Video',
     name: 'City Motion Loop',
     description: 'Shared slow pan over moving city lights.',
-    thumbnail: '/assets/citywalk/morning.png',
+    thumbnail: assetPath('/assets/citywalk/morning.png'),
     duration: '14s',
     tags: ['city', 'motion', 'lights'],
     source: 'mock',
@@ -457,7 +459,7 @@ export function createSavedIdeaAsset(
 export function buildScriptFromIdea(idea: MockGeneratedIdea, selectedAssets: LibraryAsset[]): Script {
   const coverImage =
     selectedAssets.find((asset) => asset.thumbnail)?.thumbnail ||
-    '/assets/story-1.jpg';
+    assetPath('/assets/story-1.jpg');
   const assetSummary =
     selectedAssets.length > 0
       ? selectedAssets.map((asset) => asset.name).join(' · ')

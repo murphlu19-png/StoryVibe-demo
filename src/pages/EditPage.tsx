@@ -1,3 +1,4 @@
+import { assetPath } from '@/lib/assetPath';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -123,7 +124,7 @@ function mapPlanRowsToScriptShots(rows: ScriptPlanRow[], script: Script) {
     camera: row.camera,
     asset: row.assetSource ?? 'ADD ASSET',
     copy: row.textOrCaption ?? row.audioOrVoice ?? '',
-    preview: row.previewImage ?? script.shots[index]?.preview ?? script.coverImage ?? '/assets/story-1.jpg',
+    preview: row.previewImage ?? script.shots[index]?.preview ?? script.coverImage ?? assetPath('/assets/story-1.jpg'),
   }));
 }
 

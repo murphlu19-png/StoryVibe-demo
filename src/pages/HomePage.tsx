@@ -64,9 +64,6 @@ export default function HomePage() {
     [],
   );
 
-  const formatControlClassName =
-    'px-3 py-2 rounded-lg border border-[#2A2A2C] text-[13px] text-[#9A9A9E] bg-[#141415] hover:bg-[#1A1A1C] hover:border-[#FF843D] hover:text-[#FFFFFF] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF843D]/40';
-
   const { openCommunityDetailFromHome, closeCommunityDetail, pendingHomeTrendingScroll, consumeHomeTrendingScroll } = useCommunityStore();
   const activeMockScenario = useMemo(
     () => (activeScenarioId ? getMockDemoScenarioById(activeScenarioId) : null),
@@ -186,12 +183,6 @@ export default function HomePage() {
     if (files.length) addFiles(files);
   };
 
-  const promptPreview = [
-    '后室第一视角 vlog，15秒，真实紧张，没有素材',
-    '用 Image 1 / Image 2 / Image 3 做一个安静模糊的梦境视频',
-    '做一个 15 秒香水品牌短片，包含产品图、logo 和品牌广告镜头',
-  ][activeTab === 'All' || activeTab === 'Recent' ? 0 : activeTab === 'Dreamy' ? 1 : 2];
-
   const handleGenerate = async () => {
     if (!userText.trim() && filePreviews.length === 0) return;
 
@@ -271,438 +262,451 @@ export default function HomePage() {
   };
 
   return (
-    <div className="space-y-10 relative">
-      {/* Cinematic Ambient Lighting */}
-      <AmbientGlow variant="hero" />
+    <div className="min-h-screen bg-[#0A0A0B] text-[#E4E4E7] font-['Inter'] flex flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between pb-6 mb-8 border-b border-[#2A2A2E]">
+        <div className="flex items-center space-x-4">
+          <span className="text-[16px] font-semibold text-[#E4E4E7]">Canvas AI</span>
+          <div className="w-[1px] h-4 bg-[#2A2A2E]"></div>
+          <span className="text-[14px] text-[#71717A]">Workspace</span>
+        </div>
+        <div className="flex items-center space-x-4">
+          <button className="p-2 text-[#E4E4E7] hover:bg-[#121214] rounded-lg transition-colors">
+            <LayoutGrid size={20} />
+          </button>
+          <button className="px-4 py-2 text-[14px] font-medium text-[#FF8A3D] border border-[#FF8A3D] rounded-[14px] hover:bg-[#FF8A3D]/10 transition-colors">
+            Upgrade
+          </button>
+        </div>
+      </header>
 
-      {/* Hero Section */}
-      <section className="relative z-10">
-        <h1 className="text-[28px] sm:text-[36px] md:text-[40px] font-bold text-[#FFFFFF] leading-tight mb-8">
-          What will you<br />
-          <span className="italic sv-gradient-text-glow font-normal">dream</span> into life today?
-        </h1>
+      {/* Main Content */}
+      <main className="flex-1 w-full max-w-[1200px] mx-auto pb-24">
+        {/* Cinematic Ambient Lighting */}
+        <AmbientGlow variant="hero" />
 
-        {/* Input Card */}
-        <div 
-          className={`bg-[#141415] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.3)] p-6 md:p-7 min-h-[240px] md:min-h-[272px] transition-all ${
-            isDragOver ? 'ring-2 ring-black ring-offset-2' : ''
-          }`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          {/* File Previews */}
-          {filePreviews.length > 0 && (
-            <div className="flex gap-2 mb-3 flex-wrap">
-              {filePreviews.map((preview) => (
-                <div key={preview.id} className="relative group">
-                  {preview.type === 'image' && preview.url ? (
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-[#141415]">
-                      <img src={preview.url} alt={preview.name} className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="w-20 h-20 rounded-lg bg-[#141415] flex flex-col items-center justify-center gap-1">
-                      {preview.type === 'video' ? <Video size={20} className="text-[#6B6B6F]" /> :
-                       preview.type === 'text' ? <FileText size={20} className="text-[#6B6B6F]" /> :
-                       <File size={20} className="text-[#6B6B6F]" />}
-                      <span className="text-[9px] text-[#9A9A9E] truncate max-w-[70px] px-1">{preview.name}</span>
-                    </div>
-                  )}
-                  <button 
-                    onClick={() => removeFile(preview.id)}
-                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#FF843D] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X size={10} className="text-white" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+        {/* Hero Section */}
+        <section className="relative z-10 mb-12">
+          <h1 className="text-[52px] leading-[64px] tracking-[-1.5px] font-bold text-[#E4E4E7] mb-8">
+            What will you <br />
+            <span className="italic text-[#FF8A3D] font-serif font-normal">dream</span> into life today?
+          </h1>
 
-          {/* Text Input */}
-          <div className="flex items-start gap-4 min-h-[132px] md:min-h-[156px]">
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/*,video/*,text/plain,.txt,.md,.doc,.docx,.pdf,.csv,.xlsx,.xls"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-            <button 
-              onClick={() => fileInputRef.current?.click()}
-              className="w-16 h-16 rounded-xl border-2 border-dashed border-[#D4D4D4] flex items-center justify-center text-[#6B6B6F] hover:border-[#FF843D] hover:text-[#FFFFFF] shrink-0 transition-all"
-              title="Upload images, videos, or documents"
-            >
-              <Plus size={24} />
-            </button>
-            <textarea
-              ref={promptInputRef}
-              value={userText}
-              onChange={(e) => setUserText(e.target.value)}
-              placeholder={`Describe your idea, attach a reference, or start from assets...\nTry: ${promptPreview}`}
-              className="flex-1 min-h-[132px] md:min-h-[156px] resize-none self-stretch py-1 text-[14px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent leading-7"
-            />
-          </div>
-
-          {/* Bottom Actions */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#F5F5F5]">
-            <div className="flex items-center gap-2 flex-wrap">
-              <button 
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#2A2A2C] text-[13px] text-[#9A9A9E] hover:bg-[#141415] hover:border-[#D4D4D4] transition-all"
-              >
-                <FolderOpen size={14} />
-                Add Assets
-                {filePreviews.length > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 bg-[#FF843D] text-white text-[10px] rounded-full">{filePreviews.length}</span>
-                )}
-              </button>
-              <div className="relative" ref={creativeTypesRef}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCreativeTypesOpen((prev) => !prev);
-                    setIsOutputSpecOpen(false);
-                    setIsMentionPopoverOpen(false);
-                  }}
-                  className={`flex items-center gap-2 ${formatControlClassName} ${isCreativeTypesOpen ? 'border-[#FF843D] text-[#FFFFFF]' : ''}`}
+          {/* Creation Composer */}
+          <div 
+            className={`bg-[#121214] border border-[#2A2A2E] rounded-[24px] shadow-lg overflow-hidden transition-all focus-within:border-[#FF8A3D] ${
+              isDragOver ? 'ring-2 ring-[#FF8A3D] ring-offset-2 ring-offset-[#0A0A0B]' : ''
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <div className="p-6">
+              <div className="flex items-start space-x-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,video/*,text/plain,.txt,.md,.doc,.docx,.pdf,.csv,.xlsx,.xls"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-16 h-16 rounded-[16px] border border-dashed border-[#52525B] flex items-center justify-center text-[#71717A] hover:text-[#E4E4E7] hover:border-[#E4E4E7] transition-colors shrink-0"
+                  title="Upload images, videos, or documents"
                 >
-                  {selectedCreativeType}
-                  <ChevronDown size={14} className={`transition-transform ${isCreativeTypesOpen ? 'rotate-180' : ''}`} />
+                  <Plus size={24} />
                 </button>
-
-                {isCreativeTypesOpen && (
-                  <div className="absolute top-full left-0 mt-2 z-50 w-[320px] rounded-[24px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.98)_0%,rgba(14,14,15,0.98)_100%)] p-3 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
-                    <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7D7D84]">
-                      Creative Types
-                    </div>
-                    <div className="space-y-1">
-                      {creativeTypeOptions.map((option) => {
-                        const IconComp = option.icon;
-                        const isSelected = selectedCreativeType === option.title;
-
-                        return (
-                          <button
-                            key={option.title}
-                            type="button"
-                            onClick={() => {
-                              setSelectedCreativeType(option.title);
-                              setIsCreativeTypesOpen(false);
-                            }}
-                            className={`flex w-full items-center gap-3 rounded-[18px] px-3 py-3 text-left transition-all ${
-                              isSelected
-                                ? 'bg-[rgba(255,132,61,0.12)] text-[#FFFFFF]'
-                                : 'text-[#B2B2B8] hover:bg-[#1A1A1C] hover:text-[#FFFFFF]'
-                            }`}
+                <div className="flex-1 flex flex-col min-h-[64px]">
+                  {/* File Previews */}
+                  {filePreviews.length > 0 && (
+                    <div className="flex gap-2 mb-3 flex-wrap">
+                      {filePreviews.map((preview) => (
+                        <div key={preview.id} className="relative group">
+                          {preview.type === 'image' && preview.url ? (
+                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-[#1A1A1D]">
+                              <img src={preview.url} alt={preview.name} className="w-full h-full object-cover" />
+                            </div>
+                          ) : (
+                            <div className="w-16 h-16 rounded-lg bg-[#1A1A1D] flex flex-col items-center justify-center gap-1">
+                              {preview.type === 'video' ? <Video size={16} className="text-[#71717A]" /> :
+                               preview.type === 'text' ? <FileText size={16} className="text-[#71717A]" /> :
+                               <File size={16} className="text-[#71717A]" />}
+                              <span className="text-[9px] text-[#A1A1AA] truncate max-w-[50px] px-1">{preview.name}</span>
+                            </div>
+                          )}
+                          <button 
+                            onClick={() => removeFile(preview.id)}
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#EF4444] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                           >
-                            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border ${
-                              isSelected
-                                ? 'border-[rgba(255,132,61,0.45)] bg-[rgba(255,132,61,0.12)] text-[#FF843D]'
-                                : 'border-[#2A2A2C] bg-[#101011] text-[#8E8E93]'
-                            }`}>
-                              <IconComp size={18} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-[13px] font-medium">{option.title}</div>
-                              <div className="mt-1 text-[11px] leading-5 text-[#7D7D84]">
-                                {option.description}
-                              </div>
-                            </div>
-                            <div className="w-5 flex justify-end">
-                              {isSelected ? <Check size={15} className="text-[#FF843D]" /> : null}
-                            </div>
+                            <X size={10} className="text-white" />
                           </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="relative" ref={outputSpecRef}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsOutputSpecOpen((prev) => !prev);
-                    setIsCreativeTypesOpen(false);
-                    setIsMentionPopoverOpen(false);
-                  }}
-                  className={`flex items-center gap-2 ${formatControlClassName} ${isOutputSpecOpen ? 'border-[#FF843D] text-[#FFFFFF]' : ''}`}
-                >
-                  <SlidersHorizontal size={14} />
-                  <span className="font-medium">{outputSpecLabel}</span>
-                  <ChevronDown size={14} className={`transition-transform ${isOutputSpecOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isOutputSpecOpen && (
-                  <div className="absolute top-full left-0 mt-2 z-50 w-[420px] max-w-[calc(100vw-48px)] rounded-[24px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.98)_0%,rgba(14,14,15,0.98)_100%)] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
-                    <div className="space-y-4">
-                      <div>
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7D7D84] mb-2.5">
-                          Aspect Mode
                         </div>
-                        <div className="inline-flex rounded-full border border-[#2A2A2C] bg-[#101011] p-1">
-                          {(['Customize', 'Auto'] as const).map((mode) => (
-                            <button
-                              key={mode}
-                              type="button"
-                              onClick={() => setAspectMode(mode)}
-                              className={`rounded-full px-4 py-1.5 text-[12px] font-medium transition-all ${
-                                aspectMode === mode
-                                  ? 'bg-[#FF843D] text-white'
-                                  : 'text-[#A0A0A8] hover:text-[#FFFFFF]'
-                              }`}
-                            >
-                              {mode}
-                            </button>
-                          ))}
-                        </div>
-                        {aspectMode === 'Auto' && (
-                          <p className="mt-2 text-[11px] leading-5 text-[#7D7D84]">
-                            Auto selected. Output settings stay visible but are not editable.
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="rounded-[20px] border border-[rgba(255,255,255,0.06)] bg-[#101011] p-4 space-y-4">
-                        {renderSegmentedGroup('Aspect Ratio', ['21:9', '16:9', '4:3', '1:1', '3:4', '9:16'], selectedAspectRatio, setSelectedAspectRatio)}
-                        {renderSegmentedGroup('Resolution', ['480P', '720P', '1080P'], selectedResolution, setSelectedResolution)}
-                        {renderSegmentedGroup('Duration', ['4S', '5S', '6S', '7S', '8S', '9S', '10S', '11S', '12S', '13S', '14S', '15S', '30S'], selectedDuration, setSelectedDuration)}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="relative" ref={mentionPopoverRef}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (mentionAssets.length === 0) return;
-                    setIsMentionPopoverOpen((prev) => !prev);
-                    setIsCreativeTypesOpen(false);
-                    setIsOutputSpecOpen(false);
-                  }}
-                  disabled={mentionAssets.length === 0}
-                  className={`w-8 h-8 rounded-lg border border-[#2A2A2C] flex items-center justify-center transition-all ${
-                    mentionAssets.length === 0
-                      ? 'cursor-not-allowed opacity-40 text-[#66666B]'
-                      : `text-[#9A9A9E] hover:bg-[#141415] ${isMentionPopoverOpen ? 'border-[#FF843D] text-[#FFFFFF]' : ''}`
-                  }`}
-                >
-                  <AtSign size={14} />
-                </button>
-
-                {isMentionPopoverOpen && (
-                  <div className="absolute top-full right-0 mt-2 z-50 w-[320px] rounded-[24px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.98)_0%,rgba(14,14,15,0.98)_100%)] p-3 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-md">
-                    <div className="space-y-1">
-                      {mentionAssets.map((asset) => (
-                        <button
-                          key={asset.id}
-                          type="button"
-                          onClick={() => insertMentionIntoHomeInput(asset.mentionLabel)}
-                          className="flex w-full items-center gap-3 rounded-[18px] px-3 py-3 text-left text-[#B2B2B8] transition-all hover:bg-[#1A1A1C] hover:text-[#FFFFFF]"
-                        >
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-[#2A2A2C] bg-[#101011] text-[#FF843D]">
-                            {asset.thumbnailUrl ? (
-                              <img src={asset.thumbnailUrl} alt={asset.name} className="h-full w-full object-cover" />
-                            ) : asset.type === 'video' ? (
-                              <Video size={16} />
-                            ) : asset.type === 'text' ? (
-                              <FileText size={16} />
-                            ) : (
-                              <FolderOpen size={16} />
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="truncate text-[13px] font-medium text-[#FFFFFF]">{asset.name}</div>
-                          </div>
-                        </button>
                       ))}
                     </div>
+                  )}
+                  <textarea
+                    ref={promptInputRef}
+                    value={userText}
+                    onChange={(e) => setUserText(e.target.value)}
+                    className="w-full bg-transparent text-[16px] leading-[24px] text-[#E4E4E7] placeholder-[#71717A] resize-none outline-none flex-1 min-h-[64px]"
+                    placeholder={`Describe your idea, attach a reference, or start from assets...\nDescribe the scene, feeling, or story you want to create. The more detail, the better the script.`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Control Bar */}
+            <div className="px-6 py-4 bg-[#121214] border-t border-[#2A2A2E] flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center space-x-2 px-4 py-2 bg-[#1A1A1D] border border-[#2A2A2E] rounded-[14px] text-[14px] text-[#E4E4E7] hover:bg-[#2A2A2E] transition-colors"
+                >
+                  <FolderOpen size={16} />
+                  <span>Add Assets</span>
+                  {filePreviews.length > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-[#FF8A3D] text-[#0A0A0B] text-[10px] rounded-full font-medium">{filePreviews.length}</span>
+                  )}
+                </button>
+
+                <div className="relative" ref={creativeTypesRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCreativeTypesOpen((prev) => !prev);
+                      setIsOutputSpecOpen(false);
+                      setIsMentionPopoverOpen(false);
+                    }}
+                    className={`flex items-center space-x-2 px-4 py-2 bg-[#1A1A1D] border border-[#2A2A2E] rounded-[14px] text-[14px] transition-colors ${
+                      isCreativeTypesOpen ? 'border-[#FF8A3D] text-[#E4E4E7]' : 'text-[#E4E4E7] hover:bg-[#2A2A2E]'
+                    }`}
+                  >
+                    <Sparkles size={16} className="text-[#FF8A3D]" />
+                    <span>{selectedCreativeType}</span>
+                    <ChevronDown size={16} className={`text-[#71717A] transition-transform ${isCreativeTypesOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isCreativeTypesOpen && (
+                    <div className="absolute top-full left-0 mt-2 z-50 w-[320px] rounded-[24px] border border-[#2A2A2E] bg-[#121214] p-3 shadow-xl backdrop-blur-md">
+                      <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#71717A]">
+                        Creative Types
+                      </div>
+                      <div className="space-y-1">
+                        {creativeTypeOptions.map((option) => {
+                          const IconComp = option.icon;
+                          const isSelected = selectedCreativeType === option.title;
+
+                          return (
+                            <button
+                              key={option.title}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCreativeType(option.title);
+                                setIsCreativeTypesOpen(false);
+                              }}
+                              className={`flex w-full items-center gap-3 rounded-[16px] px-3 py-3 text-left transition-all ${
+                                isSelected
+                                  ? 'bg-[#FF8A3D]/10 text-[#E4E4E7]'
+                                  : 'text-[#A1A1AA] hover:bg-[#1A1A1D] hover:text-[#E4E4E7]'
+                              }`}
+                            >
+                              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border ${
+                                isSelected
+                                  ? 'border-[#FF8A3D]/50 bg-[#FF8A3D]/20 text-[#FF8A3D]'
+                                  : 'border-[#2A2A2E] bg-[#1A1A1D] text-[#71717A]'
+                              }`}>
+                                <IconComp size={18} />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="text-[13px] font-medium">{option.title}</div>
+                                <div className="mt-1 text-[11px] leading-5 text-[#71717A]">
+                                  {option.description}
+                                </div>
+                              </div>
+                              <div className="w-5 flex justify-end">
+                                {isSelected ? <Check size={15} className="text-[#FF8A3D]" /> : null}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative" ref={outputSpecRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOutputSpecOpen((prev) => !prev);
+                      setIsCreativeTypesOpen(false);
+                      setIsMentionPopoverOpen(false);
+                    }}
+                    className={`flex items-center space-x-2 px-4 py-2 bg-[#1A1A1D] border border-[#2A2A2E] rounded-[14px] text-[14px] transition-colors ${
+                      isOutputSpecOpen ? 'border-[#FF8A3D] text-[#E4E4E7]' : 'text-[#E4E4E7] hover:bg-[#2A2A2E]'
+                    }`}
+                  >
+                    <SlidersHorizontal size={14} className="text-[#71717A]" />
+                    <span>{outputSpecLabel}</span>
+                    <ChevronDown size={16} className={`text-[#71717A] transition-transform ${isOutputSpecOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isOutputSpecOpen && (
+                    <div className="absolute top-full left-0 mt-2 z-50 w-[420px] rounded-[24px] border border-[#2A2A2E] bg-[#121214] p-4 shadow-xl backdrop-blur-md">
+                      <div className="space-y-4">
+                        <div>
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#71717A] mb-2.5">
+                            Aspect Mode
+                          </div>
+                          <div className="inline-flex rounded-full border border-[#2A2A2E] bg-[#1A1A1D] p-1">
+                            {(['Customize', 'Auto'] as const).map((mode) => (
+                              <button
+                                key={mode}
+                                type="button"
+                                onClick={() => setAspectMode(mode)}
+                                className={`rounded-full px-4 py-1.5 text-[12px] font-medium transition-all ${
+                                  aspectMode === mode
+                                    ? 'bg-[#FF8A3D] text-[#0A0A0B]'
+                                    : 'text-[#A1A1AA] hover:text-[#E4E4E7]'
+                                }`}
+                              >
+                                {mode}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="rounded-[20px] border border-[#2A2A2E] bg-[#1A1A1D] p-4 space-y-4">
+                          {renderSegmentedGroup('Aspect Ratio', ['21:9', '16:9', '4:3', '1:1', '3:4', '9:16'], selectedAspectRatio, setSelectedAspectRatio)}
+                          {renderSegmentedGroup('Resolution', ['480P', '720P', '1080P'], selectedResolution, setSelectedResolution)}
+                          {renderSegmentedGroup('Duration', ['4S', '5S', '6S', '7S', '8S', '9S', '10S', '11S', '12S', '13S', '14S', '15S', '30S'], selectedDuration, setSelectedDuration)}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative" ref={mentionPopoverRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (mentionAssets.length === 0) return;
+                      setIsMentionPopoverOpen((prev) => !prev);
+                      setIsCreativeTypesOpen(false);
+                      setIsOutputSpecOpen(false);
+                    }}
+                    disabled={mentionAssets.length === 0}
+                    className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                      mentionAssets.length === 0
+                        ? 'cursor-not-allowed opacity-40 text-[#52525B] bg-[#1A1A1D]'
+                        : `text-[#E4E4E7] bg-[#1A1A1D] hover:bg-[#2A2A2E] ${isMentionPopoverOpen ? 'ring-2 ring-[#FF8A3D]' : ''}`
+                    }`}
+                  >
+                    <AtSign size={14} />
+                  </button>
+
+                  {isMentionPopoverOpen && (
+                    <div className="absolute top-full left-0 mt-2 z-50 w-[320px] rounded-[24px] border border-[#2A2A2E] bg-[#121214] p-3 shadow-xl backdrop-blur-md">
+                      <div className="space-y-1">
+                        {mentionAssets.map((asset) => (
+                          <button
+                            key={asset.id}
+                            type="button"
+                            onClick={() => insertMentionIntoHomeInput(asset.mentionLabel)}
+                            className="flex w-full items-center gap-3 rounded-[16px] px-3 py-3 text-left text-[#A1A1AA] transition-all hover:bg-[#1A1A1D] hover:text-[#E4E4E7]"
+                          >
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border border-[#2A2A2E] bg-[#1A1A1D] text-[#FF8A3D]">
+                              {asset.thumbnailUrl ? (
+                                <img src={asset.thumbnailUrl} alt={asset.name} className="h-full w-full object-cover" />
+                              ) : asset.type === 'video' ? (
+                                <Video size={16} />
+                              ) : asset.type === 'text' ? (
+                                <FileText size={16} />
+                              ) : (
+                                <FolderOpen size={16} />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate text-[13px] font-medium text-[#E4E4E7]">{asset.name}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <div className="flex flex-col items-end">
+                  <div className="text-[12px] text-[#71717A]">
+                    API Quota <span className="text-[#22C55E]">100</span> / 100 left
                   </div>
-                )}
+                  <div className="w-24 h-1 bg-[#2A2A2E] rounded-full mt-1 overflow-hidden">
+                    <div className="h-full bg-[#22C55E] w-full rounded-full"></div>
+                  </div>
+                </div>
+                <button
+                  onClick={handleGenerate}
+                  disabled={!hasContent}
+                  className={`px-6 py-3 rounded-full text-[16px] font-semibold transition-all flex items-center space-x-2 ${
+                    hasContent
+                      ? 'bg-[#FF8A3D] text-[#0A0A0B] hover:bg-[#FFAA65]'
+                      : 'bg-[#2A2A2E] text-[#71717A] cursor-not-allowed'
+                  }`}
+                >
+                  <Sparkles size={18} />
+                  <span>Generate Script</span>
+                </button>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleGenerate}
-                disabled={!hasContent}
-                className={`px-6 py-2.5 text-[13px] font-medium rounded-full transition-all flex items-center gap-2 ${
-                  hasContent
-                    ? 'bg-[#FF843D] text-white hover:bg-[#FFA465]'
-                    : 'bg-[#2A2A2C] text-[#6B6B6F] cursor-not-allowed'
-                }`}
-              >
-                <Sparkles size={14} />
-                Generate Script
-              </button>
-            </div>
           </div>
-        </div>
-
-        {/* Drag Drop Hint */}
-        {isDragOver && (
-          <div className="fixed inset-0 z-50 bg-[#FF843D]/5 pointer-events-none flex items-center justify-center">
-            <div className="bg-[#141415] rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.5)] p-8 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#141415] flex items-center justify-center mx-auto mb-3">
-                <FolderOpen size={28} className="text-[#6B6B6F]" />
+          
+          {/* Drag Drop Hint */}
+          {isDragOver && (
+            <div className="fixed inset-0 z-50 bg-[#FF8A3D]/5 pointer-events-none flex items-center justify-center">
+              <div className="bg-[#121214] rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.5)] p-8 text-center border border-[#2A2A2E]">
+                <div className="w-16 h-16 rounded-2xl bg-[#1A1A1D] flex items-center justify-center mx-auto mb-3">
+                  <FolderOpen size={28} className="text-[#71717A]" />
+                </div>
+                <p className="text-[16px] font-medium text-[#E4E4E7]">Drop files here</p>
+                <p className="text-[13px] text-[#71717A] mt-1">Images, videos, text files, or documents</p>
               </div>
-              <p className="text-[16px] font-medium text-[#FFFFFF]">Drop files here</p>
-              <p className="text-[13px] text-[#9A9A9E] mt-1">Images, videos, text files, or documents</p>
             </div>
-          </div>
-        )}
-      </section>
+          )}
+        </section>
 
-      {/* Quick Mode Cards */}
-      <section id="trending-inspirations">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Action Cards (Quick Modes) */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {QUICK_MODES.map((mode) => {
             const IconComp = modeIconMap[mode.icon] || Sparkles;
             return (
-              <button
+              <div
                 key={mode.id}
                 onClick={() => { setActiveNav('generate'); }}
-                className="bg-[#141415] rounded-xl p-5 text-left hover:bg-[#1E1E20] transition-all group"
+                className="bg-[#121214] border border-[#2A2A2E] rounded-[20px] p-6 hover:border-[#FF8A3D] transition-all cursor-pointer group"
               >
-                <IconComp size={22} className="text-[#FFFFFF] mb-3" strokeWidth={1.5} />
-                <h3 className="text-[15px] font-semibold text-[#FFFFFF] mb-1">{mode.title}</h3>
-                <p className="text-[13px] text-[#9A9A9E] leading-relaxed">{mode.description}</p>
-              </button>
+                <div className="w-10 h-10 rounded-[12px] bg-[#1A1A1D] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <IconComp size={20} className="text-[#E4E4E7] group-hover:text-[#FF8A3D] transition-colors" />
+                </div>
+                <h3 className="text-[16px] font-semibold text-[#E4E4E7] mb-2">{mode.title}</h3>
+                <p className="text-[14px] text-[#71717A] leading-[20px]">{mode.description}</p>
+                <div className="mt-4 flex justify-end">
+                  <div className="w-6 h-6 rounded-full bg-[#1A1A1D] flex items-center justify-center text-[#71717A] group-hover:bg-[#FF8A3D] group-hover:text-[#0A0A0B] transition-colors">
+                    <ArrowRight size={14} />
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </div>
-      </section>
+        </section>
 
-      {/* Trending Inspirations */}
-      <section>
-        <div className="rounded-[28px] border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(20,20,21,0.92)_0%,rgba(16,16,17,0.96)_100%)] p-5 md:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.3)] backdrop-blur-sm">
-          <div className="mb-6 space-y-4">
-            <div>
-              <h2 className="text-[20px] md:text-[22px] font-semibold text-[#FFFFFF]">Trending Inspirations</h2>
-              <p className="text-[13px] text-[#8E8E93] mt-2 max-w-[620px] leading-6">
-                Explore mood-led references, cinematic loops, and product-style mock demos arranged for faster scanning.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex items-center gap-2 flex-wrap">
+        {/* Trending Inspirations */}
+        <section id="trending-inspirations">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-[24px] font-semibold text-[#E4E4E7]">Trending Inspirations</h2>
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-2">
                 {HOME_TRENDING_TABS.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all ${
+                    className={`px-4 py-1.5 rounded-full text-[14px] transition-colors ${
                       activeTab === tab
-                        ? 'bg-[#FF843D] text-white shadow-[0_8px_20px_rgba(255,132,61,0.2)]'
-                        : 'bg-[#141415] text-[#9A9A9E] hover:bg-[#1E1E20] hover:text-[#FFFFFF]'
+                        ? 'bg-[#FF8A3D] text-[#0A0A0B] font-medium'
+                        : 'text-[#71717A] hover:text-[#E4E4E7] hover:bg-[#121214]'
                     }`}
                   >
                     {tab}
                   </button>
                 ))}
               </div>
-
-              <div className="w-full xl:w-auto xl:max-w-[360px]">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#2A2A2C] bg-[#141415] focus-within:border-[#FF843D] transition-all min-w-0">
-                  <Search size={14} className="text-[#6B6B6F] shrink-0" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by title, creator, or keyword..."
-                    className="text-[13px] text-[#FFFFFF] placeholder:text-[#6B6B6F] outline-none bg-transparent w-full"
-                  />
-                  {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="text-[#6B6B6F] hover:text-[#FFFFFF] shrink-0">
-                      <X size={12} />
-                    </button>
-                  )}
-                </div>
+              <div className="relative flex items-center">
+                <Search size={16} className="absolute left-3 text-[#71717A]" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by title, creator, or keyword"
+                  className="pl-9 pr-8 py-2 bg-[#121214] border border-[#2A2A2E] rounded-full text-[14px] text-[#E4E4E7] placeholder-[#71717A] outline-none focus:border-[#FF8A3D] w-[280px] transition-colors"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} className="absolute right-3 text-[#71717A] hover:text-[#E4E4E7]">
+                    <X size={14} />
+                  </button>
+                )}
               </div>
+              <button 
+                onClick={handleOpenCommunityList}
+                className="text-[14px] text-[#E4E4E7] hover:text-[#FF8A3D] font-medium flex items-center space-x-1"
+              >
+                <span>View All</span>
+                <ArrowRight size={14} />
+              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredItems.length > 0 ? filteredItems.map((item) => (
-            <article
-              key={item.id}
-              onClick={() => handleOpenCommunityDetail(item.id)}
-              className="group overflow-hidden rounded-[24px] border border-[rgba(255,255,255,0.06)] bg-[#121213] shadow-[0_1px_3px_rgba(0,0,0,0.3)] transition-all hover:-translate-y-0.5 hover:border-[rgba(255,132,61,0.35)] hover:shadow-[0_14px_36px_rgba(0,0,0,0.28)]"
-            >
-              <div className="aspect-[16/10] relative overflow-hidden">
-                <img 
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06)_0%,rgba(0,0,0,0.16)_45%,rgba(0,0,0,0.7)_100%)]" />
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-3">
-                  <span className="px-2.5 py-1 rounded-full bg-[rgba(20,20,21,0.84)] backdrop-blur-sm text-[11px] font-medium text-[#FFFFFF] border border-[rgba(255,255,255,0.08)]">
-                    {item.category}
-                  </span>
-                  <span className="px-2.5 py-1 rounded-full bg-[rgba(20,20,21,0.72)] backdrop-blur-sm text-[11px] text-[#E7E7EA] border border-[rgba(255,255,255,0.06)]">
-                    {item.duration}
-                  </span>
-                </div>
-                <div className="absolute bottom-3 left-3 right-3">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-[rgba(20,20,21,0.78)] px-2.5 py-1 text-[11px] text-[#E7E7EA] backdrop-blur-sm border border-[rgba(255,255,255,0.06)]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#FF843D]" />
-                    {item.creator}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredItems.length > 0 ? filteredItems.map((item) => {
+              const isHot = item.badges?.includes('Hot');
+              const badgeStyles = isHot
+                ? 'text-[#F59E0B] border-[#F59E0B]'
+                : 'text-[#22C55E] border-[#22C55E]';
+              
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => handleOpenCommunityDetail(item.id)}
+                  className="group relative rounded-[20px] overflow-hidden cursor-pointer bg-[#121214] border border-[#2A2A2E] hover:border-[#FF8A3D] transition-all"
+                >
+                  <div className="aspect-video w-full bg-[#1A1A1D]">
+                    <img 
+                      src={item.image} 
+                      alt={item.title} 
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/20 to-transparent pointer-events-none"></div>
+                  
+                  <div className={`absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-[12px] font-medium border bg-[#0A0A0B]/60 backdrop-blur-sm ${badgeStyles}`}>
+                    {item.badges?.[0] || 'New'}
+                  </div>
+
+                  <div className="absolute bottom-0 left-0 right-0 p-5 flex items-end justify-between">
+                    <div>
+                      <h3 className="text-[18px] font-semibold text-[#E4E4E7] mb-1">{item.title}</h3>
+                      <div className="flex items-center space-x-2 text-[14px] text-[#A1A1AA]">
+                        <div className="w-5 h-5 rounded-full bg-[#2A2A2E] overflow-hidden">
+                          <div className="w-full h-full bg-gradient-to-br from-[#FF8A3D] to-[#A855F7]"></div>
+                        </div>
+                        <span>By {item.creator}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3 text-[14px] text-[#A1A1AA]">
+                      <div className="flex items-center space-x-1">
+                        <span>👁</span>
+                        <span>1.2K</span>
+                      </div>
+                      <div className="flex items-center space-x-1 hover:text-[#EF4444] transition-colors">
+                        <span>♥</span>
+                        <span>23</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              );
+            }) : (
+              <div className="col-span-3 py-12 text-center border border-dashed border-[#2A2A2E] rounded-[20px] bg-[#121214]">
+                <Search size={32} className="text-[#71717A] mx-auto mb-3" />
+                <p className="text-[14px] text-[#E4E4E7]">No results for "{searchQuery}"</p>
+                <button onClick={() => setSearchQuery('')} className="text-[13px] text-[#FF8A3D] mt-2 font-medium hover:underline">Clear search</button>
               </div>
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <h3 className="text-[15px] font-semibold text-[#FFFFFF] leading-6">{item.title}</h3>
-                  <span className="text-[11px] uppercase tracking-[0.16em] text-[#6F6F77] shrink-0">{item.badges?.[0] || 'Mock'}</span>
-                </div>
-                <p className="text-[13px] text-[#9A9A9E] leading-6 min-h-[48px]">
-                  {item.description}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  {(item.tags || []).slice(0, 2).map((tag) => (
-                    <span
-                      key={`${item.id}-${tag}`}
-                      className="inline-flex h-[26px] items-center rounded-full border border-[rgba(255,255,255,0.08)] bg-[#101011] px-2.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#E7E7EA]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  {(item.badges || []).slice(0, 2).map((badge) => (
-                    <span
-                      key={`${item.id}-${badge}`}
-                      className="inline-flex h-[26px] items-center rounded-full border border-[rgba(255,132,61,0.22)] bg-[rgba(255,132,61,0.10)] px-2.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#FFD2B4]"
-                    >
-                      {badge}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </article>
-          )) : (
-            <div className="md:col-span-2 xl:col-span-3 py-12 text-center">
-              <Search size={32} className="text-[#D4D4D8] mx-auto mb-3" />
-              <p className="text-[14px] text-[#6B6B6F]">No results for &quot;{searchQuery}&quot;</p>
-              <button onClick={() => setSearchQuery('')} className="text-[13px] text-[#FFFFFF] mt-2 font-medium hover:underline">Clear search</button>
-            </div>
-          )}
+            )}
           </div>
-
-          <div className="mt-8 flex justify-center">
-            <button
-              type="button"
-              onClick={handleOpenCommunityList}
-              className="inline-flex items-center gap-2 rounded-full bg-[#FF843D] px-6 py-3 text-[13px] font-medium text-white shadow-[0_18px_36px_rgba(255,132,61,0.18)] transition-all hover:bg-[#FFA465]"
-            >
-              Explore Community
-              <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
   );
 }

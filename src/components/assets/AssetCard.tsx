@@ -1,3 +1,4 @@
+import { assetPath } from '@/lib/assetPath';
 import {
   Check,
   FileAudio2,
@@ -108,7 +109,7 @@ export function AssetCard({
         ) : (
           <>
             <img
-              src={asset.thumbnail || '/assets/story-1.jpg'}
+              src={asset.thumbnail || assetPath('/assets/story-1.jpg')}
               alt={asset.name}
               className="h-full w-full rounded-[20px] object-cover transition-all duration-300 group-hover:scale-[1.03] group-hover:brightness-110"
             />

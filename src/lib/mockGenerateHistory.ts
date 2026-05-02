@@ -1,9 +1,11 @@
+import { assetPath } from '@/lib/assetPath';
 import type { Script } from '@/types';
 import {
   PRESET_BACKROOMS_SCRIPT,
   PRESET_COZY_BEDROOM_SCRIPT,
   PRESET_DREAMWALK_MEMORY_SCRIPT,
 } from '@/lib/constants';
+import { BACKROOMS_MOCK_STILLS, BACKROOMS_MOCK_VIDEO } from '@/lib/mockBackroomsAssets';
 
 export type GenerateHistorySingleItem = {
   id: string;
@@ -62,7 +64,7 @@ function buildFragranceHistoryScript(): Script {
     duration: '20s',
     version: 'v1',
     category: 'Product / Sensory',
-    coverImage: '/assets/trending-5.jpg',
+    coverImage: assetPath('/assets/trending-5.jpg'),
     outputSpec: '9:16 vertical · around 20 seconds · sensory product commercial',
     shortDescription:
       'A quiet luxury fragrance study built around soft reflections, tactile glass, and a restrained emotional cadence.',
@@ -80,7 +82,7 @@ function buildFragranceHistoryScript(): Script {
       {
         id: 'fr-1',
         timeRange: '0-5s',
-        preview: '/assets/trending-5.jpg',
+        preview: assetPath('/assets/trending-5.jpg'),
         visual: 'A bottle silhouette emerges inside cool reflected light with a soft halo of glass texture.',
         purpose: 'PRODUCT INTRO',
         camera: 'Macro push-in',
@@ -90,7 +92,7 @@ function buildFragranceHistoryScript(): Script {
       {
         id: 'fr-2',
         timeRange: '5-10s',
-        preview: '/assets/story-2.jpg',
+        preview: assetPath('/assets/story-2.jpg'),
         visual: 'City reflections and subtle vapor drift around the bottle as the scene turns more atmospheric.',
         purpose: 'ENVIRONMENT',
         camera: 'Slow lateral glide',
@@ -100,7 +102,7 @@ function buildFragranceHistoryScript(): Script {
       {
         id: 'fr-3',
         timeRange: '10-15s',
-        preview: '/assets/story-4.jpg',
+        preview: assetPath('/assets/story-4.jpg'),
         visual: 'Hands and skin texture enter briefly, suggesting touch, ritual, and premium tactility.',
         purpose: 'HUMAN PRESENCE',
         camera: 'Close portrait detail',
@@ -110,7 +112,7 @@ function buildFragranceHistoryScript(): Script {
       {
         id: 'fr-4',
         timeRange: '15-20s',
-        preview: '/assets/trending-6.jpg',
+        preview: assetPath('/assets/trending-6.jpg'),
         visual: 'The bottle settles into a hero frame with brand-space negative space and a final glow pass.',
         purpose: 'HERO FRAME',
         camera: 'Static hero hold',
@@ -129,7 +131,7 @@ function buildNeonRainCityWalkScript(): Script {
     duration: '30s',
     version: 'v2',
     category: 'Lifestyle / City Vlog',
-    coverImage: '/assets/trending-3.jpg',
+    coverImage: assetPath('/assets/trending-3.jpg'),
     outputSpec: '9:16 vertical · around 30 seconds · neon rain city walk vlog',
     shortDescription:
       'A rain-soaked urban walk that balances lifestyle pacing with moody reflected neon textures.',
@@ -143,14 +145,14 @@ function buildNeonRainCityWalkScript(): Script {
       'Street intro → motion → observation → detail pause → glide → outro.',
     assetLogic:
       'Street textures, wardrobe styling, and reflected signage define the visual identity more than dialogue.',
-    videoAsset: '/mock/backrooms/demo video.mp4',
+    videoAsset: BACKROOMS_MOCK_VIDEO,
     shots: [
-      { id: 'nr-1', timeRange: '0-5s', preview: '/assets/trending-3.jpg', visual: 'Rain gathers on the pavement as city signage flickers into the first frame.', purpose: 'STREET INTRO', camera: 'Low-angle walk-in', asset: 'UPLOADED', copy: 'The whole street lights up when it rains.' },
-      { id: 'nr-2', timeRange: '5-10s', preview: '/assets/trending-4.jpg', visual: 'The subject moves through a crosswalk while headlights smear across wet asphalt.', purpose: 'MOVEMENT', camera: 'Handheld follow', asset: 'UPLOADED', copy: 'It never feels faster than when the pavement starts reflecting back.' },
-      { id: 'nr-3', timeRange: '10-15s', preview: '/assets/trending-5.jpg', visual: 'A side glance catches storefront color, umbrellas, and a layered street crowd behind.', purpose: 'OBSERVATION', camera: 'Medium street pan', asset: 'UPLOADED', copy: 'The city is loud, but the mood stays strangely private.' },
-      { id: 'nr-4', timeRange: '15-20s', preview: '/assets/trending-6.jpg', visual: 'A detail cut lingers on shoes, puddles, and neon fragments breaking apart in water.', purpose: 'DETAIL PAUSE', camera: 'Macro tilt down', asset: 'UPLOADED', copy: 'Sometimes the reflections are better than the skyline itself.' },
-      { id: 'nr-5', timeRange: '20-25s', preview: '/assets/story-2.jpg', visual: 'The walk opens onto a wider avenue as rain softens into haze and the pace evens out.', purpose: 'CITY GLIDE', camera: 'Steady forward drift', asset: 'UPLOADED', copy: 'The rush settles into rhythm if you keep moving with it.' },
-      { id: 'nr-6', timeRange: '25-30s', preview: '/assets/story-4.jpg', visual: 'A final look across the street closes on a calm neon afterglow and a distant train pass.', purpose: 'OUTRO', camera: 'Static hold', asset: 'UPLOADED', copy: 'By the end, the rain feels less like weather and more like color.' },
+      { id: 'nr-1', timeRange: '0-5s', preview: assetPath('/assets/trending-3.jpg'), visual: 'Rain gathers on the pavement as city signage flickers into the first frame.', purpose: 'STREET INTRO', camera: 'Low-angle walk-in', asset: 'UPLOADED', copy: 'The whole street lights up when it rains.' },
+      { id: 'nr-2', timeRange: '5-10s', preview: assetPath('/assets/trending-4.jpg'), visual: 'The subject moves through a crosswalk while headlights smear across wet asphalt.', purpose: 'MOVEMENT', camera: 'Handheld follow', asset: 'UPLOADED', copy: 'It never feels faster than when the pavement starts reflecting back.' },
+      { id: 'nr-3', timeRange: '10-15s', preview: assetPath('/assets/trending-5.jpg'), visual: 'A side glance catches storefront color, umbrellas, and a layered street crowd behind.', purpose: 'OBSERVATION', camera: 'Medium street pan', asset: 'UPLOADED', copy: 'The city is loud, but the mood stays strangely private.' },
+      { id: 'nr-4', timeRange: '15-20s', preview: assetPath('/assets/trending-6.jpg'), visual: 'A detail cut lingers on shoes, puddles, and neon fragments breaking apart in water.', purpose: 'DETAIL PAUSE', camera: 'Macro tilt down', asset: 'UPLOADED', copy: 'Sometimes the reflections are better than the skyline itself.' },
+      { id: 'nr-5', timeRange: '20-25s', preview: assetPath('/assets/story-2.jpg'), visual: 'The walk opens onto a wider avenue as rain softens into haze and the pace evens out.', purpose: 'CITY GLIDE', camera: 'Steady forward drift', asset: 'UPLOADED', copy: 'The rush settles into rhythm if you keep moving with it.' },
+      { id: 'nr-6', timeRange: '25-30s', preview: assetPath('/assets/story-4.jpg'), visual: 'A final look across the street closes on a calm neon afterglow and a distant train pass.', purpose: 'OUTRO', camera: 'Static hold', asset: 'UPLOADED', copy: 'By the end, the rain feels less like weather and more like color.' },
     ],
   };
 }
@@ -169,7 +171,7 @@ function buildSoftBedroomRoutineScript(): Script {
       {
         id: 'sbr-7',
         timeRange: '30-38s',
-        preview: '/assets/story-1.jpg',
+        preview: assetPath('/assets/story-1.jpg'),
         visual: 'A closet detail sequence shows wardrobe textures, jewelry, and a final quiet mirror check.',
         purpose: 'STYLE MOMENT',
         camera: 'Detail sequence',
@@ -179,7 +181,7 @@ function buildSoftBedroomRoutineScript(): Script {
       {
         id: 'sbr-8',
         timeRange: '38-45s',
-        preview: '/assets/trending-6.jpg',
+        preview: assetPath('/assets/trending-6.jpg'),
         visual: 'The subject leaves the room as light rests on the now-still bed and curtain edge.',
         purpose: 'CLOSE CALMLY',
         camera: 'Soft pull back',
@@ -324,7 +326,7 @@ export const MOCK_GENERATE_PROJECT_HISTORY: GenerateHistoryProjectItem[] = [
     statusTag: 'Draft',
     duration: '00:45',
     sequenceCount: 3,
-    cover: '/assets/trending-7.jpg',
+    cover: assetPath('/assets/trending-7.jpg'),
     narrativeDirection:
       'A dreamlike passage through softened interior spaces, where each sequence feels like a fading fragment of memory unfolding in slow motion.',
     aspectRatio: '9:16 Vertical',
@@ -332,9 +334,9 @@ export const MOCK_GENERATE_PROJECT_HISTORY: GenerateHistoryProjectItem[] = [
     renderMode: 'Dreamlike / Atmospheric',
     collaborationMode: 'Shared editing · 3 contributors · Version synced',
     sequences: [
-      { id: 'dream-seq-1', title: 'Soft Arrival', duration: '15s', status: 'Draft', thumbnail: '/assets/trending-7.jpg', summary: 'Introduce the figure and the dream-space with a gentle floating entrance.', script: DREAM_SCRIPT },
-      { id: 'dream-seq-2', title: 'Memory Drift', duration: '15s', status: 'Draft', thumbnail: '/assets/story-4.jpg', summary: 'Let the environment become more emotional than literal as the subject continues moving.', script: DREAM_SCRIPT },
-      { id: 'dream-seq-3', title: 'Fading Afterimage', duration: '15s', status: 'Ready', thumbnail: '/assets/trending-5.jpg', summary: 'Resolve through suspension and a gradual dissolve into emotional stillness.', script: DREAM_SCRIPT },
+      { id: 'dream-seq-1', title: 'Soft Arrival', duration: '15s', status: 'Draft', thumbnail: assetPath('/assets/trending-7.jpg'), summary: 'Introduce the figure and the dream-space with a gentle floating entrance.', script: DREAM_SCRIPT },
+      { id: 'dream-seq-2', title: 'Memory Drift', duration: '15s', status: 'Draft', thumbnail: assetPath('/assets/story-4.jpg'), summary: 'Let the environment become more emotional than literal as the subject continues moving.', script: DREAM_SCRIPT },
+      { id: 'dream-seq-3', title: 'Fading Afterimage', duration: '15s', status: 'Ready', thumbnail: assetPath('/assets/trending-5.jpg'), summary: 'Resolve through suspension and a gradual dissolve into emotional stillness.', script: DREAM_SCRIPT },
     ],
   },
   {
@@ -345,7 +347,7 @@ export const MOCK_GENERATE_PROJECT_HISTORY: GenerateHistoryProjectItem[] = [
     statusTag: 'Completed',
     duration: '01:06',
     sequenceCount: 5,
-    cover: '/assets/trending-5.jpg',
+    cover: assetPath('/assets/trending-5.jpg'),
     narrativeDirection:
       'A found-footage descent through fluorescent corridors where each sequence increases spatial dread and handheld instability.',
     aspectRatio: '16:9 Landscape',
@@ -353,11 +355,11 @@ export const MOCK_GENERATE_PROJECT_HISTORY: GenerateHistoryProjectItem[] = [
     renderMode: 'Realistic / Suspense',
     collaborationMode: 'Locked review pass · 2 contributors · Version synced',
     sequences: [
-      { id: 'back-seq-1', title: 'Entrance Hall', duration: '12s', status: 'Generated', thumbnail: '/mock/backrooms/分镜 01.png', summary: 'Open with a quiet liminal corridor and low fluorescent hum.', script: BACKROOMS_SCRIPT },
-      { id: 'back-seq-2', title: 'Repeated Corners', duration: '15s', status: 'Ready', thumbnail: '/mock/backrooms/分镜 02.png', summary: 'Push the maze logic and repeated geometry forward.', script: BACKROOMS_SCRIPT },
-      { id: 'back-seq-3', title: 'Anomaly Detail', duration: '10s', status: 'Generated', thumbnail: '/mock/backrooms/分镜 03.png', summary: 'Use a specific shadow or mark to imply presence without revealing it.', script: BACKROOMS_SCRIPT },
-      { id: 'back-seq-4', title: 'Hallway Pursuit', duration: '14s', status: 'Ready', thumbnail: '/mock/backrooms/分镜 04.png', summary: 'Escalate to faster handheld motion and breath-led panic.', script: BACKROOMS_SCRIPT },
-      { id: 'back-seq-5', title: 'Blackout Cut', duration: '15s', status: 'Generated', thumbnail: '/mock/backrooms/分镜 05.png', summary: 'End on a cut-to-black transition that preserves ambiguity.', script: BACKROOMS_SCRIPT },
+      { id: 'back-seq-1', title: 'Entrance Hall', duration: '12s', status: 'Generated', thumbnail: BACKROOMS_MOCK_STILLS[0], summary: 'Open with a quiet liminal corridor and low fluorescent hum.', script: BACKROOMS_SCRIPT },
+      { id: 'back-seq-2', title: 'Repeated Corners', duration: '15s', status: 'Ready', thumbnail: BACKROOMS_MOCK_STILLS[1], summary: 'Push the maze logic and repeated geometry forward.', script: BACKROOMS_SCRIPT },
+      { id: 'back-seq-3', title: 'Anomaly Detail', duration: '10s', status: 'Generated', thumbnail: BACKROOMS_MOCK_STILLS[2], summary: 'Use a specific shadow or mark to imply presence without revealing it.', script: BACKROOMS_SCRIPT },
+      { id: 'back-seq-4', title: 'Hallway Pursuit', duration: '14s', status: 'Ready', thumbnail: BACKROOMS_MOCK_STILLS[3], summary: 'Escalate to faster handheld motion and breath-led panic.', script: BACKROOMS_SCRIPT },
+      { id: 'back-seq-5', title: 'Blackout Cut', duration: '15s', status: 'Generated', thumbnail: BACKROOMS_MOCK_STILLS[4], summary: 'End on a cut-to-black transition that preserves ambiguity.', script: BACKROOMS_SCRIPT },
     ],
   },
   {
@@ -368,7 +370,7 @@ export const MOCK_GENERATE_PROJECT_HISTORY: GenerateHistoryProjectItem[] = [
     statusTag: 'Draft',
     duration: '01:28',
     sequenceCount: 7,
-    cover: '/assets/citywalk/landmark.png',
+    cover: assetPath('/assets/citywalk/landmark.png'),
     narrativeDirection:
       'A city-lifestyle collection that moves from atmosphere to movement, detail, and social rhythm across multiple neighborhood beats.',
     aspectRatio: '9:16 Vertical',
@@ -376,10 +378,10 @@ export const MOCK_GENERATE_PROJECT_HISTORY: GenerateHistoryProjectItem[] = [
     renderMode: 'Lifestyle / Documentary',
     collaborationMode: 'Shared editing · 4 contributors · Comment threads synced',
     sequences: [
-      { id: 'city-seq-1', title: 'Rain Intro', duration: '12s', status: 'Draft', thumbnail: '/assets/trending-3.jpg', summary: 'Open with wet pavement, signage, and a slow city reveal.', script: NEON_RAIN_SCRIPT },
-      { id: 'city-seq-2', title: 'Street Motion', duration: '14s', status: 'Ready', thumbnail: '/assets/trending-4.jpg', summary: 'Bring in walking cadence and wardrobe rhythm.', script: NEON_RAIN_SCRIPT },
-      { id: 'city-seq-3', title: 'Cafe Pause', duration: '10s', status: 'Draft', thumbnail: '/assets/trending-6.jpg', summary: 'Add a quiet stop to rebalance the city pacing.', script: BEDROOM_SCRIPT },
-      { id: 'city-seq-4', title: 'Night Crosswalk', duration: '11s', status: 'Draft', thumbnail: '/assets/story-2.jpg', summary: 'Let crosswalk light and traffic create visual punctuation.', script: NEON_RAIN_SCRIPT },
+      { id: 'city-seq-1', title: 'Rain Intro', duration: '12s', status: 'Draft', thumbnail: assetPath('/assets/trending-3.jpg'), summary: 'Open with wet pavement, signage, and a slow city reveal.', script: NEON_RAIN_SCRIPT },
+      { id: 'city-seq-2', title: 'Street Motion', duration: '14s', status: 'Ready', thumbnail: assetPath('/assets/trending-4.jpg'), summary: 'Bring in walking cadence and wardrobe rhythm.', script: NEON_RAIN_SCRIPT },
+      { id: 'city-seq-3', title: 'Cafe Pause', duration: '10s', status: 'Draft', thumbnail: assetPath('/assets/trending-6.jpg'), summary: 'Add a quiet stop to rebalance the city pacing.', script: BEDROOM_SCRIPT },
+      { id: 'city-seq-4', title: 'Night Crosswalk', duration: '11s', status: 'Draft', thumbnail: assetPath('/assets/story-2.jpg'), summary: 'Let crosswalk light and traffic create visual punctuation.', script: NEON_RAIN_SCRIPT },
     ],
   },
   {
@@ -390,7 +392,7 @@ export const MOCK_GENERATE_PROJECT_HISTORY: GenerateHistoryProjectItem[] = [
     statusTag: 'Generated',
     duration: '00:52',
     sequenceCount: 4,
-    cover: '/assets/trending-5.jpg',
+    cover: assetPath('/assets/trending-5.jpg'),
     narrativeDirection:
       'A multi-film product campaign balancing tactile glass, premium restraint, and memory-led emotional language across several short sequences.',
     aspectRatio: '9:16 Vertical',
@@ -398,10 +400,10 @@ export const MOCK_GENERATE_PROJECT_HISTORY: GenerateHistoryProjectItem[] = [
     renderMode: 'Clean / Commercial',
     collaborationMode: 'Campaign review · 3 contributors · Brand sync approved',
     sequences: [
-      { id: 'prod-seq-1', title: 'Bottle Macro', duration: '12s', status: 'Generated', thumbnail: '/assets/trending-5.jpg', summary: 'Lead with tactile glass and reflected edge light.', script: FRAGRANCE_SCRIPT },
-      { id: 'prod-seq-2', title: 'Mood Nightfall', duration: '10s', status: 'Generated', thumbnail: '/assets/story-2.jpg', summary: 'Build environment and premium nocturnal tone.', script: FRAGRANCE_SCRIPT },
-      { id: 'prod-seq-3', title: 'Human Touch', duration: '14s', status: 'Ready', thumbnail: '/assets/story-4.jpg', summary: 'Introduce human presence through gesture and texture.', script: FRAGRANCE_SCRIPT },
-      { id: 'prod-seq-4', title: 'Hero Finish', duration: '16s', status: 'Generated', thumbnail: '/assets/trending-6.jpg', summary: 'Resolve on a controlled product hero frame.', script: FRAGRANCE_SCRIPT },
+      { id: 'prod-seq-1', title: 'Bottle Macro', duration: '12s', status: 'Generated', thumbnail: assetPath('/assets/trending-5.jpg'), summary: 'Lead with tactile glass and reflected edge light.', script: FRAGRANCE_SCRIPT },
+      { id: 'prod-seq-2', title: 'Mood Nightfall', duration: '10s', status: 'Generated', thumbnail: assetPath('/assets/story-2.jpg'), summary: 'Build environment and premium nocturnal tone.', script: FRAGRANCE_SCRIPT },
+      { id: 'prod-seq-3', title: 'Human Touch', duration: '14s', status: 'Ready', thumbnail: assetPath('/assets/story-4.jpg'), summary: 'Introduce human presence through gesture and texture.', script: FRAGRANCE_SCRIPT },
+      { id: 'prod-seq-4', title: 'Hero Finish', duration: '16s', status: 'Generated', thumbnail: assetPath('/assets/trending-6.jpg'), summary: 'Resolve on a controlled product hero frame.', script: FRAGRANCE_SCRIPT },
     ],
   },
 ];

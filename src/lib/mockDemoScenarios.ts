@@ -1,3 +1,5 @@
+import { BACKROOMS_MOCK_STILLS, BACKROOMS_MOCK_VIDEO } from '@/lib/mockBackroomsAssets';
+
 export type MockDemoScenarioId =
   | 'backrooms_vlog_fuzzy_no_asset'
   | 'dream_video_with_assets'
@@ -82,7 +84,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
     label: 'Backrooms POV Vlog',
     homePrompt:
       '我想做一个 15 秒左右的真人 vlog 第一视角视频，感觉像是误入后室空间，在空荡荡、重复、压抑的房间和走廊里探索。整体希望比较真实、紧张，但我现在只有一个模糊方向，没有素材，想先帮我把它梳理成能直接生成的视频方案。',
-    videoAsset: '/mock/backrooms/demo video.mp4',
+    videoAsset: BACKROOMS_MOCK_VIDEO,
     mockAssets: [],
     outputSpec: '16:9 landscape · around 15 seconds · realistic handheld tension vlog',
     aiUnderstanding: {
@@ -299,7 +301,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
       rows: [
         {
           time: '0–3s',
-          previewImage: '/mock/backrooms/分镜 01.png',
+          previewImage: BACKROOMS_MOCK_STILLS[0],
           scene: 'The camera turns on mid-walk. A hand briefly enters frame as the person adjusts the phone. Ahead is a yellow fluorescent hallway with repeating walls and stained carpet.',
           purpose: 'Establish that this is a real phone vlog and introduce the Backrooms-like space.',
           visualDirection: 'Yellow-beige fluorescent lighting, flat empty office walls, old carpet, slight digital noise.',
@@ -309,7 +311,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
         },
         {
           time: '3–6s',
-          previewImage: '/mock/backrooms/分镜 02.png',
+          previewImage: BACKROOMS_MOCK_STILLS[1],
           scene: 'The person slowly pans left and right. Every direction looks nearly identical. A distant exit sign flickers once, then goes dark.',
           purpose: 'Create spatial confusion and show that the environment repeats unnaturally.',
           visualDirection: 'Repeating wall panels, long empty corridor, flickering sign in the distance.',
@@ -318,7 +320,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
         },
         {
           time: '6–9s',
-          previewImage: '/mock/backrooms/分镜 03.png',
+          previewImage: BACKROOMS_MOCK_STILLS[2],
           scene: 'The camera moves closer to a corner. On the wall, there is a fresh handprint-like mark that looks too recent. The person pauses.',
           purpose: 'Introduce one uncanny detail without showing a monster or direct threat.',
           visualDirection: 'Close wall texture, subtle shadow, handprint slightly darker than the wall.',
@@ -328,7 +330,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
         },
         {
           time: '9–12s',
-          previewImage: '/mock/backrooms/分镜 04.png',
+          previewImage: BACKROOMS_MOCK_STILLS[3],
           scene: 'The camera quickly turns back toward the hallway behind them. The hallway appears longer than before. A light at the far end clicks off.',
           purpose: 'Escalate tension and imply the space is changing.',
           visualDirection: 'Long vanishing hallway, fluorescent panels going dark one by one in the distance.',
@@ -337,7 +339,7 @@ export const mockDemoScenarios: MockDemoScenario[] = [
         },
         {
           time: '12–15s',
-          previewImage: '/mock/backrooms/分镜 05.png',
+          previewImage: BACKROOMS_MOCK_STILLS[4],
           scene: 'The person backs away. Just before the screen cuts, a faint sound comes from directly behind the camera. The person starts to say something, but the video glitches out.',
           purpose: 'End with a believable found-footage interruption and unresolved suspense.',
           visualDirection: 'Camera shake, overexposed fluorescent flicker, final compression glitch.',
