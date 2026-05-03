@@ -96,7 +96,7 @@ function ResizableSplitView({ leftPanel, rightPanel }: { leftPanel: string; righ
 }
 
 function App() {
-  const { activeNav, splitView, leftPanel, rightPanel } = useAppStore();
+  const { activeNav, splitView, leftPanel, rightPanel, setActiveNav } = useAppStore();
   const PageComponent = pageMap[activeNav] || HomePage;
 
   // 页面加载时自动测试 Supabase 连接
@@ -106,6 +106,12 @@ function App() {
     }
     import('@/lib/supabase-test').then(m => m.testSupabase()).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (IS_MOCK_DEMO && activeNav === 'user') {
+      setActiveNav('home');
+    }
+  }, [activeNav, setActiveNav]);
 
   // 分屏模式：左右并排显示两个页面，可拖拽调整宽度
   if (splitView) {

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAppStore } from '@/stores/useAppStore';
+import { IS_MOCK_DEMO } from '@/lib/mockDemoMode';
 import {
   Home, Sparkles, FileText, Pencil, Folder, Users, UserCog,
   Bell, Settings, CircleUser, X, Menu, Download,
@@ -22,6 +23,7 @@ const navItems = [
 export default function Sidebar() {
   const { activeNav, pageTitleOverride, setActiveNav, requestScriptOverview } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const visibleNavItems = IS_MOCK_DEMO ? navItems.filter((item) => item.id !== 'user') : navItems;
   const baseTitleMap: Record<string, string> = {
     home: 'Home',
     generate: 'Generate',
@@ -51,7 +53,7 @@ export default function Sidebar() {
           </svg>
         </div>
         <nav className="flex-1 flex flex-col items-center gap-1">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const IconComp = iconMap[item.icon];
             const isActive = activeNav === item.id;
             return (
@@ -103,7 +105,7 @@ export default function Sidebar() {
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-40 bg-[#141415] pt-14 pb-4 px-4 overflow-y-auto">
           <nav className="space-y-1">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const IconComp = iconMap[item.icon];
               const isActive = activeNav === item.id;
               return (
@@ -142,7 +144,7 @@ export default function Sidebar() {
 
       {/* Mobile — 底部Tab Bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#141415]/90 backdrop-blur-sm border-t border-[#2A2A2C] z-50 flex items-center justify-around px-2">
-        {navItems.slice(0, 5).map((item) => {
+        {visibleNavItems.slice(0, 5).map((item) => {
           const IconComp = iconMap[item.icon];
           const isActive = activeNav === item.id;
           return (
